@@ -2,3 +2,12 @@ fastapi
 uvicorn
 pydantic
 python-multipart
+geoip2
+maxminddb
+beautifulsoup4
+requests
+numpy
+scipy
+scikit-learn
+google-genai
+

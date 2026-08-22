@@ -8,6 +8,7 @@ from app.parsers.geolocation import geolocate_ip
 from app.scoring.text_signals import analyze_text_signals
 from app.scoring.domain_check import check_domain_lookalike
 from app.scoring.fraud_score import calculate_fraud_score
+from app.ml.pipeline import analyze_email_ai_ml
 
 router = APIRouter()
 
@@ -15,7 +16,8 @@ router = APIRouter()
 async def parse_email(file: UploadFile = File(...)):
     """
     Accepts an uploaded .eml file, parses its contents, analyzes authentication headers,
-    traces the origin IP, geolocates it, and returns a combined structured JSON response.
+    traces the origin IP, geolocates it, executes AI/ML neural threat classification, and returns
+    a comprehensive forensic intelligence response.
     """
     if not file.filename.endswith('.eml'):
         raise HTTPException(status_code=400, detail="File must be a .eml file")
@@ -53,7 +55,7 @@ async def parse_email(file: UploadFile = File(...)):
             else:
                 trace_results["best_guess_geolocation"] = None
                 
-            # Step 5: Scoring
+            # Step 5: Heuristic & Lexical Signals
             text_signals = analyze_text_signals(
                 subject=parsed_email.subject,
                 body_plain=parsed_email.body_plain,
@@ -63,19 +65,35 @@ async def parse_email(file: UploadFile = File(...)):
             
             domain_check = check_domain_lookalike(parsed_email.from_address.split('@')[-1].strip('>') if '@' in parsed_email.from_address else "")
             
+            # Step 6: AI/ML Threat Classification, BEC Engine & Forensic Reasoner
+            ai_ml_results = analyze_email_ai_ml(
+                from_address=parsed_email.from_address,
+                reply_to=parsed_email.reply_to,
+                subject=parsed_email.subject,
+                body_plain=parsed_email.body_plain,
+                body_html=parsed_email.body_html,
+                attachments=parsed_email.attachments,
+                urls=parsed_email.urls,
+                domain_check=domain_check,
+                auth_analysis=auth_results
+            )
+            
+            # Step 7: Fraud Scoring
             fraud_assessment = calculate_fraud_score(
                 auth_analysis=auth_results,
                 text_signals=text_signals,
                 domain_check=domain_check,
-                trace_results=trace_results
+                trace_results=trace_results,
+                ai_ml_analysis=ai_ml_results
             )
             
-            # Step 6: Combine them into one response (additive, keeps Day 1 & Day 2 structure)
+            # Step 8: Unified JSON Response
             response_data = parsed_email.model_dump()
             response_data["auth_analysis"] = auth_results
             response_data["trace"] = trace_results
             response_data["text_signals"] = text_signals
             response_data["domain_check"] = domain_check
+            response_data["ai_ml_analysis"] = ai_ml_results
             response_data["fraud_assessment"] = fraud_assessment
             
             return response_data

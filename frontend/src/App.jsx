@@ -5,6 +5,7 @@ import { analyzeEmail } from './services/analysisService';
 import HeaderPanel from './components/HeaderPanel';
 import AuthPanel from './components/AuthPanel';
 import FraudScorePanel from './components/FraudScorePanel';
+import AIMLThreatPanel from './components/AIMLThreatPanel';
 import MapPanel from './components/MapPanel';
 
 function App() {
@@ -47,7 +48,7 @@ function App() {
         {/* Header */}
         <div className="text-center space-y-2">
           <h1 className="text-4xl font-bold text-white tracking-tight">Email Threat Intelligence</h1>
-          <p className="text-slate-400">Upload a raw .eml file for forensic analysis and fraud scoring.</p>
+          <p className="text-slate-400">Upload a raw .eml file for forensic analysis, AI neural classification, and fraud scoring.</p>
         </div>
 
         {/* Upload Section */}
@@ -95,10 +96,13 @@ function App() {
             {/* Main Scoring Panel at the top */}
             <FraudScorePanel data={results} />
             
-            {/* Mapping */}
+            {/* AI / ML Threat Intelligence Panel */}
+            <AIMLThreatPanel data={results} />
+
+            {/* Forensic Network Geolocation Mapping */}
             <MapPanel data={results} />
 
-            {/* Technical Details Below */}
+            {/* Technical Header & Protocol Analysis */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6 h-full flex flex-col">
                 <div className="flex-1"><HeaderPanel data={results} /></div>

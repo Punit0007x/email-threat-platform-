@@ -1,14 +1,15 @@
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from app.scoring.config import WEIGHTS
 
 def calculate_fraud_score(
     auth_analysis: Dict[str, Any], 
     text_signals: Dict[str, Any], 
     domain_check: Dict[str, Any],
-    trace_results: Dict[str, Any]
+    trace_results: Dict[str, Any],
+    ai_ml_analysis: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Combines all signals into a single 0-100 fraud score and generates plain English reasons.
+    Combines protocol, forensic, and AI/ML threat signals into a single 0-100 fraud score and generates plain English reasons.
     """
     score = 0
     reasons = []
@@ -64,6 +65,31 @@ def calculate_fraud_score(
         score += WEIGHTS["suspicious_ip"]
         reasons.append(f"Suspicious origin: Sent from an untrusted public IP ({best_guess_ip}).")
         
+    # 7. AI/ML Deep Threat Indicators
+    if ai_ml_analysis:
+        bec = ai_ml_analysis.get("bec_analysis", {})
+        if bec.get("bec_confidence_score", 0) >= 40:
+            score += 25
+            for ind in bec.get("bec_indicators", []):
+                reasons.append(f"AI BEC Analysis: {ind}")
+                
+        classification = ai_ml_analysis.get("classification", {})
+        primary_threat = classification.get("primary_threat", "clean")
+        if primary_threat != "clean" and classification.get("confidence", 0) >= 0.50:
+            score += 20
+            reasons.append(f"AI Multi-Class Model: Identified as '{primary_threat.replace('_', ' ').title()}' (Confidence: {round(classification.get('confidence', 0)*100)}%).")
+            
+        synthetic = ai_ml_analysis.get("synthetic_analysis", {})
+        if synthetic.get("is_likely_synthetic"):
+            score += 10
+            reasons.append(f"AI Language Analysis: High likelihood of synthetic/LLM-generated text (Score: {synthetic.get('synthetic_score')}%).")
+            
+        features = ai_ml_analysis.get("features", {})
+        suspicious_att = features.get("suspicious_attachments", [])
+        if suspicious_att:
+            score += 30
+            reasons.append(f"Malicious Attachment Vector: {len(suspicious_att)} high-risk file extension(s) detected ({', '.join([a['filename'] for a in suspicious_att])}).")
+
     # Cap score at 100
     score = min(score, 100)
     
@@ -84,3 +110,4 @@ def calculate_fraud_score(
         "risk_level": risk_level,
         "reasons": reasons
     }
+

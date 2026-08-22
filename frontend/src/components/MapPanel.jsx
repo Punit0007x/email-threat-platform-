@@ -27,7 +27,7 @@ export default function MapPanel({ data }) {
   const hops = data.trace.hops;
   
   // Filter hops that have geolocation coordinates
-  const geoHops = hops.filter(h => h.geolocation && h.geolocation.latitude && h.geolocation.longitude);
+  const geoHops = hops.filter(h => h.geolocation && (h.geolocation.lat != null || h.geolocation.latitude != null) && (h.geolocation.long != null || h.geolocation.longitude != null));
   
   if (geoHops.length === 0) {
     return (
@@ -35,18 +35,22 @@ export default function MapPanel({ data }) {
         <h2 className="text-xl font-semibold mb-2 text-white flex items-center">
           <MapPin className="w-5 h-5 mr-3 text-blue-400" /> Geolocation Trace
         </h2>
-        <p className="text-slate-400">No geographic data available for the IP hops in this email.</p>
+        <p className="text-slate-400">No geographic coordinates available for the IP hops in this email.</p>
       </div>
     );
   }
 
+  const getLat = (h) => h.geolocation?.lat ?? h.geolocation?.latitude;
+  const getLong = (h) => h.geolocation?.long ?? h.geolocation?.longitude;
+  const getAsn = (h) => h.geolocation?.isp_org ?? h.geolocation?.asn_org ?? "Unknown ASN";
+
   // Create polyline path
-  const pathCoordinates = geoHops.map(h => [h.geolocation.latitude, h.geolocation.longitude]);
+  const pathCoordinates = geoHops.map(h => [getLat(h), getLong(h)]);
   
   // Calculate center (just use the last hop / origin)
   const bestGuessIp = data.trace.best_guess_ip;
   const bestGuessHop = geoHops.find(h => h.ip === bestGuessIp) || geoHops[geoHops.length - 1];
-  const center = [bestGuessHop.geolocation.latitude, bestGuessHop.geolocation.longitude];
+  const center = [getLat(bestGuessHop), getLong(bestGuessHop)];
 
   return (
     <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-lg">
@@ -79,7 +83,7 @@ export default function MapPanel({ data }) {
 
           {geoHops.map((hop, idx) => {
             const isOrigin = hop.ip === bestGuessIp;
-            const pos = [hop.geolocation.latitude, hop.geolocation.longitude];
+            const pos = [getLat(hop), getLong(hop)];
             
             return (
               <Marker 
@@ -96,7 +100,7 @@ export default function MapPanel({ data }) {
                     <div className="text-sm">
                       <p><strong>IP:</strong> {hop.ip}</p>
                       <p><strong>Location:</strong> {hop.geolocation.city ? `${hop.geolocation.city}, ` : ''}{hop.geolocation.country}</p>
-                      <p><strong>ASN:</strong> {hop.geolocation.asn_org}</p>
+                      <p><strong>ASN/ISP:</strong> {getAsn(hop)}</p>
                     </div>
                   </div>
                 </Popup>
