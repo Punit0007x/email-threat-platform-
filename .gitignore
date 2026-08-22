@@ -30,9 +30,12 @@ dist-ssr/
 ehthumbs.db
 Thumbs.db
 
-# Large GeoLite DB binaries
+# Large GeoLite DB binaries & SQLite Databases
 data/*.mmdb
+*.db
+data/*.db
 
 # Logs
 *.log
+
 

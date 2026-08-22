@@ -7,6 +7,9 @@ import AuthPanel from './components/AuthPanel';
 import FraudScorePanel from './components/FraudScorePanel';
 import AIMLThreatPanel from './components/AIMLThreatPanel';
 import MapPanel from './components/MapPanel';
+import CustodyReportPanel from './components/CustodyReportPanel';
+import GraphAttributionPanel from './components/GraphAttributionPanel';
+import CaseHistoryPanel from './components/CaseHistoryPanel';
 
 function App() {
   const [file, setFile] = useState(null);
@@ -47,8 +50,8 @@ function App() {
         
         {/* Header */}
         <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold text-white tracking-tight">Email Threat Intelligence</h1>
-          <p className="text-slate-400">Upload a raw .eml file for forensic analysis, AI neural classification, and fraud scoring.</p>
+          <h1 className="text-4xl font-bold text-white tracking-tight">Email Threat Intelligence Platform</h1>
+          <p className="text-slate-400">Deep forensic analysis, AI neural classification, relay origin tracing, and attribution intelligence.</p>
         </div>
 
         {/* Upload Section */}
@@ -61,7 +64,7 @@ function App() {
                 <p className="mb-2 text-sm text-slate-300">
                   <span className="font-semibold">Click to upload</span> or drag and drop
                 </p>
-                <p className="text-xs text-slate-500">.EML files only</p>
+                <p className="text-xs text-slate-500">.EML files only (Forensically Preserved & Sealed)</p>
               </div>
               <input type="file" className="hidden" accept=".eml" onChange={handleFileChange} />
             </label>
@@ -93,16 +96,22 @@ function App() {
         {/* Results Section */}
         {results && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Main Scoring Panel at the top */}
+            {/* 1. Main Risk Scoring Panel */}
             <FraudScorePanel data={results} />
             
-            {/* AI / ML Threat Intelligence Panel */}
+            {/* 2. Chain of Custody & Report Generator */}
+            <CustodyReportPanel data={results} />
+
+            {/* 3. AI / ML Threat Intelligence & MITRE ATT&CK */}
             <AIMLThreatPanel data={results} />
 
-            {/* Forensic Network Geolocation Mapping */}
+            {/* 4. Graph-Based Infrastructure Attribution */}
+            <GraphAttributionPanel data={results} />
+
+            {/* 5. Forensic Network Geolocation Mapping */}
             <MapPanel data={results} />
 
-            {/* Technical Header & Protocol Analysis */}
+            {/* 6. Technical Header & Protocol Analysis */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-6 h-full flex flex-col">
                 <div className="flex-1"><HeaderPanel data={results} /></div>
@@ -113,6 +122,9 @@ function App() {
             </div>
           </div>
         )}
+
+        {/* Case Management & Campaign Cluster Explorer */}
+        <CaseHistoryPanel />
         
       </div>
     </div>
@@ -120,3 +132,4 @@ function App() {
 }
 
 export default App;
+

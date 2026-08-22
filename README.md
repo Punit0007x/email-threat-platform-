@@ -40,7 +40,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 
 # Start backend server
-uvicorn app.main:app --reload --port 8003
+uvicorn app.main:app --reload --port 8000
 ```
 
 ### 2. Frontend Setup

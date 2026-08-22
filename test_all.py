@@ -5,12 +5,13 @@ import os
 def test_api():
     files_to_test = ["clean.eml", "sample.eml", "multi_hop.eml"]
     
+    port = os.environ.get("PORT", "8000")
     for filename in files_to_test:
         path = f"test_emails/{filename}"
         print(f"\n{'='*50}\nTesting: {filename}\n{'='*50}")
         
         with open(path, 'rb') as f:
-            resp = requests.post("http://localhost:8003/api/parse", files={"file": f})
+            resp = requests.post(f"http://localhost:{port}/api/parse", files={"file": f})
             
         if resp.status_code == 200:
             data = resp.json()
