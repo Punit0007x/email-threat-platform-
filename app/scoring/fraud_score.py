@@ -6,7 +6,9 @@ def calculate_fraud_score(
     text_signals: Dict[str, Any], 
     domain_check: Dict[str, Any],
     trace_results: Dict[str, Any],
-    ai_ml_analysis: Optional[Dict[str, Any]] = None
+    ai_ml_analysis: Optional[Dict[str, Any]] = None,
+    whois_intel: Optional[Dict[str, Any]] = None,
+    ip_reputation: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Combines protocol, forensic, and AI/ML threat signals into a single 0-100 fraud score and generates plain English reasons.
@@ -64,6 +66,25 @@ def calculate_fraud_score(
     if best_guess_ip and "untrusted" in trace_results.get("reason", ""):
         score += WEIGHTS["suspicious_ip"]
         reasons.append(f"Suspicious origin: Sent from an untrusted public IP ({best_guess_ip}).")
+        
+    # 6b. WHOIS Registrar Intelligence
+    if whois_intel and whois_intel.get("queried"):
+        age_days = whois_intel.get("domain_age_days")
+        if age_days is not None and age_days < 30:
+            score += WEIGHTS["whois_new_domain"]
+            reasons.append(f"Newly registered domain: Sender domain created only {age_days} days ago (high phishing risk).")
+        elif age_days is not None and age_days < 90:
+            score += max(WEIGHTS["whois_new_domain"] // 2, 5)
+            reasons.append(f"Recently registered domain: Sender domain created {age_days} days ago.")
+            
+        if whois_intel.get("is_privacy_protected"):
+            score += WEIGHTS["whois_privacy_protected"]
+            reasons.append("Domain registrant information is privacy-protected / redacted.")
+            
+        registrar = whois_intel.get("registrar", "")
+        if registrar and any(risky in registrar.lower() for risky in ["freenom", "dot.tk", "dot.ml", "dot.ga", "dot.cf", "dot.gq"]):
+            score += WEIGHTS["whois_risky_registrar"]
+            reasons.append(f"High-risk registrar: '{registrar}' associated with disposable/abused domains.")
         
     # 7. AI/ML Deep Threat Indicators
     if ai_ml_analysis:

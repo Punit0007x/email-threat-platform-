@@ -42,12 +42,13 @@ def analyze_email_ai_ml(
     # 3. Synthetic / AI-Generated Language Detection
     synthetic_analysis = detect_synthetic_content(combined_body)
     
-    # 4. Multi-Class Probabilistic Threat Classification
+    # 4. Multi-Class Probabilistic Threat Classification (Trained Scikit-Learn TF-IDF + Heuristic Ensemble)
     threat_classification = classify_email_threat(
         features=features,
         domain_check=domain_check or {},
         auth_analysis=auth_analysis or {},
-        bec_analysis=bec_analysis
+        bec_analysis=bec_analysis,
+        raw_text=f"{subject} {combined_body}"
     )
     
     # 5. AI / LLM Forensic Reasoning & MITRE ATT&CK Mapping

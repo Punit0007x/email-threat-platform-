@@ -69,5 +69,10 @@ WEIGHTS = {
     "authority_phrase": 10,
     "link_mismatch": 15,
     "url_shortener": 10,
-    "suspicious_ip": 5
+    "suspicious_ip": 5,
+    "whois_new_domain": 15,
+    "whois_privacy_protected": 8,
+    "whois_risky_registrar": 10,
+    "ip_blocklisted": 20,
+    "ip_tor_exit": 30
 }

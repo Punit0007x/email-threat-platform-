@@ -6,6 +6,8 @@ from app.parsers.auth_analysis import analyze_auth
 from app.parsers.origin_trace import trace_origin
 from app.parsers.geolocation import geolocate_ip
 from app.parsers.dns_intel import query_domain_dns
+from app.parsers.whois_intel import query_whois_intel
+from app.parsers.ip_reputation import query_ip_reputation
 from app.parsers.infra_intel import analyze_infrastructure
 from app.parsers.case_db import save_incident_case, get_all_cases, get_campaign_clusters
 from app.forensics.custody import generate_evidence_custody
@@ -70,13 +72,19 @@ async def parse_email(file: UploadFile = File(...)):
                 origin_geo = None
                 trace_results["best_guess_geolocation"] = None
                 
-            # Step 6: Live DNS & MX Intelligence
+# Step 6: Live DNS & MX Intelligence
             from_domain = parsed_email.from_address.split('@')[-1].strip('>') if '@' in parsed_email.from_address else ""
             dns_intel = query_domain_dns(from_domain)
             
+            # Step 6b: WHOIS / Registrar Intelligence
+            whois_intel = query_whois_intel(from_domain)
+
             # Step 7: Origin Infrastructure Classification (Cloud / VPN / ISP)
             origin_isp = origin_geo.get("isp_org") if origin_geo else None
             infra_intel = analyze_infrastructure(best_guess_ip, origin_isp)
+            
+            # Step 7b: IP Reputation & DNSBL Intelligence
+            ip_reputation = query_ip_reputation(best_guess_ip) if best_guess_ip else None
             
             # Step 8: Heuristic & Lexical Signals
             text_signals = analyze_text_signals(
@@ -107,7 +115,8 @@ async def parse_email(file: UploadFile = File(...)):
                 text_signals=text_signals,
                 domain_check=domain_check,
                 trace_results=trace_results,
-                ai_ml_analysis=ai_ml_results
+                ai_ml_analysis=ai_ml_results,
+                whois_intel=whois_intel
             )
             
             # Step 11: Graph-Based Infrastructure Attribution
@@ -122,6 +131,8 @@ async def parse_email(file: UploadFile = File(...)):
             response_data = parsed_email.model_dump()
             response_data["custody"] = custody_manifest
             response_data["dns_intel"] = dns_intel
+            response_data["whois_intel"] = whois_intel
+            response_data["ip_reputation"] = ip_reputation
             response_data["infra_intel"] = infra_intel
             response_data["auth_analysis"] = auth_results
             response_data["trace"] = trace_results
