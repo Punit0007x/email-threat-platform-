@@ -136,7 +136,15 @@ def save_incident_case(data: Dict[str, Any]) -> str:
     risk = fraud.get("risk_level", "Low")
     
     primary_threat = data.get("ai_ml_analysis", {}).get("classification", {}).get("primary_threat", "clean")
-    campaign_id = determine_campaign_cluster(domain, origin_ip, primary_threat)
+    
+    # Try dynamic graph attribution first
+    try:
+        from app.parsers.attribution import assign_campaign_dynamically
+        dynamic_campaign = assign_campaign_dynamically(case_id, domain, origin_ip)
+    except ImportError:
+        dynamic_campaign = None
+        
+    campaign_id = dynamic_campaign if dynamic_campaign else determine_campaign_cluster(domain, origin_ip, primary_threat)
     
     # Cross-case threat intelligence correlation
     correlations = _check_historical_correlations(domain, origin_ip, from_addr)
