@@ -5,6 +5,75 @@ from typing import List, Dict, Any, Optional
 
 DB_PATH = "data/cases.db"
 
+def _check_historical_correlations(domain: str, origin_ip: str, from_addr: str) -> Dict[str, Any]:
+    """Check if indicators have been seen in previous cases."""
+    correlations = {
+        "domain_seen_before": False,
+        "domain_case_count": 0,
+        "ip_seen_before": False,
+        "ip_case_count": 0,
+        "sender_seen_before": False,
+        "sender_case_count": 0,
+        "linked_campaigns": [],
+        "repeat_offender_score": 0
+    }
+    
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    
+    # Check domain history
+    if domain:
+        cursor.execute("""
+            SELECT COUNT(*) as cnt, GROUP_CONCAT(DISTINCT campaign_id) as camps
+            FROM incident_cases WHERE sender_domain = ?
+        """, (domain,))
+        row = cursor.fetchone()
+        if row and row[0] > 0:
+            correlations["domain_seen_before"] = True
+            correlations["domain_case_count"] = row[0]
+            if row[1]:
+                correlations["linked_campaigns"].extend([c.strip() for c in row[1].split(",")])
+    
+    # Check IP history
+    if origin_ip:
+        cursor.execute("""
+            SELECT COUNT(*) as cnt, GROUP_CONCAT(DISTINCT campaign_id) as camps
+            FROM incident_cases WHERE origin_ip = ?
+        """, (origin_ip,))
+        row = cursor.fetchone()
+        if row and row[0] > 0:
+            correlations["ip_seen_before"] = True
+            correlations["ip_case_count"] = row[0]
+            if row[1]:
+                correlations["linked_campaigns"].extend([c.strip() for c in row[1].split(",")])
+    
+    # Check sender address history
+    if from_addr:
+        cursor.execute("""
+            SELECT COUNT(*) as cnt, GROUP_CONCAT(DISTINCT campaign_id) as camps
+            FROM incident_cases WHERE from_address = ?
+        """, (from_addr,))
+        row = cursor.fetchone()
+        if row and row[0] > 0:
+            correlations["sender_seen_before"] = True
+            correlations["sender_case_count"] = row[0]
+            if row[1]:
+                correlations["linked_campaigns"].extend([c.strip() for c in row[1].split(",")])
+    
+    # Deduplicate campaigns
+    correlations["linked_campaigns"] = list(set(correlations["linked_campaigns"]))
+    
+    # Calculate repeat offender score
+    if correlations["domain_seen_before"]:
+        correlations["repeat_offender_score"] += min(correlations["domain_case_count"] * 5, 25)
+    if correlations["ip_seen_before"]:
+        correlations["repeat_offender_score"] += min(correlations["ip_case_count"] * 5, 25)
+    if correlations["sender_seen_before"]:
+        correlations["repeat_offender_score"] += min(correlations["sender_case_count"] * 10, 30)
+    
+    conn.close()
+    return correlations
+
 def init_case_database():
     """Initializes SQLite database and tables for case management & campaign tracking."""
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
@@ -68,6 +137,10 @@ def save_incident_case(data: Dict[str, Any]) -> str:
     
     primary_threat = data.get("ai_ml_analysis", {}).get("classification", {}).get("primary_threat", "clean")
     campaign_id = determine_campaign_cluster(domain, origin_ip, primary_threat)
+    
+    # Cross-case threat intelligence correlation
+    correlations = _check_historical_correlations(domain, origin_ip, from_addr)
+    data["threat_correlations"] = correlations
     
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()

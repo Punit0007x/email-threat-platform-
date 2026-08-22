@@ -1,6 +1,7 @@
 import os
 import joblib
 import numpy as np
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
@@ -8,6 +9,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
 MODEL_SAVE_PATH = "app/ml/models/threat_model.joblib"
+SPAM_CSV_PATH = "spam.csv"
+
 
 # Curated benchmark dataset representing the 7 threat categories
 TRAINING_DATA = [
@@ -99,6 +102,30 @@ TRAINING_DATA = [
     ("Bank of America: Security notice on your online banking access. Re-verify your account details now.", "brand_impersonation")
 ]
 
+def load_all_training_samples():
+    """Combines curated forensic threat samples with external datasets (spam.csv) if available."""
+    samples = list(TRAINING_DATA)
+    
+    if os.path.exists(SPAM_CSV_PATH):
+        try:
+            df = pd.read_csv(SPAM_CSV_PATH, encoding='latin-1')
+            df = df[['v1', 'v2']].dropna()
+            
+            # Sample ham and spam to expand dataset while maintaining class balance
+            ham_samples = df[df['v1'] == 'ham']['v2'].sample(min(80, len(df[df['v1'] == 'ham'])), random_state=42)
+            spam_samples = df[df['v1'] == 'spam']['v2'].sample(min(80, len(df[df['v1'] == 'spam'])), random_state=42)
+            
+            for h in ham_samples:
+                samples.append((str(h).strip(), "clean"))
+            for s in spam_samples:
+                samples.append((str(s).strip(), "phishing_credential_harvesting"))
+                
+            print(f"Loaded {len(ham_samples) + len(spam_samples)} additional samples from '{SPAM_CSV_PATH}'")
+        except Exception as e:
+            print(f"Note: Could not load '{SPAM_CSV_PATH}': {e}")
+            
+    return samples
+
 def train_and_evaluate_model():
     """
     Trains a TF-IDF + Calibrated Multi-Class Classifier, evaluates precision/recall/F1,
@@ -108,12 +135,13 @@ def train_and_evaluate_model():
     print("AI/ML THREAT CLASSIFIER: TRAINING & EVALUATION PIPELINE")
     print("=" * 70)
 
-    texts = [item[0] for item in TRAINING_DATA]
-    labels = [item[1] for item in TRAINING_DATA]
+    dataset = load_all_training_samples()
+    texts = [item[0] for item in dataset]
+    labels = [item[1] for item in dataset]
 
     # Stratified Train/Test Split (80% Train, 20% Holdout Test Set)
     X_train, X_test, y_train, y_test = train_test_split(
-        texts, labels, test_size=0.25, random_state=42, stratify=labels
+        texts, labels, test_size=0.20, random_state=42, stratify=labels
     )
 
     print(f"Total Dataset Samples : {len(texts)}")
@@ -125,7 +153,7 @@ def train_and_evaluate_model():
     pipeline = Pipeline([
         ('tfidf', TfidfVectorizer(
             ngram_range=(1, 2),
-            max_features=5000,
+            max_features=6000,
             sublinear_tf=True,
             stop_words='english'
         )),

@@ -74,5 +74,6 @@ WEIGHTS = {
     "whois_privacy_protected": 8,
     "whois_risky_registrar": 10,
     "ip_blocklisted": 20,
-    "ip_tor_exit": 30
+    "ip_tor_exit": 30,
+    "repeat_offender": 0.5
 }

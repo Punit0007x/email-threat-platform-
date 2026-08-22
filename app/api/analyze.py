@@ -9,7 +9,7 @@ from app.parsers.dns_intel import query_domain_dns
 from app.parsers.whois_intel import query_whois_intel
 from app.parsers.ip_reputation import query_ip_reputation
 from app.parsers.infra_intel import analyze_infrastructure
-from app.parsers.case_db import save_incident_case, get_all_cases, get_campaign_clusters
+from app.parsers.case_db import save_incident_case, get_all_cases, get_campaign_clusters, _check_historical_correlations
 from app.forensics.custody import generate_evidence_custody
 from app.forensics.report_generator import generate_html_forensic_report
 from app.scoring.text_signals import analyze_text_signals
@@ -109,6 +109,11 @@ async def parse_email(file: UploadFile = File(...)):
                 auth_analysis=auth_results
             )
             
+            # Step 10a: Threat Intelligence Correlation (Cross-case indicator matching)
+            from_domain = parsed_email.from_address.split('@')[-1].strip('>') if '@' in parsed_email.from_address else ""
+            best_guess_ip = trace_results.get("best_guess_ip")
+            threat_correlations = _check_historical_correlations(from_domain, best_guess_ip, parsed_email.from_address)
+            
             # Step 10: Fraud Scoring
             fraud_assessment = calculate_fraud_score(
                 auth_analysis=auth_results,
@@ -116,7 +121,9 @@ async def parse_email(file: UploadFile = File(...)):
                 domain_check=domain_check,
                 trace_results=trace_results,
                 ai_ml_analysis=ai_ml_results,
-                whois_intel=whois_intel
+                whois_intel=whois_intel,
+                ip_reputation=ip_reputation,
+                threat_correlations=threat_correlations
             )
             
             # Step 11: Graph-Based Infrastructure Attribution
@@ -133,6 +140,7 @@ async def parse_email(file: UploadFile = File(...)):
             response_data["dns_intel"] = dns_intel
             response_data["whois_intel"] = whois_intel
             response_data["ip_reputation"] = ip_reputation
+            response_data["threat_correlations"] = threat_correlations
             response_data["infra_intel"] = infra_intel
             response_data["auth_analysis"] = auth_results
             response_data["trace"] = trace_results

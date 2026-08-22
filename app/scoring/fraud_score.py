@@ -8,7 +8,8 @@ def calculate_fraud_score(
     trace_results: Dict[str, Any],
     ai_ml_analysis: Optional[Dict[str, Any]] = None,
     whois_intel: Optional[Dict[str, Any]] = None,
-    ip_reputation: Optional[Dict[str, Any]] = None
+    ip_reputation: Optional[Dict[str, Any]] = None,
+    threat_correlations: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Combines protocol, forensic, and AI/ML threat signals into a single 0-100 fraud score and generates plain English reasons.
@@ -86,6 +87,24 @@ def calculate_fraud_score(
             score += WEIGHTS["whois_risky_registrar"]
             reasons.append(f"High-risk registrar: '{registrar}' associated with disposable/abused domains.")
         
+    # 6c. IP Reputation & DNSBL
+    if ip_reputation and ip_reputation.get("is_listed"):
+        if ip_reputation.get("is_tor_exit"):
+            score += WEIGHTS["ip_tor_exit"]
+            reasons.append(f"TOR exit node detected: Origin IP is a known Tor exit node.")
+        else:
+            score += WEIGHTS["ip_blocklisted"]
+            listed_zones = [r["blocklist_name"] for r in ip_reputation.get("dnsbl_results", []) if r.get("listed")]
+            reasons.append(f"IP blocklisted on {len(listed_zones)} reputation list(s): {', '.join(listed_zones)}.")
+    
+    # 6d. Threat Intelligence Correlation / Repeat Offender
+    if threat_correlations:
+        repeat_score = threat_correlations.get("repeat_offender_score", 0)
+        if repeat_score > 0:
+            # Weight is a multiplier (0.5) to add proportional score
+            score += int(repeat_score * WEIGHTS["repeat_offender"])
+            reasons.append(f"Repeat offender intelligence: Indicators seen in {threat_correlations.get('domain_case_count', 0) + threat_correlations.get('ip_case_count', 0)} prior case(s) across {len(threat_correlations.get('linked_campaigns', []))} campaign(s).")
+    
     # 7. AI/ML Deep Threat Indicators
     if ai_ml_analysis:
         bec = ai_ml_analysis.get("bec_analysis", {})
