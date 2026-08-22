@@ -1,4 +1,6 @@
-const API_URL = "http://localhost:8000/api/parse";
+import { API_BASE_URL } from '../config';
+
+const API_URL = `${API_BASE_URL}/api/parse`;
 
 export async function analyzeEmail(file) {
   const formData = new FormData();

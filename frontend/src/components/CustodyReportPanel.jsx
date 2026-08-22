@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ShieldCheck, FileDown, Lock, Eye, EyeOff, Hash, Printer } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function CustodyReportPanel({ data }) {
   if (!data || !data.custody) return null;
@@ -9,7 +10,7 @@ export default function CustodyReportPanel({ data }) {
 
   const handlePrintReport = async () => {
     try {
-      const resp = await fetch("http://localhost:8003/api/report/html", {
+      const resp = await fetch(`${API_BASE_URL}/api/report/html`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)

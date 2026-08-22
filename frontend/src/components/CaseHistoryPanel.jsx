@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FolderArchive, RefreshCw, Layers, ShieldAlert, ChevronRight, Hash } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 export default function CaseHistoryPanel() {
   const [cases, setCases] = useState([]);
@@ -12,8 +13,8 @@ export default function CaseHistoryPanel() {
     setLoading(true);
     try {
       const [casesRes, campRes] = await Promise.all([
-        fetch('http://localhost:8003/api/cases'),
-        fetch('http://localhost:8003/api/campaigns')
+        fetch(`${API_BASE_URL}/api/cases`),
+        fetch(`${API_BASE_URL}/api/campaigns`)
       ]);
       if (casesRes.ok && campRes.ok) {
         setCases(await casesRes.json());
