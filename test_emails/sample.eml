@@ -1,0 +1,33 @@
+From: Security <security@paypa1.com>
+To: victim@company.com
+Subject: URGENT: Your account has been suspended!
+Date: Wed, 22 Aug 2026 09:00:00 +0000
+Message-ID: <1234567890@example.com>
+Reply-To: sender-reply@example.com
+Return-Path: <bounce@attacker-vps.com>
+Received: from mail.example.com (mail.example.com [192.168.1.100])
+	by mx.company.com with ESMTP id 12345;
+	Wed, 22 Aug 2026 09:00:10 +0000
+Authentication-Results: mx.company.com;
+	spf=fail smtp.mailfrom=bounce@attacker-vps.com;
+	dkim=none header.i=@paypa1.com;
+	dmarc=fail (p=reject sp=reject dis=none) header.from=paypa1.com
+Content-Type: multipart/alternative; boundary="BOUNDARY"
+
+--BOUNDARY
+Content-Type: text/plain; charset="utf-8"
+
+Your account will be closed. Act now.
+Please verify immediately at http://bit.ly/fake-link
+
+--BOUNDARY
+Content-Type: text/html; charset="utf-8"
+
+<html>
+<body>
+<p>Your account will be closed. Act now.</p>
+<p>Please <a href="http://bit.ly/fake-link">verify immediately</a></p>
+<p>Visit <a href="http://attacker.com/login">https://paypal.com/login</a></p>
+</body>
+</html>
+--BOUNDARY--

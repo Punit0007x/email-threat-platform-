@@ -1,0 +1,19 @@
+From: support@github.com
+To: user@example.com
+Subject: Your GitHub repository was starred
+Date: Wed, 22 Aug 2026 09:00:00 +0000
+Message-ID: <clean123@github.com>
+Reply-To: noreply@github.com
+Return-Path: <bounce@github.com>
+Received: from out-1.github.com (out-1.github.com [192.30.252.1])
+	by mx.company.com with ESMTP id 12345;
+	Wed, 22 Aug 2026 09:00:10 +0000
+Authentication-Results: mx.company.com;
+	spf=pass (mx.company.com: domain of bounce@github.com designates 192.30.252.1 as permitted sender) smtp.mailfrom=bounce@github.com;
+	dkim=pass header.i=@github.com;
+	dmarc=pass (p=reject sp=reject dis=none) header.from=github.com
+Content-Type: text/plain; charset="utf-8"
+
+Hi there,
+Someone just starred your repository!
+Check it out at https://github.com/punit007x/my-repo
