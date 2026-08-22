@@ -205,3 +205,184 @@ def get_campaign_clusters() -> List[Dict[str, Any]]:
             "domains": [d.strip() for d in (r["domains"] or "").split(",") if d.strip()]
         })
     return results
+
+
+# === ALERTING SYSTEM ===
+ALERT_DB_PATH = "data/alerts.db"
+
+def init_alert_database():
+    """Initializes SQLite database for alert management."""
+    os.makedirs(os.path.dirname(ALERT_DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(ALERT_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS alerts (
+            alert_id TEXT PRIMARY KEY,
+            case_id TEXT,
+            evidence_id TEXT,
+            timestamp_utc TEXT,
+            fraud_score INTEGER,
+            risk_level TEXT,
+            primary_threat TEXT,
+            sender_domain TEXT,
+            origin_ip TEXT,
+            alert_reason TEXT,
+            webhook_sent INTEGER DEFAULT 0,
+            webhook_response TEXT,
+            payload_json TEXT
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS webhook_config (
+            id INTEGER PRIMARY KEY CHECK (id = 1),
+            webhook_url TEXT,
+            min_score_threshold INTEGER DEFAULT 70,
+            enabled INTEGER DEFAULT 0,
+            updated_at TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+def set_webhook_config(webhook_url: str, min_score_threshold: int = 70, enabled: bool = True) -> bool:
+    """Configure webhook for high-risk alerts."""
+    init_alert_database()
+    conn = sqlite3.connect(ALERT_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT OR REPLACE INTO webhook_config (id, webhook_url, min_score_threshold, enabled, updated_at)
+        VALUES (1, ?, ?, ?, datetime('now'))
+    """, (webhook_url, min_score_threshold, 1 if enabled else 0))
+    conn.commit()
+    conn.close()
+    return True
+
+def get_webhook_config() -> Dict[str, Any]:
+    """Get current webhook configuration."""
+    init_alert_database()
+    conn = sqlite3.connect(ALERT_DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM webhook_config WHERE id = 1")
+    row = cursor.fetchone()
+    conn.close()
+    if row:
+        return dict(row)
+    return {"webhook_url": "", "min_score_threshold": 70, "enabled": 0}
+
+def create_alert(case_data: Dict[str, Any], fraud_assessment: Dict[str, Any]) -> Optional[str]:
+    """Create an alert for high-risk cases and optionally send webhook."""
+    init_alert_database()
+    
+    score = fraud_assessment.get("score", 0)
+    risk_level = fraud_assessment.get("risk_level", "Low")
+    
+    # Only alert on Medium/High risk (configurable threshold)
+    webhook_config = get_webhook_config()
+    threshold = webhook_config.get("min_score_threshold", 70)
+    
+    if score < threshold:
+        return None
+    
+    custody = case_data.get("custody", {})
+    alert_id = f"ALT-{os.urandom(4).hex().upper()}"
+    case_id = custody.get("evidence_id") or f"CASE-{os.urandom(4).hex().upper()}"
+    evidence_id = custody.get("evidence_id", "")
+    timestamp_utc = custody.get("ingestion_timestamp_utc", "")
+    
+    from_addr = case_data.get("from_address", "")
+    domain = from_addr.split("@")[-1].strip(">").strip().lower() if "@" in from_addr else ""
+    origin_ip = case_data.get("trace", {}).get("best_guess_ip", "")
+    primary_threat = case_data.get("ai_ml_analysis", {}).get("classification", {}).get("primary_threat", "clean")
+    
+    alert_reason = f"High-risk email detected (Score: {score}, Risk: {risk_level}, Threat: {primary_threat})"
+    
+    conn = sqlite3.connect(ALERT_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO alerts (
+            alert_id, case_id, evidence_id, timestamp_utc, fraud_score,
+            risk_level, primary_threat, sender_domain, origin_ip,
+            alert_reason, webhook_sent, payload_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        alert_id, case_id, evidence_id, timestamp_utc, score,
+        risk_level, primary_threat, domain, origin_ip,
+        alert_reason, 0, json.dumps(case_data)
+    ))
+    conn.commit()
+    conn.close()
+    
+    # Send webhook if configured and enabled
+    if webhook_config.get("enabled") and webhook_config.get("webhook_url"):
+        send_webhook_alert(webhook_config["webhook_url"], alert_id, case_data, fraud_assessment)
+    
+    return alert_id
+
+def send_webhook_alert(webhook_url: str, alert_id: str, case_data: Dict[str, Any], fraud_assessment: Dict[str, Any]) -> bool:
+    """Send alert to configured webhook URL."""
+    try:
+        import requests
+        payload = {
+            "alert_id": alert_id,
+            "timestamp": case_data.get("custody", {}).get("ingestion_timestamp_utc"),
+            "fraud_score": fraud_assessment.get("score"),
+            "risk_level": fraud_assessment.get("risk_level"),
+            "primary_threat": case_data.get("ai_ml_analysis", {}).get("classification", {}).get("primary_threat"),
+            "sender": case_data.get("from_address"),
+            "sender_domain": case_data.get("from_address", "").split("@")[-1].strip(">").strip().lower() if "@" in case_data.get("from_address", "") else "",
+            "origin_ip": case_data.get("trace", {}).get("best_guess_ip"),
+            "reasons": fraud_assessment.get("reasons", [])
+        }
+        response = requests.post(webhook_url, json=payload, timeout=5)
+        
+        # Update alert with webhook result
+        conn = sqlite3.connect(ALERT_DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE alerts SET webhook_sent = 1, webhook_response = ? WHERE alert_id = ?
+        """, (f"{response.status_code}: {response.text[:200]}", alert_id))
+        conn.commit()
+        conn.close()
+        return response.status_code < 400
+    except Exception as e:
+        conn = sqlite3.connect(ALERT_DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE alerts SET webhook_sent = 1, webhook_response = ? WHERE alert_id = ?
+        """, (f"ERROR: {str(e)[:200]}", alert_id))
+        conn.commit()
+        conn.close()
+        return False
+
+def get_recent_alerts(limit: int = 50) -> List[Dict[str, Any]]:
+    """Retrieve recent alerts."""
+    init_alert_database()
+    conn = sqlite3.connect(ALERT_DB_PATH)
+    conn.row_factory = sqlite3.Row
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT alert_id, case_id, evidence_id, timestamp_utc, fraud_score,
+               risk_level, primary_threat, sender_domain, origin_ip,
+               alert_reason, webhook_sent, webhook_response
+        FROM alerts
+        ORDER BY timestamp_utc DESC
+        LIMIT ?
+    """, (limit,))
+    rows = cursor.fetchall()
+    conn.close()
+    return [dict(row) for row in rows]
+
+def get_alert_stats() -> Dict[str, Any]:
+    """Get alert statistics."""
+    init_alert_database()
+    conn = sqlite3.connect(ALERT_DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM alerts")
+    total = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM alerts WHERE fraud_score >= 70")
+    high_risk = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM alerts WHERE webhook_sent = 1")
+    webhook_sent = cursor.fetchone()[0]
+    conn.close()
+    return {"total_alerts": total, "high_risk_alerts": high_risk, "webhook_delivered": webhook_sent}

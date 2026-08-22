@@ -9,7 +9,8 @@ from app.parsers.dns_intel import query_domain_dns
 from app.parsers.whois_intel import query_whois_intel
 from app.parsers.ip_reputation import query_ip_reputation
 from app.parsers.infra_intel import analyze_infrastructure
-from app.parsers.case_db import save_incident_case, get_all_cases, get_campaign_clusters, _check_historical_correlations
+from app.parsers.origin_verdict import classify_origin_verdict
+from app.parsers.case_db import save_incident_case, get_all_cases, get_campaign_clusters, _check_historical_correlations, create_alert
 from app.forensics.custody import generate_evidence_custody
 from app.forensics.report_generator import generate_html_forensic_report
 from app.scoring.text_signals import analyze_text_signals
@@ -96,6 +97,16 @@ async def parse_email(file: UploadFile = File(...)):
             
             domain_check = check_domain_lookalike(from_domain)
             
+            # Step 8b: Origin Verdict Classification
+            origin_verdict = classify_origin_verdict(
+                auth_analysis=auth_results,
+                infra_intel=infra_intel,
+                ip_reputation=ip_reputation,
+                trace_results=trace_results,
+                domain_check=domain_check,
+                whois_intel=whois_intel
+            )
+            
             # Step 9: AI/ML Threat Classification, BEC Engine & Forensic Reasoner
             ai_ml_results = analyze_email_ai_ml(
                 from_address=parsed_email.from_address,
@@ -141,6 +152,7 @@ async def parse_email(file: UploadFile = File(...)):
             response_data["whois_intel"] = whois_intel
             response_data["ip_reputation"] = ip_reputation
             response_data["threat_correlations"] = threat_correlations
+            response_data["origin_verdict"] = origin_verdict
             response_data["infra_intel"] = infra_intel
             response_data["auth_analysis"] = auth_results
             response_data["trace"] = trace_results
@@ -154,6 +166,11 @@ async def parse_email(file: UploadFile = File(...)):
             try:
                 campaign_id = save_incident_case(response_data)
                 response_data["campaign_id"] = campaign_id
+                
+                # Step 13b: Generate Alert for High-Risk Cases
+                alert_id = create_alert(response_data, fraud_assessment)
+                if alert_id:
+                    response_data["alert_id"] = alert_id
             except Exception:
                 response_data["campaign_id"] = "CAMP-AUTONOMOUS"
             
@@ -186,4 +203,66 @@ async def list_campaigns():
     Retrieves aggregated threat campaigns across all investigated cases.
     """
     return get_campaign_clusters()
+
+@router.get("/api/alerts")
+async def list_alerts(limit: int = 50):
+    """
+    Retrieves recent high-risk alerts.
+    """
+    from app.parsers.case_db import get_recent_alerts
+    return get_recent_alerts(limit)
+
+@router.get("/api/alerts/stats")
+async def get_alert_stats():
+    """
+    Retrieves alert statistics.
+    """
+    from app.parsers.case_db import get_alert_stats
+    return get_alert_stats()
+
+@router.post("/api/alerts/webhook")
+async def configure_webhook(webhook_url: str, min_score: int = 70, enabled: bool = True):
+    """
+    Configure webhook for high-risk email alerts.
+    """
+    from app.parsers.case_db import set_webhook_config
+    set_webhook_config(webhook_url, min_score, enabled)
+    return {"status": "configured", "webhook_url": webhook_url, "min_score": min_score, "enabled": enabled}
+
+@router.get("/api/alerts/webhook")
+async def get_webhook_config():
+    """
+    Get current webhook configuration.
+    """
+    from app.parsers.case_db import get_webhook_config
+    return get_webhook_config()
+
+@router.get("/api/retention/config")
+async def get_retention_config():
+    """
+    Get current retention policy configuration.
+    """
+    from app.forensics.custody import get_retention_config
+    return get_retention_config()
+
+@router.post("/api/retention/config")
+async def set_retention_config(
+    enabled: bool = None, 
+    max_case_age_days: int = None,
+    mask_pii_in_storage: bool = None,
+    mask_pii_in_reports: bool = None
+):
+    """
+    Update retention policy configuration.
+    """
+    from app.forensics.custody import set_retention_config
+    return set_retention_config(enabled, max_case_age_days, mask_pii_in_storage, mask_pii_in_reports)
+
+@router.post("/api/retention/purge")
+async def run_retention_purge(max_age_days: int = None, mask_pii: bool = None):
+    """
+    Manually trigger retention purge of old cases.
+    """
+    from app.forensics.custody import apply_retention_policy
+    return apply_retention_policy(max_age_days=max_age_days, mask_pii=mask_pii)
 
