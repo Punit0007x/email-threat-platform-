@@ -1,5 +1,6 @@
 import re
 import ipaddress
+import email.utils
 from typing import List, Dict, Any
 
 # A small set of trusted domains for the hackathon (simulating a real ASN/IP DB).
@@ -9,9 +10,9 @@ TRUSTED_DOMAINS = ["google.com", "outlook.com", "protection.outlook.com", "amazo
 
 def extract_hop_info(header: str) -> Dict[str, Any]:
     """
-    Extracts the IP, reverse DNS, and receiving server from a Received header.
+    Extracts the IP, reverse DNS, receiving server, and timestamp from a Received header.
     """
-    info = {"ip": None, "revdns": "", "by": ""}
+    info = {"ip": None, "revdns": "", "by": "", "timestamp": None}
     
     # 1. Extract the receiving server (the 'by' clause)
     by_match = re.search(r'\bby\s+([^\s;]+)', header)
@@ -39,7 +40,7 @@ def extract_hop_info(header: str) -> Dict[str, Any]:
         if revdns_match:
             info["revdns"] = revdns_match.group(1).lower()
             
-    # Fallback for IP extraction if no brackets were used
+     # Fallback for IP extraction if no brackets were used
     if not info["ip"]:
         ipv4_match = re.search(r'\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b', header)
         if ipv4_match:
@@ -49,6 +50,18 @@ def extract_hop_info(header: str) -> Dict[str, Any]:
              except ValueError:
                  pass
                  
+    # 4. Extract Date
+    # Received headers usually end with '; Date'
+    date_split = header.split(';')
+    if len(date_split) > 1:
+        date_str = date_split[-1].strip()
+        try:
+            parsed_date = email.utils.parsedate_to_datetime(date_str)
+            if parsed_date:
+                info["timestamp"] = parsed_date.isoformat()
+        except Exception:
+            pass
+
     return info
 
 def is_trusted(revdns: str) -> bool:
@@ -110,8 +123,24 @@ def trace_origin(received_chain: List[str]) -> Dict[str, Any]:
     if not best_guess_ip:
          reason = "No valid IP addresses could be extracted from the Received chain."
          
+    # Check for time-travel anomalies (hop N received before hop N+1)
+    # Hops are ordered newest to oldest
+    anomalies = []
+    from datetime import datetime
+    for i in range(len(hops) - 1):
+        if hops[i].get("timestamp") and hops[i+1].get("timestamp"):
+            try:
+                t1 = datetime.fromisoformat(hops[i]["timestamp"])
+                t2 = datetime.fromisoformat(hops[i+1]["timestamp"])
+                # t1 is newer hop, t2 is older hop. t1 should be >= t2.
+                if t1 < t2:
+                    anomalies.append(f"Time-travel anomaly between hop {i} and {i+1}: {t1} < {t2}")
+            except Exception:
+                pass
+         
     return {
         "hops": hops,
         "best_guess_ip": best_guess_ip,
-        "reason": reason
+        "reason": reason,
+        "anomalies": anomalies
     }
