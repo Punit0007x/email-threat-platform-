@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export default function ThreatWaveform({ score = 0, isHighRisk = false }) {
   const canvasRef = useRef(null);
@@ -18,7 +18,7 @@ export default function ThreatWaveform({ score = 0, isHighRisk = false }) {
       // Color scheme based on threat score
       let strokeColor = '#10b981'; // Emerald
       if (score > 70) {
-        strokeColor = '#f43f5e'; // Crimson Rose
+        strokeColor = '#ff4757'; // Braun Red / Safety Orange
       } else if (score > 30) {
         strokeColor = '#f59e0b'; // Amber
       }
@@ -53,7 +53,7 @@ export default function ThreatWaveform({ score = 0, isHighRisk = false }) {
       ctx.lineTo(0, height);
       ctx.closePath();
       const gradient = ctx.createLinearGradient(0, 0, 0, height);
-      gradient.addColorStop(0, strokeColor + '33');
+      gradient.addColorStop(0, strokeColor + '44');
       gradient.addColorStop(1, 'transparent');
       ctx.fillStyle = gradient;
       ctx.fill();
@@ -70,19 +70,21 @@ export default function ThreatWaveform({ score = 0, isHighRisk = false }) {
   }, [score, isHighRisk]);
 
   return (
-    <div className="flex items-center gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-800">
+    <div className="flex items-center gap-2.5 slot-recessed-sm px-3 py-1.5">
       <div className="flex flex-col">
-        <span className="text-[9px] font-mono text-slate-400 uppercase tracking-widest">Signal Telemetry</span>
-        <span className="text-[10px] font-mono font-bold text-slate-300">
+        <span className="text-[9px] font-mono text-[#4a5568] uppercase font-bold tracking-widest">Signal Telemetry</span>
+        <span className="text-[10px] font-mono font-bold text-[#2d3436]">
           {score > 70 ? 'ANOMALOUS FLUX' : score > 30 ? 'MODERATE ACTIVITY' : 'NOMINAL BASELINE'}
         </span>
       </div>
-      <canvas 
-        ref={canvasRef} 
-        width={140} 
-        height={32} 
-        className="rounded border border-slate-800/80 bg-slate-900/50"
-      />
+      <div className="slot-dark-screen p-0.5 rounded border border-[#babecc]/50 overflow-hidden flex-shrink-0">
+        <canvas 
+          ref={canvasRef} 
+          width={140} 
+          height={32} 
+          className="rounded block"
+        />
+      </div>
     </div>
   );
 }

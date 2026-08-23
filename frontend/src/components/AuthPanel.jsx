@@ -1,65 +1,79 @@
-import { Shield, ShieldAlert, ShieldCheck, ShieldQuestion } from 'lucide-react';
+import React from 'react';
+import { ShieldCheck, ShieldAlert, AlertTriangle, Lock } from 'lucide-react';
 
-const StatusBadge = ({ protocol, status }) => {
-  let bgColor = "bg-slate-700";
-  let textColor = "text-slate-300";
-  let Icon = ShieldQuestion;
-  let label = status.toUpperCase();
-
-  if (status === "pass") {
-    bgColor = "bg-emerald-500/20";
-    textColor = "text-emerald-400";
-    Icon = ShieldCheck;
-  } else if (status === "fail" || status === "softfail") {
-    bgColor = "bg-red-500/20";
-    textColor = "text-red-400";
-    Icon = ShieldAlert;
-  } else if (status === "none" || status === "not_present") {
-    bgColor = "bg-slate-700/50";
-    textColor = "text-slate-400";
-    label = "NONE";
+const getStatusBadge = (status) => {
+  const s = (status || 'none').toLowerCase();
+  if (s === 'pass') {
+    return {
+      text: 'PASS',
+      color: 'bg-[#10b981]/15 text-[#047857] border-[#10b981]/30',
+      icon: ShieldCheck,
+      led: 'led-node-green'
+    };
+  } else if (s === 'fail' || s === 'hardfail') {
+    return {
+      text: 'FAIL',
+      color: 'bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/30',
+      icon: ShieldAlert,
+      led: 'led-node-red'
+    };
+  } else if (s === 'softfail') {
+    return {
+      text: 'SOFTFAIL',
+      color: 'bg-[#f59e0b]/15 text-[#b45309] border-[#f59e0b]/30',
+      icon: AlertTriangle,
+      led: 'led-node-amber'
+    };
   }
-
-  return (
-    <div className="flex flex-col items-center p-4 bg-slate-800/50 border border-slate-700 rounded-lg">
-      <div className="text-sm font-semibold text-slate-400 mb-3">{protocol.toUpperCase()}</div>
-      <div className={`flex items-center space-x-2 px-4 py-2 rounded-full ${bgColor} ${textColor}`}>
-        <Icon className="w-5 h-5" />
-        <span className="font-bold tracking-wider">{label}</span>
-      </div>
-    </div>
-  );
+  return {
+    text: s.toUpperCase(),
+    color: 'bg-[#e0e5ec] text-[#4a5568] border-[#babecc]',
+    icon: Lock,
+    led: 'led-node-off'
+  };
 };
 
 export default function AuthPanel({ data }) {
-  if (!data || !data.auth_analysis) return null;
-  const auth = data.auth_analysis;
+  if (!data) return null;
+  const auth = data.auth_analysis || data.auth_assessment || {};
+
+  const protocols = [
+    { name: 'SPF PROTOCOL', val: auth.spf || 'none', desc: 'Sender Policy Framework' },
+    { name: 'DKIM SIGNATURE', val: auth.dkim || 'none', desc: 'DomainKeys Identified Mail' },
+    { name: 'DMARC POLICY', val: auth.dmarc || 'none', desc: 'Domain Message Authentication' }
+  ];
 
   return (
-    <div className="cyber-panel rounded-2xl p-6 shadow-xl space-y-5 relative overflow-hidden">
-      <div className="flex items-center mb-6 border-b border-zinc-800 pb-3">
-        <span className="bg-purple-500/10 text-purple-400 p-2.5 rounded-xl mr-3 border border-purple-500/20 shadow-sm">
-          <Shield className="w-5 h-5" />
-        </span>
-        <h2 className="text-xl font-bold text-white">Authentication Protocols</h2>
+    <div className="space-y-4">
+      {/* 3 Physical Protocol Badges */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono">
+        {protocols.map((p, idx) => {
+          const badge = getStatusBadge(p.val);
+          const Icon = badge.icon;
+
+          return (
+            <div key={idx} className="slot-recessed p-3.5 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-[#4a5568] font-bold uppercase tracking-wider">{p.name}</span>
+                <span className={`led-node ${badge.led}`} />
+              </div>
+              <div className="flex items-center justify-between">
+                <div className={`px-2.5 py-1 rounded-lg border text-xs font-bold flex items-center gap-1.5 ${badge.color}`}>
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{badge.text}</span>
+                </div>
+                <span className="text-[10px] text-[#4a5568] font-sans font-medium">{p.desc}</span>
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <StatusBadge protocol="SPF" status={auth.spf} />
-        <StatusBadge protocol="DKIM" status={auth.dkim} />
-        <StatusBadge protocol="DMARC" status={auth.dmarc} />
-      </div>
-
-      {/* Domain Alignment Alert */}
-      {!auth.domain_alignment_pass && (
-        <div className="flex items-start space-x-3 bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
-          <ShieldAlert className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
-          <div>
-            <h4 className="text-sm font-semibold text-amber-500">Domain Alignment Failure</h4>
-            <p className="text-xs text-amber-400/80 mt-1">
-              The Return-Path domain does not match the From domain. This is a common technique used in spoofing attacks to bypass authentication checks.
-            </p>
-          </div>
+      {/* DMARC Alignment Alert */}
+      {auth.dmarc_alignment === false && (
+        <div className="slot-recessed p-3.5 flex items-center gap-2.5 border-l-4 border-l-[#ff4757] text-xs text-[#d63031] font-mono">
+          <ShieldAlert className="w-4 h-4 text-[#ff4757] flex-shrink-0" />
+          <span><strong>DMARC Alignment Breach:</strong> Header 'From' domain does not align with verified SPF / DKIM signing identities.</span>
         </div>
       )}
     </div>

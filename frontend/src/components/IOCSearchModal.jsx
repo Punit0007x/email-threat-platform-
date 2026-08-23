@@ -51,61 +51,67 @@ export default function IOCSearchModal({ isOpen, onClose, initialQuery = '' }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="panel-chassis w-full max-w-3xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden border border-[#babecc] relative">
         
+        {/* Corner Screws */}
+        <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
+        <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
+        <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
+        <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
+
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-850">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-blue-500/20 text-blue-400 rounded-xl border border-blue-500/30">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#d1d9e6] bg-[#e0e5ec]">
+          <div className="flex items-center space-x-3.5">
+            <div className="p-2.5 bg-[#e0e5ec] text-[#0ea5e9] rounded-xl shadow-[var(--shadow-card)] border border-white/70">
               <Search className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <h2 className="text-base font-bold text-[#2d3436] flex items-center gap-2 font-mono">
                 Global IOC Threat Dossier & Cross-Case Pivot
               </h2>
-              <p className="text-xs text-slate-400">Search IPs, Domains, Senders, Hashes, or Keywords across forensic database</p>
+              <p className="text-xs text-[#4a5568]">Search IPs, Domains, Senders, Hashes, or Keywords across forensic database</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer hover:bg-slate-800"
+            className="p-1.5 text-[#4a5568] hover:text-[#2d3436] rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Search Input Bar */}
-        <div className="p-6 border-b border-slate-800 bg-slate-900/50">
-          <form onSubmit={(e) => { e.preventDefault(); executeSearch(query); }} className="flex gap-2">
+        <div className="p-6 border-b border-[#d1d9e6] bg-[#f0f2f5]">
+          <form onSubmit={(e) => { e.preventDefault(); executeSearch(query); }} className="flex gap-3">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+              <Search className="w-4 h-4 text-[#8896aa] absolute left-3.5 top-3.5" />
               <input
                 type="text"
                 placeholder="Enter IP (e.g. 192.168.1.100), Domain (paypa1.com), Email, SHA-256 hash, or keyword..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-700 rounded-xl pl-10 pr-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-blue-500 font-mono shadow-inner"
+                className="w-full slot-recessed pl-10 pr-4 py-2.5 text-xs text-[#2d3436] focus:outline-none font-mono rounded-xl"
               />
             </div>
             <button
               type="submit"
               disabled={loading || !query.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl text-xs font-semibold shadow-md transition-all cursor-pointer disabled:opacity-50 flex-shrink-0"
+              className="btn-tactile-primary text-xs font-bold disabled:opacity-50 flex-shrink-0"
             >
               {loading ? "Searching..." : "Lookup IOC"}
             </button>
           </form>
 
           {/* Quick Examples */}
-          <div className="flex items-center gap-2 mt-3 text-[11px] text-slate-400">
-            <span className="text-slate-500 font-semibold">Quick Pivots:</span>
+          <div className="flex items-center gap-2 mt-3 text-[11px] text-[#4a5568]">
+            <span className="font-bold font-mono">Quick Pivots:</span>
             {['paypa1.com', '192.168.1.100', 'payroll', 'tim cook'].map((quick) => (
               <button
                 key={quick}
                 onClick={() => { setQuery(quick); executeSearch(quick); }}
-                className="font-mono text-[10px] px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-750 text-indigo-300 border border-slate-700 transition-colors cursor-pointer"
+                className="font-mono text-[10px] px-2.5 py-1 rounded-lg bg-[#e0e5ec] hover:bg-[#d1d9e6] text-[#7048e8] border border-[#babecc] font-bold transition-colors cursor-pointer shadow-sm"
               >
                 {quick}
               </button>
@@ -114,17 +120,17 @@ export default function IOCSearchModal({ isOpen, onClose, initialQuery = '' }) {
         </div>
 
         {/* Result Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 text-xs text-slate-200">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 text-xs text-[#2d3436]">
           {error && (
-            <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 flex-shrink-0" />
+            <div className="p-4 rounded-xl bg-[#ff4757]/15 border border-[#ff4757]/30 text-[#d63031] flex items-center gap-2 font-mono">
+              <ShieldAlert className="w-5 h-5 flex-shrink-0 text-[#ff4757]" />
               <span>{error}</span>
             </div>
           )}
 
           {!result && !error && !loading && (
-            <div className="text-center py-12 text-slate-500 italic space-y-2">
-              <Search className="w-10 h-10 mx-auto text-slate-600 stroke-[1.5]" />
+            <div className="text-center py-12 text-[#8896aa] italic space-y-2">
+              <Search className="w-10 h-10 mx-auto text-[#babecc] stroke-[1.5]" />
               <p>Type any IOC above to aggregate cross-incident threat history and attribution campaigns.</p>
             </div>
           )}
@@ -133,24 +139,24 @@ export default function IOCSearchModal({ isOpen, onClose, initialQuery = '' }) {
             <div className="space-y-4 animate-in fade-in duration-200">
               
               {/* IOC Overview Header Card */}
-              <div className="bg-slate-800/80 border border-slate-700 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="slot-recessed p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#f0f2f5]">
                 <div className="flex items-center space-x-3">
-                  <div className="p-2.5 bg-indigo-500/20 text-indigo-300 rounded-xl border border-indigo-500/30">
+                  <div className="p-2.5 bg-[#e0e5ec] text-[#7048e8] rounded-xl shadow-[var(--shadow-card)] border border-white/70">
                     {React.createElement(getIOCTypeIcon(result.ioc_type), { className: "w-5 h-5" })}
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block tracking-wider">
+                    <span className="text-[10px] font-mono uppercase text-[#4a5568] font-bold block tracking-wider">
                       {result.ioc_type} IOC Value
                     </span>
-                    <h3 className="text-sm font-bold text-white font-mono">{result.ioc_value}</h3>
+                    <h3 className="text-sm font-bold text-[#2d3436] font-mono">{result.ioc_value}</h3>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold font-mono border ${result.verdict === 'MALICIOUS' ? 'bg-red-500/20 text-red-400 border-red-500/40' : (result.verdict === 'SUSPICIOUS' ? 'bg-amber-500/20 text-amber-400 border-amber-500/40' : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/40')}`}>
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold font-mono border ${result.verdict === 'MALICIOUS' ? 'bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/30' : (result.verdict === 'SUSPICIOUS' ? 'bg-[#f59e0b]/15 text-[#b45309] border-[#f59e0b]/30' : 'bg-[#10b981]/15 text-[#047857] border-[#10b981]/30')}`}>
                     {result.verdict}
                   </span>
-                  <span className="px-3 py-1 rounded-full text-xs font-mono bg-slate-900 border border-slate-700 text-slate-300">
+                  <span className="px-3 py-1 rounded-full text-xs font-mono bg-[#e0e5ec] border border-[#babecc] text-[#4a5568] font-bold">
                     {result.match_count} Incident Match(es)
                   </span>
                 </div>
@@ -158,23 +164,23 @@ export default function IOCSearchModal({ isOpen, onClose, initialQuery = '' }) {
 
               {/* Stats Row */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-1 font-mono">
-                  <span className="text-slate-500 block text-[10px] font-sans uppercase">Avg Fraud Score</span>
-                  <span className={`text-base font-bold ${result.avg_fraud_score > 70 ? 'text-red-400' : 'text-emerald-400'}`}>
+                <div className="slot-recessed p-3.5 space-y-1 font-mono">
+                  <span className="text-[#4a5568] block text-[10px] uppercase font-bold">Avg Fraud Score</span>
+                  <span className={`text-base font-bold ${result.avg_fraud_score > 70 ? 'text-[#d63031]' : 'text-[#047857]'}`}>
                     {result.avg_fraud_score} / 100
                   </span>
                 </div>
 
-                <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-1 font-mono">
-                  <span className="text-slate-500 block text-[10px] font-sans uppercase">Linked Campaigns</span>
-                  <span className="text-base font-bold text-indigo-300">
+                <div className="slot-recessed p-3.5 space-y-1 font-mono">
+                  <span className="text-[#4a5568] block text-[10px] uppercase font-bold">Linked Campaigns</span>
+                  <span className="text-base font-bold text-[#7048e8]">
                     {result.linked_campaigns?.length || 0} Cluster(s)
                   </span>
                 </div>
 
-                <div className="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-1 font-mono col-span-2 sm:col-span-1">
-                  <span className="text-slate-500 block text-[10px] font-sans uppercase">Attribution Status</span>
-                  <span className="text-xs font-bold text-slate-200 block truncate">
+                <div className="slot-recessed p-3.5 space-y-1 font-mono col-span-2 sm:col-span-1">
+                  <span className="text-[#4a5568] block text-[10px] uppercase font-bold">Attribution Status</span>
+                  <span className="text-xs font-bold text-[#2d3436] block truncate">
                     {result.match_count > 1 ? 'Repeat Offender Campaign' : 'Single Sighting'}
                   </span>
                 </div>
@@ -182,34 +188,34 @@ export default function IOCSearchModal({ isOpen, onClose, initialQuery = '' }) {
 
               {/* Matched Historical Cases */}
               <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <FolderArchive className="w-3.5 h-3.5 text-indigo-400" />
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#4a5568] flex items-center gap-1.5 font-mono">
+                  <FolderArchive className="w-3.5 h-3.5 text-[#7048e8]" />
                   Correlated Incident Cases ({result.historical_cases?.length || 0})
                 </h4>
 
                 <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
                   {result.historical_cases && result.historical_cases.length > 0 ? (
                     result.historical_cases.map((c) => (
-                      <div key={c.case_id} className="bg-slate-800/60 p-3 rounded-lg border border-slate-700/60 flex items-center justify-between gap-3 font-mono">
+                      <div key={c.case_id} className="bg-[#f0f2f5] p-3 rounded-xl border border-[#babecc]/60 flex items-center justify-between gap-3 font-mono shadow-sm">
                         <div className="truncate space-y-0.5">
                           <div className="flex items-center gap-2">
-                            <span className="text-indigo-300 font-bold text-xs">{c.evidence_id}</span>
-                            <span className="text-[10px] text-slate-400 font-sans">({c.primary_threat?.replace('_', ' ')})</span>
+                            <span className="text-[#7048e8] font-bold text-xs">{c.evidence_id}</span>
+                            <span className="text-[10px] text-[#4a5568] font-sans">({c.primary_threat?.replace('_', ' ')})</span>
                           </div>
-                          <span className="text-[11px] text-slate-300 font-sans block truncate max-w-sm">{c.subject}</span>
-                          <span className="text-[10px] text-slate-500 block truncate">From: {c.from_address}</span>
+                          <span className="text-[11px] text-[#2d3436] font-sans font-medium block truncate max-w-sm">{c.subject}</span>
+                          <span className="text-[10px] text-[#4a5568] block truncate">From: {c.from_address}</span>
                         </div>
 
                         <div className="text-right flex-shrink-0">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${c.fraud_score > 70 ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${c.fraud_score > 70 ? 'bg-[#ff4757]/15 text-[#d63031]' : 'bg-[#10b981]/15 text-[#047857]'}`}>
                             Score: {c.fraud_score}
                           </span>
-                          <span className="text-[10px] text-slate-500 block mt-1">{c.campaign_id}</span>
+                          <span className="text-[10px] text-[#4a5568] block mt-1 font-bold">{c.campaign_id}</span>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <p className="text-slate-500 italic py-3 text-center">No previous incidents match this indicator.</p>
+                    <p className="text-[#8896aa] italic py-3 text-center slot-recessed">No previous incidents match this indicator.</p>
                   )}
                 </div>
               </div>
