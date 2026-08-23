@@ -17,7 +17,8 @@ import {
   Network,
   Mail,
   ShieldCheck,
-  Eye
+  Eye,
+  Radio
 } from 'lucide-react';
 import { analyzeEmail } from './services/analysisService';
 
@@ -41,8 +42,9 @@ const DEMO_EMAILS = [
     id: "sample",
     label: "PayPal Brand Phishing",
     badge: "CRITICAL SPOOF",
-    color: "border-red-500/40 hover:border-red-400 bg-red-950/30 text-red-300 hover:shadow-red-500/20",
-    badgeColor: "bg-red-500/20 text-red-300 border-red-500/40",
+    color: "bg-[#e0e5ec] text-[#2d3436] hover:text-[#ff4757]",
+    badgeColor: "bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/30",
+    led: "led-node-red",
     filename: "sample.eml",
     content: `From: Security <security@paypa1.com>
 To: victim@company.com
@@ -82,8 +84,9 @@ Content-Type: text/html; charset="utf-8"
     id: "bec",
     label: "BEC Executive Wire Fraud",
     badge: "VIP IMPERSONATION",
-    color: "border-purple-500/40 hover:border-purple-400 bg-purple-950/30 text-purple-300 hover:shadow-purple-500/20",
-    badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/40",
+    color: "bg-[#e0e5ec] text-[#2d3436] hover:text-[#7048e8]",
+    badgeColor: "bg-[#7048e8]/15 text-[#5f3dc4] border-[#7048e8]/30",
+    led: "led-node-amber",
     filename: "bec_ceo_fraud.eml",
     content: `From: "Tim Cook (CEO)" <ceo.apple.exec@gmail.com>
 To: payroll-dept@company.com
@@ -106,10 +109,11 @@ Chief Executive Officer`
   },
   {
     id: "multi_hop",
-    label: "Multi-Hop Relay Triangulation",
-    badge: "ANOMALY HOP",
-    color: "border-amber-500/40 hover:border-amber-400 bg-amber-950/30 text-amber-300 hover:shadow-amber-500/20",
-    badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/40",
+    label: "Multi-Hop Relay Anomaly",
+    badge: "RELAY DEVIATION",
+    color: "bg-[#e0e5ec] text-[#2d3436] hover:text-[#d97706]",
+    badgeColor: "bg-[#f59e0b]/15 text-[#b45309] border-[#f59e0b]/30",
+    led: "led-node-amber",
     filename: "multi_hop.eml",
     content: `From: hacker@evil.com
 To: victim@company.com
@@ -122,10 +126,11 @@ Click here.`
   },
   {
     id: "clean",
-    label: "Clean GitHub Star Notice",
+    label: "Clean GitHub Notice",
     badge: "BENIGN PASS",
-    color: "border-emerald-500/40 hover:border-emerald-400 bg-emerald-950/30 text-emerald-300 hover:shadow-emerald-500/20",
-    badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+    color: "bg-[#e0e5ec] text-[#2d3436] hover:text-[#059669]",
+    badgeColor: "bg-[#10b981]/15 text-[#047857] border-[#10b981]/30",
+    led: "led-node-green",
     filename: "clean.eml",
     content: `From: support@github.com
 To: user@example.com
@@ -157,7 +162,7 @@ function App() {
   const [showPlaybook, setShowPlaybook] = useState(false);
   const [showIOCSearch, setShowIOCSearch] = useState(false);
   const [iocQuery, setIocQuery] = useState('');
-  const [activeView, setActiveView] = useState('radar'); // 'radar' | 'ai' | 'geo' | 'osint' | 'graph' | 'headers' | 'custody'
+  const [activeView, setActiveView] = useState('radar'); // 'radar' | 'ai' | 'dissector' | 'geo' | 'osint' | 'graph' | 'headers' | 'custody'
 
   const handleLookupIOC = (ioc) => {
     setIocQuery(ioc);
@@ -223,46 +228,47 @@ function App() {
   const isMediumRisk = threatScore > 30 && threatScore <= 70;
 
   return (
-    <div className="min-h-screen cyber-grid ambient-glow p-4 sm:p-8 text-slate-100 font-sans selection:bg-cyan-500 selection:text-black">
-      <div className="max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen chassis-bg p-4 sm:p-8 text-[#2d3436] font-sans selection:bg-[#ff4757] selection:text-white">
+      <div className="max-w-7xl mx-auto space-y-7">
         
-        {/* Tactical SOC Telemetry Status Ribbon */}
-        <div className="flex flex-wrap items-center justify-between gap-3 text-xs font-mono border-b border-slate-800 pb-3 bg-slate-900/60 px-4 py-2 rounded-xl border border-slate-800 shadow-sm">
+        {/* Tactical Industrial Telemetry Ribbon */}
+        <header className="panel-chassis px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-4">
-            <span className="flex items-center gap-2 text-emerald-400 font-bold tracking-wider">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-              SOC SENTINEL: ARMED
-            </span>
-            <span className="hidden sm:inline text-slate-700">//</span>
-            <span className="hidden sm:flex items-center gap-1.5 text-cyan-300 font-medium">
-              <ShieldAlert className="w-3.5 h-3.5 text-cyan-400" />
-              BLOCKCHAIN NOTARY: SYNCED
-            </span>
-            <span className="hidden md:inline text-slate-700">//</span>
-            <span className="hidden md:flex items-center gap-1.5 text-purple-300 font-medium">
-              <Cpu className="w-3.5 h-3.5 text-purple-400" />
-              NEURAL ENSEMBLE: ACTIVE
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] bg-slate-950 px-2.5 py-0.5 rounded border border-slate-700 font-mono text-cyan-300 font-bold">
-              NODE: FASTAPI:8000
-            </span>
-          </div>
-        </div>
-
-        {/* Hero Header & Quick Actions */}
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 py-2">
-          <div className="space-y-2 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-bold tracking-wider">
-              <Zap className="w-3.5 h-3.5 text-cyan-400 animate-pulse" />
-              FORENSIC OPERATIONS // INCIDENT TRIAGE ENGINE v2.8
+            <div className="flex items-center gap-2 font-mono font-bold text-[#2d3436] uppercase tracking-wider">
+              <span className="led-node led-node-green animate-pulse" />
+              <span>SOC SENTINEL: ARMED</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
-              Email Threat <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">Command Center</span>
+            <span className="text-[#a3b1c6] font-mono hidden sm:inline">|</span>
+            <div className="hidden sm:flex items-center gap-2 text-[#4a5568] font-mono text-[11px] font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#10b981]" />
+              <span>BLOCKCHAIN NOTARY: SYNCED</span>
+            </div>
+            <span className="text-[#a3b1c6] font-mono hidden md:inline">|</span>
+            <div className="hidden md:flex items-center gap-2 text-[#4a5568] font-mono text-[11px] font-semibold">
+              <Cpu className="w-3.5 h-3.5 text-[#ff4757]" />
+              <span>NEURAL ENSEMBLE: ACTIVE</span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="slot-recessed-sm px-3 py-1 font-mono text-[10px] font-bold text-[#4a5568] uppercase tracking-wider flex items-center gap-1.5">
+              <Radio className="w-3 h-3 text-[#ff4757] animate-pulse" />
+              <span>NODE: FASTAPI:8000</span>
+            </div>
+          </div>
+        </header>
+
+        {/* Hero Section & Machine Title */}
+        <section className="flex flex-col lg:flex-row items-center justify-between gap-6 py-2">
+          <div className="space-y-2 text-center lg:text-left max-w-3xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md slot-recessed-sm text-[#4a5568] text-xs font-mono font-bold tracking-widest uppercase">
+              <Zap className="w-3.5 h-3.5 text-[#ff4757]" />
+              <span>FORENSIC OPERATIONS // INCIDENT TRIAGE ENGINE v2.8</span>
+            </div>
+            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#2d3436] drop-shadow-[0_1px_0_#ffffff]">
+              Email Threat <span className="text-[#ff4757]">Command Center</span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed font-sans">
+            <p className="text-xs sm:text-sm text-[#4a5568] max-w-2xl leading-relaxed font-sans font-medium">
               RFC-822 header stream parsing, speed-of-light relay anomaly triangulation, computer vision OCR detonation, and neural campaign attribution.
             </p>
           </div>
@@ -270,42 +276,62 @@ function App() {
           <div className="flex items-center gap-3 flex-shrink-0 font-mono">
             <button
               onClick={() => setShowIOCSearch(true)}
-              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-500/40 hover:border-cyan-400 px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer hover:scale-105"
+              className="btn-tactile-secondary px-4 py-2.5 text-xs font-bold"
             >
-              <Search className="w-4 h-4 text-cyan-400" />
-              [LOOKUP IOC DOSSIER]
+              <Search className="w-4 h-4 text-[#ff4757]" />
+              <span>[LOOKUP IOC]</span>
             </button>
 
             <button
               onClick={() => setShowPlaybook(true)}
-              className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-purple-300 border border-purple-500/40 hover:border-purple-400 px-4 py-2.5 rounded-xl text-xs font-bold shadow-md transition-all cursor-pointer hover:scale-105"
+              className="btn-tactile-secondary px-4 py-2.5 text-xs font-bold"
             >
-              <BookOpen className="w-4 h-4 text-purple-400" />
-              [SOC PLAYBOOK]
+              <BookOpen className="w-4 h-4 text-[#4a5568]" />
+              <span>[SOC PLAYBOOK]</span>
             </button>
           </div>
-        </div>
+        </section>
 
-        {/* Upload & Demo Presets Chamber */}
-        <div className="cyber-panel rounded-2xl p-6 sm:p-8 space-y-6 shadow-xl relative overflow-hidden">
+        {/* Upload & Demo Presets Chamber (Bolted Physical Module) */}
+        <section className="panel-chassis p-6 sm:p-8 space-y-6 relative overflow-hidden">
           
+          {/* Corner Screw Heads & Vent Louvers */}
+          <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
+          <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
+          <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
+          <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
+
+          <div className="flex items-center justify-between border-b border-[#d1d9e6] pb-3 px-2">
+            <div className="flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-[#ff4757]" />
+              <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#2d3436]">
+                INGESTION BAY // RFC-822 STREAM
+              </span>
+            </div>
+            <div className="vent-louvers">
+              <div className="vent-slot" />
+              <div className="vent-slot" />
+              <div className="vent-slot" />
+            </div>
+          </div>
+
           <div className="flex flex-col items-center justify-center space-y-6 relative z-10">
             
-            {/* Tactical Dropzone */}
+            {/* Tactical Dropzone (Recessed Data Bay) */}
             <label 
               onDrop={handleDrop}
               onDragOver={handleDragOver}
-              className="flex flex-col items-center justify-center w-full max-w-4xl h-44 border-2 border-dashed border-cyan-500/30 hover:border-cyan-400 rounded-2xl cursor-pointer bg-slate-950/70 hover:bg-slate-900/70 transition-all shadow-inner group relative"
+              className="flex flex-col items-center justify-center w-full max-w-4xl h-44 border-2 border-dashed border-[#babecc] hover:border-[#ff4757] rounded-2xl cursor-pointer slot-recessed transition-all group relative overflow-hidden"
             >
               <div className="flex flex-col items-center justify-center pt-3 pb-4 space-y-2">
-                <div className="p-3 bg-cyan-500/10 text-cyan-400 rounded-2xl border border-cyan-500/30 group-hover:scale-110 group-hover:border-cyan-400 transition-all shadow-md">
+                <div className="p-3 bg-[#e0e5ec] text-[#ff4757] rounded-2xl shadow-[var(--shadow-card)] group-hover:shadow-[var(--shadow-floating)] group-hover:scale-105 transition-all border border-white/60">
                   <Upload className="w-6 h-6" />
                 </div>
-                <p className="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors font-sans">
-                  Drop target <span className="text-cyan-400 font-mono font-bold">.EML</span> file here or <span className="text-cyan-400 underline decoration-cyan-500 underline-offset-4 font-bold">browse filesystem</span>
+                <p className="text-sm font-bold text-[#2d3436] group-hover:text-[#ff4757] transition-colors font-sans">
+                  Drop target <span className="text-[#ff4757] font-mono font-bold">.EML</span> file here or <span className="underline decoration-[#ff4757] underline-offset-4">browse filesystem</span>
                 </p>
-                <p className="text-xs text-slate-400 font-mono flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <p className="text-xs text-[#4a5568] font-mono flex items-center gap-1.5 font-medium">
+                  <Sparkles className="w-3.5 h-3.5 text-[#f59e0b]" />
                   Automatic SHA-256 Tamper-Evident Ledger & Ethereum Custody Seal
                 </p>
               </div>
@@ -314,24 +340,28 @@ function App() {
 
             {/* Quick Demo Attack Presets */}
             <div className="w-full max-w-4xl space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800 pb-2">
-                <span className="font-bold text-slate-200 flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider">
-                  <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+              <div className="flex items-center justify-between text-xs text-[#4a5568] border-b border-[#d1d9e6] pb-2 px-1">
+                <span className="font-bold text-[#2d3436] flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider">
+                  <Radio className="w-3.5 h-3.5 text-[#ff4757]" />
                   // Instant Sandbox Attack Presets:
                 </span>
-                <span className="text-cyan-400 font-mono text-[11px] font-semibold">[1-Click Live Ingestion]</span>
+                <span className="text-[#ff4757] font-mono text-[11px] font-bold">[1-Click Live Ingestion]</span>
               </div>
+              
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 {DEMO_EMAILS.map((demo) => (
                   <button
                     key={demo.id}
                     onClick={() => handleLoadDemo(demo)}
                     disabled={loading}
-                    className={`flex flex-col justify-between p-3.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-left disabled:opacity-50 hover:scale-[1.03] shadow-md ${demo.color}`}
+                    className="btn-tactile-secondary p-3.5 flex flex-col justify-between text-left cursor-pointer disabled:opacity-50"
                   >
-                    <span className="block truncate font-bold text-white text-xs mb-1 font-sans">{demo.label}</span>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/80 font-mono">
-                      <span className="text-[10px] text-slate-400 truncate">{demo.filename}</span>
+                    <div className="flex items-center justify-between w-full mb-1">
+                      <span className="truncate font-bold text-[#2d3436] text-xs font-sans">{demo.label}</span>
+                      <span className={`led-node ${demo.led}`} />
+                    </div>
+                    <div className="flex items-center justify-between w-full mt-2 pt-2 border-t border-[#d1d9e6]/80 font-mono">
+                      <span className="text-[10px] text-[#4a5568] truncate">{demo.filename}</span>
                       <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold flex-shrink-0 ml-1 ${demo.badgeColor}`}>
                         {demo.badge}
                       </span>
@@ -343,16 +373,16 @@ function App() {
 
             {/* Selected File Action Bar */}
             {file && (
-              <div className="flex items-center space-x-3 bg-slate-900/90 border border-cyan-500/40 px-4 py-3 rounded-xl w-full max-w-4xl shadow-lg animate-in fade-in">
-                <FileText className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+              <div className="flex items-center space-x-3 slot-recessed p-3.5 rounded-xl w-full max-w-4xl border border-[#babecc]/60 animate-in fade-in">
+                <FileText className="w-5 h-5 text-[#ff4757] flex-shrink-0" />
                 <div className="flex-1 truncate">
-                  <span className="text-xs font-bold text-white font-mono block truncate">{file.name}</span>
-                  <span className="text-[11px] text-slate-400 font-mono">{(file.size / 1024).toFixed(1)} KB &bull; Ingestion stream ready</span>
+                  <span className="text-xs font-bold text-[#2d3436] font-mono block truncate">{file.name}</span>
+                  <span className="text-[11px] text-[#4a5568] font-mono font-medium">{(file.size / 1024).toFixed(1)} KB &bull; Stream buffer loaded</span>
                 </div>
                 <button 
                   onClick={() => handleAnalyze()}
                   disabled={loading}
-                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold px-6 py-2 rounded-xl text-xs shadow-lg shadow-cyan-500/30 transition-all disabled:opacity-50 cursor-pointer flex-shrink-0 hover:scale-105 font-mono"
+                  className="btn-tactile-primary px-5 py-2 text-xs font-mono"
                 >
                   {loading ? "[ANALYZING...]" : "[INITIATE THREAT SCAN]"}
                 </button>
@@ -360,33 +390,33 @@ function App() {
             )}
 
             {error && (
-              <div className="flex items-center space-x-2 text-rose-400 bg-rose-950/40 border border-rose-500/40 px-4 py-3 rounded-xl w-full max-w-4xl text-xs font-mono">
+              <div className="flex items-center space-x-2 text-[#d63031] slot-recessed p-3.5 rounded-xl w-full max-w-4xl text-xs font-mono border-l-4 border-l-[#d63031]">
                 <AlertCircle className="w-4 h-4 flex-shrink-0" />
                 <span>ERROR: {error}</span>
               </div>
             )}
             
           </div>
-        </div>
+        </section>
 
-        {/* Results Section with Tactical Navigation Dock */}
+        {/* Results Section with Industrial Navigation Dock */}
         {results && (
-          <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-400">
+          <section className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
             
             {/* Live Threat Quick Telemetry Strip */}
-            <div className={`p-4 rounded-2xl border flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl backdrop-blur-xl ${isHighRisk ? 'bg-rose-950/30 border-rose-500/40' : (isMediumRisk ? 'bg-amber-950/30 border-amber-500/40' : 'bg-emerald-950/30 border-emerald-500/40')}`}>
+            <div className="panel-chassis p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex items-center space-x-4">
-                <div className={`p-3 rounded-xl font-mono text-2xl font-black ${isHighRisk ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : (isMediumRisk ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40')}`}>
+                <div className={`p-3.5 rounded-xl font-mono text-2xl font-black slot-recessed ${isHighRisk ? 'text-[#ff4757]' : (isMediumRisk ? 'text-[#d97706]' : 'text-[#059669]')}`}>
                   {threatScore}/100
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs uppercase font-mono font-bold text-slate-400">// INCIDENT VERDICT:</span>
-                    <span className={`text-xs font-bold uppercase px-2.5 py-0.5 rounded-full font-mono ${isHighRisk ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' : (isMediumRisk ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40')}`}>
-                      {results.fraud_assessment?.risk_level} Risk
+                    <span className="text-xs uppercase font-mono font-bold text-[#4a5568]">// INCIDENT VERDICT:</span>
+                    <span className={`text-xs font-bold uppercase px-2.5 py-0.5 rounded-md font-mono ${isHighRisk ? 'bg-[#ff4757]/15 text-[#d63031] border border-[#ff4757]/30' : (isMediumRisk ? 'bg-[#f59e0b]/15 text-[#b45309] border border-[#f59e0b]/30' : 'bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30')}`}>
+                      {results.fraud_assessment?.risk_level} Risk Level
                     </span>
                   </div>
-                  <h3 className="text-sm font-bold text-white truncate max-w-xl mt-0.5 font-sans">
+                  <h3 className="text-sm font-bold text-[#2d3436] truncate max-w-xl mt-0.5 font-sans">
                     {results.subject || "No Subject"}
                   </h3>
                 </div>
@@ -396,18 +426,18 @@ function App() {
                 <ThreatWaveform score={threatScore} isHighRisk={isHighRisk} />
 
                 <div className="flex items-center gap-2 text-xs font-mono">
-                  <div className="bg-slate-900/90 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300">
-                    ORIGIN: <strong className="text-cyan-300 font-bold">{results.trace?.best_guess_ip || 'N/A'}</strong>
+                  <div className="slot-recessed-sm px-3 py-1.5 text-[#4a5568]">
+                    ORIGIN: <strong className="text-[#2d3436] font-bold">{results.trace?.best_guess_ip || 'N/A'}</strong>
                   </div>
-                  <div className="bg-slate-900/90 px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300">
-                    THREAT: <strong className="text-indigo-300 font-bold">{results.ai_ml_analysis?.classification?.primary_threat?.replace(/_/g, ' ').toUpperCase() || 'CLEAN'}</strong>
+                  <div className="slot-recessed-sm px-3 py-1.5 text-[#4a5568]">
+                    THREAT: <strong className="text-[#ff4757] font-bold">{results.ai_ml_analysis?.classification?.primary_threat?.replace(/_/g, ' ').toUpperCase() || 'CLEAN'}</strong>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Tactical Navigation Dock */}
-            <div className="flex items-center gap-2 overflow-x-auto p-2 bg-slate-950/90 border border-slate-800 rounded-2xl shadow-xl">
+            {/* Industrial Navigation Dock (Key Switches) */}
+            <div className="flex items-center gap-2 overflow-x-auto p-2 slot-recessed rounded-2xl">
               {[
                 { id: 'radar', code: '01', label: 'Threat Radar', icon: Activity },
                 { id: 'ai', code: '02', label: 'Neural AI & Trap', icon: Brain },
@@ -424,14 +454,12 @@ function App() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveView(tab.id)}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex-shrink-0 ${
-                      isActive 
-                        ? 'bg-gradient-to-r from-cyan-950 to-blue-950 text-cyan-300 border border-cyan-500/60 shadow-lg shadow-cyan-950/50' 
-                        : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900 border border-transparent'
-                    }`}
+                    className={`key-switch flex items-center gap-2 px-4 py-2.5 text-xs font-bold flex-shrink-0 ${isActive ? 'active' : ''}`}
                   >
-                    <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-cyan-400' : 'text-slate-600'}`}>[{tab.code}]</span>
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400' : 'text-slate-500'}`} />
+                    <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-[#ff4757]' : 'text-[#8896aa]'}`}>
+                      [{tab.code}]
+                    </span>
+                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#ff4757]' : 'text-[#4a5568]'}`} />
                     <span>{tab.label}</span>
                   </button>
                 );
@@ -441,57 +469,57 @@ function App() {
             {/* Dynamic View Display Container */}
             <div className="space-y-6">
               {activeView === 'radar' && (
-                <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="space-y-6 animate-in fade-in duration-250">
                   <FraudScorePanel data={results} />
                 </div>
               )}
 
               {activeView === 'ai' && (
-                <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="space-y-6 animate-in fade-in duration-250">
                   <AIMLThreatPanel data={results} />
                 </div>
               )}
 
               {activeView === 'dissector' && (
-                <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="space-y-6 animate-in fade-in duration-250">
                   <EmailBodyDissector data={results} onLookupIOC={handleLookupIOC} />
                 </div>
               )}
 
               {activeView === 'geo' && (
-                <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="space-y-6 animate-in fade-in duration-250">
                   <MapPanel data={results} />
                 </div>
               )}
 
               {activeView === 'osint' && (
-                <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="space-y-6 animate-in fade-in duration-250">
                   <DeepOSINTPanel data={results} />
                 </div>
               )}
 
               {activeView === 'graph' && (
-                <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="space-y-6 animate-in fade-in duration-250">
                   <GraphAttributionPanel data={results} onLookupIOC={handleLookupIOC} />
                 </div>
               )}
 
               {activeView === 'headers' && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in duration-300">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in duration-250">
                   <HeaderPanel data={results} />
                   <AuthPanel data={results} />
                 </div>
               )}
 
               {activeView === 'custody' && (
-                <div className="space-y-6 animate-in fade-in duration-300">
+                <div className="space-y-6 animate-in fade-in duration-250">
                   <CustodyReportPanel data={results} />
                   <CaseHistoryPanel />
                 </div>
               )}
             </div>
 
-          </div>
+          </section>
         )}
 
         {/* Persistent Case Management & Campaigns when no active email is loaded */}

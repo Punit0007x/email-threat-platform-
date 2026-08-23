@@ -21,8 +21,8 @@ export default function PlaybookModal({ isOpen, onClose }) {
       title: "The Cryptographic Seal",
       subtitle: "Blockchain Notary & Immutability",
       icon: ShieldCheck,
-      color: "from-emerald-600 to-teal-500",
-      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      color: "bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30",
+      badgeColor: "bg-[#10b981]/15 text-[#047857] border-[#10b981]/30",
       what: "Before analysis begins, the raw email code is locked with a SHA-256 digest and recorded onto a local Ethereum blockchain ledger.",
       why: "Ensures legal admissibility in court and insurance fraud claims by proving mathematically that the evidence has never been tampered with or modified.",
       example: "A CFO receives a fake invoice. The platform instantly notarizes the evidence before the user even opens the email."
@@ -32,8 +32,8 @@ export default function PlaybookModal({ isOpen, onClose }) {
       title: "The X-Ray",
       subtitle: "Multi-Modal Computer Vision & QR Detonation",
       icon: Scan,
-      color: "from-blue-600 to-cyan-500",
-      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+      color: "bg-[#0ea5e9]/15 text-[#0369a1] border border-[#0ea5e9]/30",
+      badgeColor: "bg-[#0ea5e9]/15 text-[#0369a1] border-[#0ea5e9]/30",
       what: "Tesseract OCR extracts text embedded in image screenshots or PDF attachments, and computer vision engines detonate hidden QR codes.",
       why: "Threat actors often bypass traditional text scanners by embedding text in images or tricking users into scanning QR codes on mobile devices.",
       example: "An email with zero body text contains an attached image stating: 'Password Expired. Scan QR code.' The OCR engine extracts the text, detonates the QR URL, and flags the phishing domain."
@@ -43,8 +43,8 @@ export default function PlaybookModal({ isOpen, onClose }) {
       title: "Breaking the VPN",
       subtitle: "Speed-of-Light Latency Triangulation",
       icon: Activity,
-      color: "from-amber-600 to-orange-500",
-      badgeColor: "bg-amber-500/20 text-amber-300 border-amber-500/30",
+      color: "bg-[#f59e0b]/15 text-[#b45309] border border-[#f59e0b]/30",
+      badgeColor: "bg-[#f59e0b]/15 text-[#b45309] border-[#f59e0b]/30",
       what: "Analyzes timestamps in the 'Received' header chain and calculates physical propagation delays between server coordinates using the speed of light in fiber optics.",
       why: "Scammers use VPNs and proxy chains to disguise their physical location. Physical latency physics exposes forged hops and co-located proxy nodes.",
       example: "Hop 1 claims origin in Moscow, Russia while Hop 2 is in New York, USA with an impossible timestamp difference of 0.005 seconds. The platform flags a temporal speed-of-light violation."
@@ -54,8 +54,8 @@ export default function PlaybookModal({ isOpen, onClose }) {
       title: "The Polygraph",
       subtitle: "Stylometry & Neural Behavioral NLP",
       icon: Brain,
-      color: "from-purple-600 to-indigo-500",
-      badgeColor: "bg-purple-500/20 text-purple-300 border-purple-500/30",
+      color: "bg-[#7048e8]/15 text-[#5f3dc4] border border-[#7048e8]/30",
+      badgeColor: "bg-[#7048e8]/15 text-[#5f3dc4] border-[#7048e8]/30",
       what: "Multi-task transformer ensemble measures urgency, fear, authority framing, and synthetic LLM-generated language characteristics.",
       why: "Catches sophisticated Business Email Compromise (BEC) and executive impersonation where no malicious attachments or links exist.",
       example: "An email from 'CEO@company.com' urgently requests a $50k wire transfer before a flight. The AI flags linguistic pressure, display name mismatch, and brand lookalike typo 'company.c0m'."
@@ -65,8 +65,8 @@ export default function PlaybookModal({ isOpen, onClose }) {
       title: "The String Board",
       subtitle: "Semantic Memory & Neo4j Attribution Graph",
       icon: Network,
-      color: "from-indigo-600 to-blue-500",
-      badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+      color: "bg-[#0ea5e9]/15 text-[#0369a1] border border-[#0ea5e9]/30",
+      badgeColor: "bg-[#0ea5e9]/15 text-[#0369a1] border-[#0ea5e9]/30",
       what: "ChromaDB vector database stores high-dimensional embeddings of all phishing lures, while Neo4j clusters entities into unified crime syndicates.",
       why: "Even if an attacker rotates their domain, email, and IP, the mathematical syntax of their lure matches past campaigns stored in vector memory.",
       example: "Attacker A targets finance from Nigeria; a month later, Attacker B sends a lure from Brazil. ChromaDB identifies a 98% semantic match, merging both incidents into a single organized campaign cluster."
@@ -76,8 +76,8 @@ export default function PlaybookModal({ isOpen, onClose }) {
       title: "Active Defense",
       subtitle: "Autonomous ScamBaiter & Tracking Beacon",
       icon: ShieldAlert,
-      color: "from-rose-600 to-red-500",
-      badgeColor: "bg-rose-500/20 text-rose-300 border-rose-500/30",
+      color: "bg-[#ff4757]/15 text-[#d63031] border border-[#ff4757]/30",
+      badgeColor: "bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/30",
       what: "For high-confidence BEC attacks, the platform wakes up the autonomous ScamBaiter agent to auto-reply with realistic delay lures and an embedded 1x1 tracking beacon.",
       why: "Transitions security from passive defense to active attacker deanonymization and resource exhaustion.",
       example: "The AI replies: 'Accounting portal says routing number is invalid. Can you provide an updated PDF with SWIFT code?' When the attacker opens it on mobile, the tracking pixel fires, capturing their real physical IP and device fingerprint."
@@ -85,67 +85,73 @@ export default function PlaybookModal({ isOpen, onClose }) {
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="panel-chassis w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#babecc] relative">
         
+        {/* Corner Screws */}
+        <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
+        <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
+        <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
+        <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
+
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-850">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 bg-indigo-500/20 text-indigo-400 rounded-xl border border-indigo-500/30">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#d1d9e6] bg-[#e0e5ec]">
+          <div className="flex items-center space-x-3.5">
+            <div className="p-2.5 bg-[#e0e5ec] text-[#7048e8] rounded-xl shadow-[var(--shadow-card)] border border-white/70">
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-white flex items-center gap-2">
-                Platform Forensic Playbook & Master Architecture
-                <span className="text-[10px] font-mono bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full border border-indigo-500/30">
+              <h2 className="text-base font-bold text-[#2d3436] flex items-center gap-2 font-mono">
+                Platform Forensic Playbook & Architecture
+                <span className="text-[10px] font-mono bg-[#7048e8]/15 text-[#5f3dc4] px-2 py-0.5 rounded border border-[#7048e8]/30 font-bold">
                   v1.0 Standard
                 </span>
               </h2>
-              <p className="text-xs text-slate-400">Complete end-to-end investigation methodology & enterprise pipeline</p>
+              <p className="text-xs text-[#4a5568]">Complete end-to-end investigation methodology & enterprise pipeline</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer hover:bg-slate-800"
+            className="p-1.5 text-[#4a5568] hover:text-[#2d3436] rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 text-slate-200">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 text-[#2d3436]">
           
           {/* Master Workflow Banner */}
-          <div className="bg-slate-800/60 border border-slate-700 rounded-xl p-5 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-indigo-300 flex items-center gap-2">
+          <div className="slot-recessed p-5 space-y-3 bg-[#f0f2f5]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#7048e8] flex items-center gap-2 font-mono">
               <Layers className="w-4 h-4" />
               The Master Investigation Flow
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center text-xs">
-              <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-700">
-                <span className="text-[10px] font-mono text-emerald-400 font-bold block mb-0.5">STEP 1</span>
-                <span className="font-semibold text-white block text-[11px]">Blockchain Seal</span>
+              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+                <span className="text-[10px] font-mono text-[#047857] font-bold block mb-0.5">STEP 1</span>
+                <span className="font-bold text-[#2d3436] block text-[11px]">Blockchain Seal</span>
               </div>
-              <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-700">
-                <span className="text-[10px] font-mono text-cyan-400 font-bold block mb-0.5">STEP 2</span>
-                <span className="font-semibold text-white block text-[11px]">Vision & OCR</span>
+              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+                <span className="text-[10px] font-mono text-[#0369a1] font-bold block mb-0.5">STEP 2</span>
+                <span className="font-bold text-[#2d3436] block text-[11px]">Vision & OCR</span>
               </div>
-              <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-700">
-                <span className="text-[10px] font-mono text-amber-400 font-bold block mb-0.5">STEP 3</span>
-                <span className="font-semibold text-white block text-[11px]">Origin Triangulation</span>
+              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+                <span className="text-[10px] font-mono text-[#b45309] font-bold block mb-0.5">STEP 3</span>
+                <span className="font-bold text-[#2d3436] block text-[11px]">Origin Physics</span>
               </div>
-              <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-700">
-                <span className="text-[10px] font-mono text-purple-400 font-bold block mb-0.5">STEP 4</span>
-                <span className="font-semibold text-white block text-[11px]">NLP & Polygraph</span>
+              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+                <span className="text-[10px] font-mono text-[#5f3dc4] font-bold block mb-0.5">STEP 4</span>
+                <span className="font-bold text-[#2d3436] block text-[11px]">NLP Polygraph</span>
               </div>
-              <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-700">
-                <span className="text-[10px] font-mono text-blue-400 font-bold block mb-0.5">STEP 5</span>
-                <span className="font-semibold text-white block text-[11px]">String Board Graph</span>
+              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+                <span className="text-[10px] font-mono text-[#0369a1] font-bold block mb-0.5">STEP 5</span>
+                <span className="font-bold text-[#2d3436] block text-[11px]">String Board</span>
               </div>
-              <div className="bg-slate-900/80 p-2.5 rounded-lg border border-slate-700">
-                <span className="text-[10px] font-mono text-rose-400 font-bold block mb-0.5">STEP 6</span>
-                <span className="font-semibold text-white block text-[11px]">Active Defense</span>
+              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+                <span className="text-[10px] font-mono text-[#d63031] font-bold block mb-0.5">STEP 6</span>
+                <span className="font-bold text-[#2d3436] block text-[11px]">Active Defense</span>
               </div>
             </div>
           </div>
@@ -155,16 +161,16 @@ export default function PlaybookModal({ isOpen, onClose }) {
             {steps.map((s) => {
               const Icon = s.icon;
               return (
-                <div key={s.num} className="bg-slate-800/70 border border-slate-700 rounded-xl p-5 space-y-3 flex flex-col justify-between hover:border-slate-600 transition-all">
+                <div key={s.num} className="slot-recessed p-5 space-y-3 flex flex-col justify-between bg-[#f0f2f5]">
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2.5">
-                        <div className={`p-2 rounded-lg bg-gradient-to-tr ${s.color} text-white shadow-md`}>
+                        <div className={`p-2 rounded-xl ${s.color}`}>
                           <Icon className="w-4 h-4" />
                         </div>
                         <div>
-                          <h4 className="text-sm font-bold text-white leading-tight">{s.title}</h4>
-                          <span className="text-[11px] text-slate-400">{s.subtitle}</span>
+                          <h4 className="text-sm font-bold text-[#2d3436] leading-tight font-mono">{s.title}</h4>
+                          <span className="text-[11px] text-[#4a5568]">{s.subtitle}</span>
                         </div>
                       </div>
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${s.badgeColor}`}>
@@ -172,15 +178,15 @@ export default function PlaybookModal({ isOpen, onClose }) {
                       </span>
                     </div>
 
-                    <div className="space-y-2 text-xs text-slate-300 pt-1">
-                      <p className="leading-relaxed"><strong className="text-slate-200">How it works:</strong> {s.what}</p>
-                      <p className="leading-relaxed"><strong className="text-indigo-300">Why it matters:</strong> {s.why}</p>
+                    <div className="space-y-2 text-xs text-[#4a5568] pt-1">
+                      <p className="leading-relaxed"><strong className="text-[#2d3436]">How it works:</strong> {s.what}</p>
+                      <p className="leading-relaxed"><strong className="text-[#7048e8]">Why it matters:</strong> {s.why}</p>
                     </div>
                   </div>
 
-                  <div className="bg-slate-900/70 p-3 rounded-lg border border-slate-700/60 text-[11px] font-mono text-slate-400 space-y-1">
-                    <span className="text-slate-500 font-bold block text-[10px] uppercase tracking-wider font-sans">Real-World Scenario:</span>
-                    <p className="text-slate-300 leading-relaxed font-sans italic">"{s.example}"</p>
+                  <div className="bg-[#e0e5ec] p-3 rounded-xl border border-[#babecc]/60 text-[11px] font-mono text-[#4a5568] space-y-1">
+                    <span className="text-[#4a5568] font-bold block text-[10px] uppercase tracking-wider font-mono">Real-World Scenario:</span>
+                    <p className="text-[#2d3436] leading-relaxed font-sans italic font-medium">"{s.example}"</p>
                   </div>
                 </div>
               );
@@ -188,27 +194,27 @@ export default function PlaybookModal({ isOpen, onClose }) {
           </div>
 
           {/* Enterprise Infrastructure Summary */}
-          <div className="bg-slate-850 border border-slate-700/80 rounded-xl p-5 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-              <Server className="w-4 h-4 text-emerald-400" />
+          <div className="slot-recessed p-5 space-y-3 bg-[#f0f2f5]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#2d3436] flex items-center gap-2 font-mono">
+              <Server className="w-4 h-4 text-[#059669]" />
               Decoupled Docker Enterprise Infrastructure
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-              <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-700/60 space-y-1">
-                <span className="text-white font-bold block">1. FastAPI Core</span>
-                <p className="text-slate-400 text-[11px]">Async orchestration server executing OCR, headers, and risk engines.</p>
+              <div className="bg-[#e0e5ec] p-3 rounded-xl border border-[#babecc] space-y-1 shadow-sm">
+                <span className="text-[#2d3436] font-bold block font-mono">1. FastAPI Core</span>
+                <p className="text-[#4a5568] text-[11px]">Async orchestration server executing OCR, headers, and risk engines.</p>
               </div>
-              <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-700/60 space-y-1">
-                <span className="text-white font-bold block">2. React + Tailwind</span>
-                <p className="text-slate-400 text-[11px]">Real-time single-pane SOC dashboard with Leaflet geolocation maps.</p>
+              <div className="bg-[#e0e5ec] p-3 rounded-xl border border-[#babecc] space-y-1 shadow-sm">
+                <span className="text-[#2d3436] font-bold block font-mono">2. React + Tailwind</span>
+                <p className="text-[#4a5568] text-[11px]">Tactile skeuomorphic SOC workstation dashboard with live telemetry.</p>
               </div>
-              <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-700/60 space-y-1">
-                <span className="text-white font-bold block">3. Apache Kafka</span>
-                <p className="text-slate-400 text-[11px]">Asynchronous event bus streaming high-velocity telemetry across microservices.</p>
+              <div className="bg-[#e0e5ec] p-3 rounded-xl border border-[#babecc] space-y-1 shadow-sm">
+                <span className="text-[#2d3436] font-bold block font-mono">3. Apache Kafka</span>
+                <p className="text-[#4a5568] text-[11px]">Asynchronous event bus streaming high-velocity telemetry across microservices.</p>
               </div>
-              <div className="bg-slate-900/60 p-3 rounded-lg border border-slate-700/60 space-y-1">
-                <span className="text-white font-bold block">4. Neo4j & ChromaDB</span>
-                <p className="text-slate-400 text-[11px]">Attribution graph topology and vector semantic memory for crime rings.</p>
+              <div className="bg-[#e0e5ec] p-3 rounded-xl border border-[#babecc] space-y-1 shadow-sm">
+                <span className="text-[#2d3436] font-bold block font-mono">4. Neo4j & ChromaDB</span>
+                <p className="text-[#4a5568] text-[11px]">Attribution graph topology and vector semantic memory for crime rings.</p>
               </div>
             </div>
           </div>
