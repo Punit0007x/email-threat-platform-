@@ -12,10 +12,10 @@ DNSBL_ZONES = [
     ("tor.dan.me.uk", "TOR Exit Nodes"),
 ]
 
-REVERSE_DNS_TIMEOUT = 2.0
-DNSBL_TIMEOUT = 3.0
+REVERSE_DNS_TIMEOUT = 1.0
+DNSBL_TIMEOUT = 1.0
 ASN_API_URL = "https://api.hackertarget.com/aslookup/?q={ip}"
-REQUEST_TIMEOUT = 10
+REQUEST_TIMEOUT = 1.5
 
 
 def _reverse_ip(ip: str) -> Optional[str]:

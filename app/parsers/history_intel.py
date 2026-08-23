@@ -5,7 +5,7 @@ from datetime import datetime
 
 WAYBACK_CDX_URL = "http://web.archive.org/cdx/search/cdx"
 WAYBACK_AVAILABLE_URL = "http://archive.org/wayback/available"
-REQUEST_TIMEOUT = 15
+REQUEST_TIMEOUT = 1.5
 
 def _query_wayback_cdx(domain: str, limit: int = 100) -> List[Dict[str, Any]]:
     """Query Wayback CDX API for historical snapshots."""

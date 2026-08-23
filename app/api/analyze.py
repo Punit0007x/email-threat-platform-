@@ -92,34 +92,32 @@ async def parse_email(file: UploadFile = File(...)):
                 origin_geo = None
                 trace_results["best_guess_geolocation"] = None
                 
-# Step 6: Live DNS & MX Intelligence
+            # Step 6 & 7: Parallel OSINT & Reconnaissance Execution
+            from concurrent.futures import ThreadPoolExecutor
+            
             from_domain = parsed_email.from_address.split('@')[-1].strip('>') if '@' in parsed_email.from_address else ""
-            dns_intel = query_domain_dns(from_domain)
-            
-            # Step 6b: WHOIS / Registrar Intelligence
-            whois_intel = query_whois_intel(from_domain)
-
-            # Step 7: Origin Infrastructure Classification (Cloud / VPN / ISP)
             origin_isp = origin_geo.get("isp_org") if origin_geo else None
-            infra_intel = analyze_infrastructure(best_guess_ip, origin_isp)
             
-            # Step 7b: IP Reputation & DNSBL Intelligence
-            ip_reputation = query_ip_reputation(best_guess_ip) if best_guess_ip else None
-            
-            # Step 7c: IP Network Context Expansion (ASN, CIDR, neighbors)
-            ip_network_context = expand_ip_network_context(best_guess_ip) if best_guess_ip else None
-            
-            # Step 7d: Domain Reconnaissance (Subdomain enumeration)
-            domain_recon = enumerate_subdomains(from_domain) if from_domain else None
-            
-            # Step 7e: Wayback Machine Historical Analysis
-            history_intel = crawl_wayback_history(from_domain) if from_domain else None
-            
-            # Step 7f: Technology Fingerprinting (CMS, frameworks, hosting)
-            tech_fingerprint = fingerprint_technology(from_domain) if from_domain else None
-            
-            # Step 7g: Passive Dork Scanning (OSINT)
-            dork_intel = run_dork_scan(from_domain) if from_domain else None
+            with ThreadPoolExecutor(max_workers=8) as executor:
+                f_dns = executor.submit(query_domain_dns, from_domain) if from_domain else None
+                f_whois = executor.submit(query_whois_intel, from_domain) if from_domain else None
+                f_infra = executor.submit(analyze_infrastructure, best_guess_ip, origin_isp)
+                f_ip_rep = executor.submit(query_ip_reputation, best_guess_ip) if best_guess_ip else None
+                f_ip_ctx = executor.submit(expand_ip_network_context, best_guess_ip) if best_guess_ip else None
+                f_dom_recon = executor.submit(enumerate_subdomains, from_domain) if from_domain else None
+                f_hist = executor.submit(crawl_wayback_history, from_domain) if from_domain else None
+                f_tech = executor.submit(fingerprint_technology, from_domain) if from_domain else None
+                f_dork = executor.submit(run_dork_scan, from_domain) if from_domain else None
+                
+                dns_intel = f_dns.result() if f_dns else {}
+                whois_intel = f_whois.result() if f_whois else {}
+                infra_intel = f_infra.result() if f_infra else {}
+                ip_reputation = f_ip_rep.result() if f_ip_rep else None
+                ip_network_context = f_ip_ctx.result() if f_ip_ctx else None
+                domain_recon = f_dom_recon.result() if f_dom_recon else None
+                history_intel = f_hist.result() if f_hist else None
+                tech_fingerprint = f_tech.result() if f_tech else None
+                dork_intel = f_dork.result() if f_dork else None
             
             # Step 8: Heuristic & Lexical Signals
             text_signals = analyze_text_signals(
@@ -324,4 +322,76 @@ async def run_retention_purge(max_age_days: int = None, mask_pii: bool = None):
     """
     from app.forensics.custody import apply_retention_policy
     return apply_retention_policy(max_age_days=max_age_days, mask_pii=mask_pii)
+
+@router.get("/api/indicators/{value:path}")
+async def lookup_indicator(value: str):
+    """
+    Looks up an Indicator of Compromise (IOC) — IP, Domain, Email, SHA-256 Hash, or Keyword —
+    across all historical forensic cases and returns a compiled threat dossier.
+    """
+    from app.parsers.case_db import DB_PATH
+    import sqlite3
+    import re
+    
+    value = value.strip()
+    if not value:
+        raise HTTPException(status_code=400, detail="Indicator value must not be empty.")
+        
+    ioc_type = "keyword"
+    if re.match(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$", value):
+        ioc_type = "ip"
+    elif "@" in value:
+        ioc_type = "email"
+    elif len(value) == 64 and all(c in "0123456789abcdefABCDEF" for c in value):
+        ioc_type = "sha256"
+    elif "." in value and " " not in value:
+        ioc_type = "domain"
+
+    matched_cases = []
+    if os.path.exists(DB_PATH):
+        try:
+            conn = sqlite3.connect(DB_PATH)
+            c = conn.cursor()
+            query = """
+                SELECT case_id, evidence_id, timestamp_utc, from_address, subject, primary_threat, fraud_score, campaign_id
+                FROM incident_cases
+                WHERE from_address LIKE ? 
+                   OR subject LIKE ? 
+                   OR evidence_id LIKE ? 
+                   OR campaign_id LIKE ?
+                   OR raw_json LIKE ?
+                ORDER BY id DESC LIMIT 50
+            """
+            pattern = f"%{value}%"
+            c.execute(query, (pattern, pattern, pattern, pattern, pattern))
+            rows = c.fetchall()
+            for r in rows:
+                matched_cases.append({
+                    "case_id": r[0],
+                    "evidence_id": r[1],
+                    "timestamp_utc": r[2],
+                    "from_address": r[3],
+                    "subject": r[4],
+                    "primary_threat": r[5],
+                    "fraud_score": r[6],
+                    "campaign_id": r[7]
+                })
+            conn.close()
+        except Exception as err:
+            print(f"Error querying IOC indicators: {err}")
+
+    campaign_ids = list(set([m["campaign_id"] for m in matched_cases if m.get("campaign_id")]))
+    avg_fraud_score = round(sum([m["fraud_score"] for m in matched_cases]) / len(matched_cases), 1) if matched_cases else 0
+    verdict = "MALICIOUS" if avg_fraud_score >= 70 else ("SUSPICIOUS" if avg_fraud_score > 30 else ("BENIGN" if matched_cases else "UNKNOWN_IOC"))
+
+    return {
+        "ioc_value": value,
+        "ioc_type": ioc_type,
+        "match_count": len(matched_cases),
+        "verdict": verdict,
+        "avg_fraud_score": avg_fraud_score,
+        "linked_campaigns": campaign_ids,
+        "historical_cases": matched_cases
+    }
+
 

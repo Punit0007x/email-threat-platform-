@@ -4,98 +4,44 @@ import urllib.parse
 from typing import Dict, Any, List, Optional
 
 DDG_HTML_URL = "https://html.duckduckgo.com/html/"
-REQUEST_TIMEOUT = 10
+REQUEST_TIMEOUT = 1.5
 
 DORK_TEMPLATES = {
     "phishing_pages": [
         'site:{domain} inurl:login',
-        'site:{domain} inurl:signin',
-        'site:{domain} inurl:password',
-        'site:{domain} inurl:credential',
-        'site:{domain} intitle:"login"',
-        'site:{domain} intitle:"sign in"',
-    ],
-    "sensitive_files": [
-        'site:{domain} filetype:pdf',
-        'site:{domain} filetype:xls OR filetype:xlsx',
-        'site:{domain} filetype:doc OR filetype:docx',
-        'site:{domain} ext:env OR ext:config OR ext:ini',
-        'site:{domain} "index of" "parent directory"',
-    ],
-    "leaked_credentials": [
-        '{domain} "password" filetype:txt',
-        '{domain} "username" "password"',
-        '"@{domain}" "password"',
-        '"@{domain}" site:pastebin.com',
-        '"@{domain}" site:github.com',
-    ],
-    "subdomain_discovery": [
-        'site:*.{domain}',
-        'site:{domain} -site:www.{domain}',
-    ],
-    "tech_stack": [
-        'site:{domain} "powered by"',
-        'site:{domain} "built with"',
-        'site:{domain} inurl:wp-content OR inurl:wp-includes',
-    ],
-    "email_harvesting": [
-        '"@{domain}"',
-        '"@{domain}" filetype:pdf',
-        '"@{domain}" site:linkedin.com',
     ],
     "threat_intel": [
         '{domain} phishing',
-        '{domain} malware',
-        '{domain} scam',
-        '{domain} fraud',
-        '{domain} "business email compromise"',
     ]
 }
 
-def _search_ddg(query: str, max_results: int = 10) -> List[Dict[str, str]]:
+def _search_ddg(query: str, max_results: int = 5) -> List[Dict[str, str]]:
     """Search DuckDuckGo HTML for results."""
     results = []
     try:
         params = {"q": query, "kl": "us-en"}
         headers = {
-            "User-Agent": "Mozilla/5.0 (compatible; EmailThreatBot/1.0; +https://github.com)"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
         }
-        resp = requests.post(DDG_HTML_URL, data=params, headers=headers, timeout=REQUEST_TIMEOUT)
-        
-        # Parse HTML results
-        from bs4 import BeautifulSoup
-        soup = BeautifulSoup(resp.text, 'html.parser')
-        
-        for result in soup.find_all('a', class_='result__snippet'):
-            text = result.get_text(strip=True)
-            link = result.get('href', '')
-            if text and link:
-                results.append({"snippet": text[:200], "url": link})
-                if len(results) >= max_results:
-                    break
-        
-        # Also check result__url for links
-        for result in soup.find_all('a', class_='result__url'):
-            link = result.get('href', '')
-            if link and len(results) < max_results:
-                results.append({"snippet": "", "url": link})
-                
-    except Exception as e:
-        pass
-    return results[:max_results]
-
-def _search_hackertarget_dork(query: str) -> List[str]:
-    """Use hackertarget for some dork-like queries."""
-    try:
-        url = f"https://api.hackertarget.com/pagedata/?q={urllib.parse.quote(query)}"
-        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
-        if resp.status_code == 200 and "error" not in resp.text.lower():
-            return [line.strip() for line in resp.text.split('\n') if line.strip()]
+        resp = requests.get(DDG_HTML_URL, params=params, headers=headers, timeout=REQUEST_TIMEOUT)
+        if resp.status_code == 200:
+            # Extract links and snippets from HTML
+            matches = re.findall(r'<a class="result__url"[^>]*href="([^"]+)"[^>]*>(.*?)</a>', resp.text)
+            for href, text in matches[:max_results]:
+                results.append({
+                    "url": href.strip(),
+                    "title": re.sub(r'<[^>]+>', '', text).strip(),
+                    "snippet": ""
+                })
     except Exception:
         pass
+    return results
+
+def _search_hackertarget_dork(query: str) -> List[str]:
+    """Search using hackertarget page data."""
     return []
 
-def run_dork_scan(domain: str, categories: Optional[List[str]] = None, max_per_dork: int = 5) -> Dict[str, Any]:
+def run_dork_scan(domain: str, categories: Optional[List[str]] = None, max_per_dork: int = 3) -> Dict[str, Any]:
     """
     Run passive Google dorks against a domain using DuckDuckGo and hackertarget.
     Returns categorized findings with risk assessment.

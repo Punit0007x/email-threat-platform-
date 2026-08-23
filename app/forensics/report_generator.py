@@ -13,6 +13,11 @@ def generate_html_forensic_report(data: Dict[str, Any]) -> str:
     trace = data.get("trace", {})
     dns_info = data.get("dns_intel", {})
     infra_info = data.get("infra_intel", {})
+    options = data.get("report_options", {})
+    
+    classification_tier = options.get("classification", "CONFIDENTIAL // TLP:AMBER")
+    investigator = options.get("investigator", "Autonomous AI Forensic Agent")
+    agency = options.get("agency", "Cyber Threat Intelligence Unit")
     
     score = fraud.get("score", 0)
     risk_level = fraud.get("risk_level", "Low")
@@ -26,11 +31,12 @@ def generate_html_forensic_report(data: Dict[str, Any]) -> str:
     <style>
         body {{ font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; color: #1e293b; background: #ffffff; margin: 40px; line-height: 1.5; font-size: 13px; }}
         .header-table {{ width: 100%; border-bottom: 2px solid #0f172a; padding-bottom: 15px; margin-bottom: 20px; }}
-        .title {{ font-size: 22px; font-weight: 800; color: #0f172a; margin: 0; }}
-        .subtitle {{ font-size: 12px; color: #64748b; margin-top: 4px; }}
+        .title {{ font-size: 20px; font-weight: 800; color: #0f172a; margin: 0; }}
+        .subtitle {{ font-size: 11px; color: #64748b; margin-top: 4px; font-family: monospace; }}
         .badge {{ display: inline-block; padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 11px; text-transform: uppercase; }}
         .badge-risk {{ background: {risk_color}20; color: {risk_color}; border: 1px solid {risk_color}40; }}
-        .section-title {{ font-size: 14px; font-weight: 700; color: #0f172a; border-left: 4px solid #3b82f6; padding-left: 8px; margin: 25px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }}
+        .badge-tlp {{ background: #0f172a; color: #f8fafc; font-size: 10px; margin-bottom: 4px; }}
+        .section-title {{ font-size: 13px; font-weight: 700; color: #0f172a; border-left: 4px solid #3b82f6; padding-left: 8px; margin: 25px 0 10px 0; text-transform: uppercase; letter-spacing: 0.5px; }}
         table.data-table {{ width: 100%; border-collapse: collapse; margin-top: 8px; margin-bottom: 15px; }}
         table.data-table th, table.data-table td {{ border: 1px solid #cbd5e1; padding: 8px 10px; text-align: left; }}
         table.data-table th {{ background-color: #f8fafc; font-weight: 600; color: #475569; font-size: 11px; text-transform: uppercase; }}
@@ -45,11 +51,15 @@ def generate_html_forensic_report(data: Dict[str, Any]) -> str:
 </head>
 <body>
 
+    <div style="text-align: center; margin-bottom: 15px;">
+        <span class="badge badge-tlp">{classification_tier}</span>
+    </div>
+
     <table class="header-table">
         <tr>
             <td>
                 <h1 class="title">EMAIL FORENSIC INVESTIGATION REPORT</h1>
-                <div class="subtitle">AUTOMATED CYBER THREAT DETECTION & RELAY ORIGIN TRACE PLATFORM</div>
+                <div class="subtitle">INVESTIGATOR: {investigator} &bull; UNIT: {agency}</div>
             </td>
             <td style="text-align: right;">
                 <span class="badge badge-risk">{risk_level} RISK &bull; SCORE: {score}/100</span><br>

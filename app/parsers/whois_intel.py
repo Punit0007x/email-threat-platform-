@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 IANA_WHOIS = "whois.iana.org"
 WHOIS_PORT = 43
-SOCKET_TIMEOUT = 5
+SOCKET_TIMEOUT = 1.5
 
 RISKY_REGISTRARS = [
     "freenom", "dot.tk", "dot.ml", "dot.ga", "dot.cf", "dot.gq",
