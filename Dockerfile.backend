@@ -1,0 +1,24 @@
+FROM python:3.11-slim
+
+# Install system dependencies required for OpenCV, Tesseract OCR, and pyzbar
+RUN apt-get update && apt-get install -y \
+    tesseract-ocr \
+    libzbar0 \
+    poppler-utils \
+    libgl1 \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy requirements and install
+COPY requirements.txt .
+# Add the new God Level dependencies to the install
+RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt pytesseract pdf2image opencv-python pyzbar web3 chromadb sentence-transformers confluent-kafka neo4j pandas networkx
+
+# Copy the actual application code
+COPY app /app/app
+COPY data /app/data
+
+# Run the FastAPI server
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

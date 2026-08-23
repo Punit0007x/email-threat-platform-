@@ -1,0 +1,16 @@
+FROM node:20-alpine AS build
+
+WORKDIR /app
+
+# Copy package files and install dependencies
+COPY frontend/package*.json ./
+RUN npm install
+
+# Copy source code and build
+COPY frontend/ ./
+RUN npm run build
+
+# Use a lightweight Node server to serve the static files (or Nginx)
+# For Vite, we can just use the preview server or a simple http-server
+RUN npm install -g serve
+CMD ["serve", "-s", "dist", "-l", "5173"]

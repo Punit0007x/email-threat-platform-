@@ -29,6 +29,10 @@ class ParsedEmail(BaseModel):
     body_plain: str = ""
     body_html: str = ""
     
+    # Advanced Vision (OCR and QR)
+    ocr_text: str = ""
+    qr_urls: List[str] = []
+    
     # Attachments (metadata only)
     attachments: List[AttachmentInfo] = []
     

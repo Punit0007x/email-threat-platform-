@@ -1,6 +1,7 @@
 import dns.resolver
 import dns.reversename
 import ipaddress
+import requests
 from typing import Dict, Any, List, Optional
 
 DNSBL_ZONES = [
@@ -13,6 +14,8 @@ DNSBL_ZONES = [
 
 REVERSE_DNS_TIMEOUT = 2.0
 DNSBL_TIMEOUT = 3.0
+ASN_API_URL = "https://api.hackertarget.com/aslookup/?q={ip}"
+REQUEST_TIMEOUT = 10
 
 
 def _reverse_ip(ip: str) -> Optional[str]:
@@ -131,5 +134,85 @@ def query_ip_reputation(ip: str) -> Dict[str, Any]:
 
     if not result["risk_indicators"] and result["risk_level"] == "Clean":
         result["risk_indicators"].append("No blocklist listings found")
+
+    return result
+
+
+def _get_asn_info(ip: str) -> Dict[str, Any]:
+    """Get ASN/CIDR info for an IP via hackertarget API."""
+    try:
+        url = ASN_API_URL.format(ip=ip)
+        resp = requests.get(url, timeout=REQUEST_TIMEOUT)
+        if resp.status_code == 200 and "error" not in resp.text.lower():
+            lines = resp.text.strip().split('\n')
+            asn_info = {}
+            for line in lines:
+                if ':' in line:
+                    k, v = line.split(':', 1)
+                    asn_info[k.strip().lower().replace(' ', '_')] = v.strip()
+            return asn_info
+    except Exception:
+        pass
+    return {}
+
+
+def _get_cidr_neighbors(ip: str, cidr: str) -> List[str]:
+    """Get neighboring IPs in the same CIDR (limited sample)."""
+    try:
+        network = ipaddress.ip_network(cidr, strict=False)
+        # Return first 10 and last 10 IPs as sample
+        ips = list(network.hosts())
+        if len(ips) > 20:
+            return [str(ip) for ip in ips[:10] + ips[-10:]]
+        return [str(ip) for ip in ips]
+    except Exception:
+        return []
+
+
+def expand_ip_network_context(ip: str) -> Dict[str, Any]:
+    """
+    Expand IP context to include ASN, CIDR, and neighbor reputation.
+    Returns network context for threat correlation.
+    """
+    ip = ip.strip()
+    result: Dict[str, Any] = {
+        "ip": ip,
+        "asn_info": {},
+        "cidr": None,
+        "cidr_neighbors_sample": [],
+        "network_risk_indicators": []
+    }
+
+    if not ip:
+        return result
+
+    try:
+        addr = ipaddress.ip_address(ip)
+        if addr.is_private or addr.is_loopback or addr.is_link_local or addr.is_multicast:
+            result["network_risk_indicators"].append("Private/reserved IP — network context not applicable")
+            return result
+    except Exception:
+        result["network_risk_indicators"].append("Invalid IP format")
+        return result
+
+    # Get ASN info
+    asn_info = _get_asn_info(ip)
+    result["asn_info"] = asn_info
+
+    # Extract CIDR
+    cidr = asn_info.get("cidr") or asn_info.get("network")
+    if cidr:
+        result["cidr"] = cidr
+        # Sample neighbors
+        result["cidr_neighbors_sample"] = _get_cidr_neighbors(ip, cidr)
+        
+        # Risk indicators
+        if "cloud" in asn_info.get("description", "").lower() or \
+           "hosting" in asn_info.get("description", "").lower() or \
+           "vps" in asn_info.get("description", "").lower() or \
+           "digitalocean" in asn_info.get("description", "").lower() or \
+           "linode" in asn_info.get("description", "").lower() or \
+           "vultr" in asn_info.get("description", "").lower():
+            result["network_risk_indicators"].append(f"IP belongs to cloud hosting CIDR ({cidr})")
 
     return result

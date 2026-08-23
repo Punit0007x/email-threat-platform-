@@ -7,7 +7,11 @@ from app.parsers.origin_trace import trace_origin
 from app.parsers.geolocation import geolocate_ip
 from app.parsers.dns_intel import query_domain_dns
 from app.parsers.whois_intel import query_whois_intel
-from app.parsers.ip_reputation import query_ip_reputation
+from app.parsers.ip_reputation import query_ip_reputation, expand_ip_network_context
+from app.parsers.domain_recon import enumerate_subdomains
+from app.parsers.history_intel import crawl_wayback_history
+from app.parsers.tech_fingerprint import fingerprint_technology
+from app.parsers.dork_intel import run_dork_scan
 from app.parsers.infra_intel import analyze_infrastructure
 from app.parsers.origin_verdict import classify_origin_verdict
 from app.parsers.case_db import save_incident_case, get_all_cases, get_campaign_clusters, _check_historical_correlations, create_alert
@@ -18,7 +22,14 @@ from app.scoring.domain_check import check_domain_lookalike
 from app.scoring.fraud_score import calculate_fraud_score
 from app.ml.pipeline import analyze_email_ai_ml
 from app.ml.graph_intel import build_forensic_attribution_graph
+from app.forensics.blockchain_notary import BlockchainNotary
+from app.ml.vector_db import SemanticThreatDB
+from app.core.events import event_bus
 from fastapi.responses import HTMLResponse
+
+# Initialize singletons for the API
+blockchain_notary = BlockchainNotary()
+vector_db = SemanticThreatDB()
 
 router = APIRouter()
 
@@ -47,6 +58,9 @@ async def parse_email(file: UploadFile = File(...)):
             # Step 2: Parse the email structure
             parsed_email = parse_eml_file(tmp_path)
             
+            # Step 2.5: God Level - Blockchain Notarization
+            blockchain_receipt = blockchain_notary.notarize_evidence(tmp_path, parsed_email.model_dump())
+            
             # Step 3: Analyze auth headers and alignment
             auth_results = analyze_auth(
                 auth_header=parsed_email.authentication_results,
@@ -55,7 +69,12 @@ async def parse_email(file: UploadFile = File(...)):
             )
             
             # Step 4: Trace origin IP
+            from app.parsers.advanced_network import analyze_hop_latency
             trace_results = trace_origin(parsed_email.received_chain)
+            
+            # God Level - Latency Triangulation
+            latency_analysis = analyze_hop_latency(parsed_email.received_chain)
+            trace_results["latency_triangulation"] = latency_analysis
             
             # Step 5: Geolocate each hop
             for hop in trace_results["hops"]:
@@ -86,6 +105,21 @@ async def parse_email(file: UploadFile = File(...)):
             
             # Step 7b: IP Reputation & DNSBL Intelligence
             ip_reputation = query_ip_reputation(best_guess_ip) if best_guess_ip else None
+            
+            # Step 7c: IP Network Context Expansion (ASN, CIDR, neighbors)
+            ip_network_context = expand_ip_network_context(best_guess_ip) if best_guess_ip else None
+            
+            # Step 7d: Domain Reconnaissance (Subdomain enumeration)
+            domain_recon = enumerate_subdomains(from_domain) if from_domain else None
+            
+            # Step 7e: Wayback Machine Historical Analysis
+            history_intel = crawl_wayback_history(from_domain) if from_domain else None
+            
+            # Step 7f: Technology Fingerprinting (CMS, frameworks, hosting)
+            tech_fingerprint = fingerprint_technology(from_domain) if from_domain else None
+            
+            # Step 7g: Passive Dork Scanning (OSINT)
+            dork_intel = run_dork_scan(from_domain) if from_domain else None
             
             # Step 8: Heuristic & Lexical Signals
             text_signals = analyze_text_signals(
@@ -120,6 +154,10 @@ async def parse_email(file: UploadFile = File(...)):
                 auth_analysis=auth_results
             )
             
+            # Step 9.5: God Level - Semantic Vector Matching
+            full_text = f"{parsed_email.subject} {parsed_email.body_plain} {parsed_email.ocr_text}"
+            semantic_matches = vector_db.find_similar_threats(full_text)
+            
             # Step 10a: Threat Intelligence Correlation (Cross-case indicator matching)
             from_domain = parsed_email.from_address.split('@')[-1].strip('>') if '@' in parsed_email.from_address else ""
             best_guess_ip = trace_results.get("best_guess_ip")
@@ -134,7 +172,12 @@ async def parse_email(file: UploadFile = File(...)):
                 ai_ml_analysis=ai_ml_results,
                 whois_intel=whois_intel,
                 ip_reputation=ip_reputation,
-                threat_correlations=threat_correlations
+                threat_correlations=threat_correlations,
+                domain_recon=domain_recon,
+                history_intel=history_intel,
+                tech_fingerprint=tech_fingerprint,
+                dork_intel=dork_intel,
+                ip_network_context=ip_network_context
             )
             
             # Step 11: Graph-Based Infrastructure Attribution
@@ -148,9 +191,16 @@ async def parse_email(file: UploadFile = File(...)):
             # Step 12: Unified JSON Response
             response_data = parsed_email.model_dump()
             response_data["custody"] = custody_manifest
+            response_data["blockchain_receipt"] = blockchain_receipt
+            response_data["semantic_matches"] = semantic_matches
             response_data["dns_intel"] = dns_intel
             response_data["whois_intel"] = whois_intel
             response_data["ip_reputation"] = ip_reputation
+            response_data["ip_network_context"] = ip_network_context
+            response_data["domain_recon"] = domain_recon
+            response_data["history_intel"] = history_intel
+            response_data["tech_fingerprint"] = tech_fingerprint
+            response_data["dork_intel"] = dork_intel
             response_data["threat_correlations"] = threat_correlations
             response_data["origin_verdict"] = origin_verdict
             response_data["infra_intel"] = infra_intel
@@ -167,6 +217,12 @@ async def parse_email(file: UploadFile = File(...)):
                 campaign_id = save_incident_case(response_data)
                 response_data["campaign_id"] = campaign_id
                 
+                # God Level - Store in Vector DB
+                vector_db.store_email(campaign_id, full_text, {"subject": parsed_email.subject, "from": parsed_email.from_address})
+                
+                # God Level - Publish to Kafka for asynchronous microservices
+                event_bus.publish_email_ingested(campaign_id, response_data)
+                
                 # Step 13b: Generate Alert for High-Risk Cases
                 alert_id = create_alert(response_data, fraud_assessment)
                 if alert_id:
@@ -181,7 +237,10 @@ async def parse_email(file: UploadFile = File(...)):
                 os.remove(tmp_path)
                 
     except Exception as e:
-        raise HTTPException(status_code=422, detail=f"Failed to parse email: {str(e)}")
+        import traceback
+        error_msg = traceback.format_exc()
+        print(f"Error in parse_email: {error_msg}")
+        raise HTTPException(status_code=422, detail=f"Failed to parse email: {str(e)} - {error_msg}")
 
 @router.post("/api/report/html", response_class=HTMLResponse)
 async def export_html_report(data: dict):

@@ -75,5 +75,17 @@ WEIGHTS = {
     "whois_risky_registrar": 10,
     "ip_blocklisted": 20,
     "ip_tor_exit": 30,
-    "repeat_offender": 0.5
+    "repeat_offender": 0.5,
+    "domain_many_subdomains": 10,
+    "domain_suspicious_subdomains": 15,
+    "history_recent_first_seen": 12,
+    "history_high_volatility": 8,
+    "tech_phishing_kit": 25,
+    "tech_no_waf": 5,
+    "dork_phishing_pages": 20,
+    "dork_leaked_creds": 25,
+    "dork_sensitive_files": 15,
+    "dork_threat_intel": 10,
+    "ip_cloud_hosting_cidr": 8,
+    "ip_network_malicious_neighbors": 12
 }

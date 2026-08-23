@@ -3,6 +3,7 @@ from email import policy
 import re
 from typing import List
 from app.models.email import ParsedEmail, AttachmentInfo
+from app.parsers.advanced_vision import extract_text_from_image, extract_qr_codes, process_pdf_for_vision
 
 # Simple regex to extract URLs from text
 URL_REGEX = re.compile(r'https?://[^\s<>"]+|www\.[^\s<>"]+')
@@ -50,6 +51,20 @@ def parse_eml_file(file_path: str) -> ParsedEmail:
                     filename=filename,
                     content_type=content_type
                 ))
+                
+                # Advanced Vision: Run OCR/QR on attachments
+                try:
+                    payload = part.get_payload(decode=True)
+                    if payload:
+                        if content_type.startswith('image/'):
+                            parsed.ocr_text += " " + extract_text_from_image(payload)
+                            parsed.qr_urls.extend(extract_qr_codes(payload))
+                        elif content_type == 'application/pdf':
+                            pdf_data = process_pdf_for_vision(payload)
+                            parsed.ocr_text += " " + pdf_data.get("ocr_text", "")
+                            parsed.qr_urls.extend(pdf_data.get("qr_urls", []))
+                except Exception as e:
+                    pass
             continue
             
         # Extract body text (only if not a multipart container)

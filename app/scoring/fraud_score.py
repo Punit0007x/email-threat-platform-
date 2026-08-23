@@ -9,7 +9,12 @@ def calculate_fraud_score(
     ai_ml_analysis: Optional[Dict[str, Any]] = None,
     whois_intel: Optional[Dict[str, Any]] = None,
     ip_reputation: Optional[Dict[str, Any]] = None,
-    threat_correlations: Optional[Dict[str, Any]] = None
+    threat_correlations: Optional[Dict[str, Any]] = None,
+    domain_recon: Optional[Dict[str, Any]] = None,
+    history_intel: Optional[Dict[str, Any]] = None,
+    tech_fingerprint: Optional[Dict[str, Any]] = None,
+    dork_intel: Optional[Dict[str, Any]] = None,
+    ip_network_context: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
     Combines protocol, forensic, and AI/ML threat signals into a single 0-100 fraud score and generates plain English reasons.
@@ -104,6 +109,72 @@ def calculate_fraud_score(
             # Weight is a multiplier (0.5) to add proportional score
             score += int(repeat_score * WEIGHTS["repeat_offender"])
             reasons.append(f"Repeat offender intelligence: Indicators seen in {threat_correlations.get('domain_case_count', 0) + threat_correlations.get('ip_case_count', 0)} prior case(s) across {len(threat_correlations.get('linked_campaigns', []))} campaign(s).")
+    
+    # 6e. Domain Reconnaissance (Subdomain Analysis)
+    if domain_recon:
+        sub_count = domain_recon.get("subdomain_count", 0)
+        if sub_count > 50:
+            score += WEIGHTS["domain_many_subdomains"]
+            reasons.append(f"Large subdomain footprint ({sub_count} subdomains) — extensive infrastructure or wildcard DNS.")
+        elif sub_count > 20:
+            score += max(WEIGHTS["domain_many_subdomains"] // 2, 5)
+            reasons.append(f"Moderate subdomain footprint ({sub_count} subdomains).")
+        
+        if "Suspicious subdomains detected" in " ".join(domain_recon.get("risk_indicators", [])):
+            score += WEIGHTS["domain_suspicious_subdomains"]
+            reasons.append(f"Suspicious subdomains found: {', '.join([r for r in domain_recon.get('risk_indicators', []) if 'Suspicious' in r][:3])}")
+    
+    # 6f. Historical Analysis (Wayback)
+    if history_intel:
+        age_days = history_intel.get("domain_age_wayback_days")
+        if age_days is not None and age_days < 30:
+            score += WEIGHTS["history_recent_first_seen"]
+            reasons.append(f"Domain first archived only {age_days} days ago — very recent web presence.")
+        elif age_days is not None and age_days < 90:
+            score += max(WEIGHTS["history_recent_first_seen"] // 2, 5)
+            reasons.append(f"Domain first archived {age_days} days ago — recent web presence.")
+        
+        if history_intel.get("content_changes", 0) > 20:
+            score += WEIGHTS["history_high_volatility"]
+            reasons.append(f"High content volatility ({history_intel.get('content_changes')} unique content hashes) — possible phishing kit rotation.")
+    
+    # 6g. Technology Fingerprinting
+    if tech_fingerprint:
+        if tech_fingerprint.get("phishing_kit_detected"):
+            score += WEIGHTS["tech_phishing_kit"]
+            reasons.append("Phishing kit indicators detected in web technology stack.")
+        
+        if "No WAF/CDN security headers detected" in " ".join(tech_fingerprint.get("risk_indicators", [])):
+            score += WEIGHTS["tech_no_waf"]
+            reasons.append("No WAF/CDN detected — direct origin exposure.")
+    
+    # 6h. Dork Intelligence (OSINT)
+    if dork_intel:
+        if dork_intel.get("categories", {}).get("phishing_pages"):
+            score += WEIGHTS["dork_phishing_pages"]
+            reasons.append(f"Dork scan found potential phishing pages ({len(dork_intel['categories']['phishing_pages'])} results).")
+        
+        if dork_intel.get("categories", {}).get("leaked_credentials"):
+            score += WEIGHTS["dork_leaked_creds"]
+            reasons.append(f"Dork scan found possible credential leaks ({len(dork_intel['categories']['leaked_credentials'])} results).")
+        
+        if dork_intel.get("categories", {}).get("sensitive_files"):
+            score += WEIGHTS["dork_sensitive_files"]
+            reasons.append(f"Dork scan found exposed sensitive files ({len(dork_intel['categories']['sensitive_files'])} results).")
+        
+        if dork_intel.get("categories", {}).get("threat_intel"):
+            score += WEIGHTS["dork_threat_intel"]
+            reasons.append(f"Dork scan found threat intelligence mentions ({len(dork_intel['categories']['threat_intel'])} results).")
+    
+    # 6i. IP Network Context
+    if ip_network_context:
+        if "cloud hosting CIDR" in " ".join(ip_network_context.get("network_risk_indicators", [])):
+            score += WEIGHTS["ip_cloud_hosting_cidr"]
+            reasons.append(f"Origin IP in cloud hosting CIDR ({ip_network_context.get('cidr', 'unknown')}).")
+        
+        # Could check neighbors against blocklists in future
+        # if ip_network_context.get("neighbor_blocklisted"):
+        #     score += WEIGHTS["ip_network_malicious_neighbors"]
     
     # 7. AI/ML Deep Threat Indicators
     if ai_ml_analysis:
