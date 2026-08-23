@@ -36,12 +36,12 @@ export default function AuthPanel({ data }) {
   const auth = data.auth_analysis;
 
   return (
-    <div className="bg-slate-800 border border-slate-700 rounded-xl p-6 shadow-lg">
-      <div className="flex items-center mb-6">
-        <span className="bg-purple-500/20 text-purple-400 p-2 rounded-lg mr-3">
+    <div className="cyber-panel rounded-2xl p-6 shadow-xl space-y-5 relative overflow-hidden">
+      <div className="flex items-center mb-6 border-b border-zinc-800 pb-3">
+        <span className="bg-purple-500/10 text-purple-400 p-2.5 rounded-xl mr-3 border border-purple-500/20 shadow-sm">
           <Shield className="w-5 h-5" />
         </span>
-        <h2 className="text-xl font-semibold text-white">Authentication Status</h2>
+        <h2 className="text-xl font-bold text-white">Authentication Protocols</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">

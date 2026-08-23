@@ -67,11 +67,11 @@ def calculate_fraud_score(
         score += WEIGHTS["url_shortener"]
         reasons.append("URL shortener used: Email contains shortened links often used to hide malicious destinations.")
         
-    # 6. Suspicious IP
+    # 6. Suspicious IP (Tor / VPN / Blocklist)
     best_guess_ip = trace_results.get("best_guess_ip")
-    if best_guess_ip and "untrusted" in trace_results.get("reason", ""):
+    if best_guess_ip and ("tor" in trace_results.get("reason", "").lower() or "suspicious" in trace_results.get("reason", "").lower() or trace_results.get("is_vpn")):
         score += WEIGHTS["suspicious_ip"]
-        reasons.append(f"Suspicious origin: Sent from an untrusted public IP ({best_guess_ip}).")
+        reasons.append(f"Suspicious origin: Sent from an anonymized/suspicious IP ({best_guess_ip}).")
         
     # 6b. WHOIS Registrar Intelligence
     if whois_intel and whois_intel.get("queried"):
@@ -83,7 +83,7 @@ def calculate_fraud_score(
             score += max(WEIGHTS["whois_new_domain"] // 2, 5)
             reasons.append(f"Recently registered domain: Sender domain created {age_days} days ago.")
             
-        if whois_intel.get("is_privacy_protected"):
+        if whois_intel.get("is_privacy_protected") and not auth_analysis.get("domain_alignment_pass", False):
             score += WEIGHTS["whois_privacy_protected"]
             reasons.append("Domain registrant information is privacy-protected / redacted.")
             
@@ -96,7 +96,7 @@ def calculate_fraud_score(
     if ip_reputation and ip_reputation.get("is_listed"):
         if ip_reputation.get("is_tor_exit"):
             score += WEIGHTS["ip_tor_exit"]
-            reasons.append(f"TOR exit node detected: Origin IP is a known Tor exit node.")
+            reasons.append("TOR exit node detected: Origin IP is a known Tor exit node.")
         else:
             score += WEIGHTS["ip_blocklisted"]
             listed_zones = [r["blocklist_name"] for r in ip_reputation.get("dnsbl_results", []) if r.get("listed")]
@@ -105,34 +105,22 @@ def calculate_fraud_score(
     # 6d. Threat Intelligence Correlation / Repeat Offender
     if threat_correlations:
         repeat_score = threat_correlations.get("repeat_offender_score", 0)
-        if repeat_score > 0:
-            # Weight is a multiplier (0.5) to add proportional score
+        if repeat_score > 0 and not auth_analysis.get("domain_alignment_pass", False):
             score += int(repeat_score * WEIGHTS["repeat_offender"])
-            reasons.append(f"Repeat offender intelligence: Indicators seen in {threat_correlations.get('domain_case_count', 0) + threat_correlations.get('ip_case_count', 0)} prior case(s) across {len(threat_correlations.get('linked_campaigns', []))} campaign(s).")
+            reasons.append(f"Repeat offender intelligence: Indicators seen in {threat_correlations.get('domain_case_count', 0) + threat_correlations.get('ip_case_count', 0)} prior malicious case(s).")
     
     # 6e. Domain Reconnaissance (Subdomain Analysis)
-    if domain_recon:
-        sub_count = domain_recon.get("subdomain_count", 0)
-        if sub_count > 50:
-            score += WEIGHTS["domain_many_subdomains"]
-            reasons.append(f"Large subdomain footprint ({sub_count} subdomains) — extensive infrastructure or wildcard DNS.")
-        elif sub_count > 20:
-            score += max(WEIGHTS["domain_many_subdomains"] // 2, 5)
-            reasons.append(f"Moderate subdomain footprint ({sub_count} subdomains).")
-        
+    if domain_recon and not auth_analysis.get("domain_alignment_pass", False):
         if "Suspicious subdomains detected" in " ".join(domain_recon.get("risk_indicators", [])):
             score += WEIGHTS["domain_suspicious_subdomains"]
             reasons.append(f"Suspicious subdomains found: {', '.join([r for r in domain_recon.get('risk_indicators', []) if 'Suspicious' in r][:3])}")
     
     # 6f. Historical Analysis (Wayback)
-    if history_intel:
+    if history_intel and not auth_analysis.get("domain_alignment_pass", False):
         age_days = history_intel.get("domain_age_wayback_days")
         if age_days is not None and age_days < 30:
             score += WEIGHTS["history_recent_first_seen"]
             reasons.append(f"Domain first archived only {age_days} days ago — very recent web presence.")
-        elif age_days is not None and age_days < 90:
-            score += max(WEIGHTS["history_recent_first_seen"] // 2, 5)
-            reasons.append(f"Domain first archived {age_days} days ago — recent web presence.")
         
         if history_intel.get("content_changes", 0) > 20:
             score += WEIGHTS["history_high_volatility"]
@@ -144,12 +132,12 @@ def calculate_fraud_score(
             score += WEIGHTS["tech_phishing_kit"]
             reasons.append("Phishing kit indicators detected in web technology stack.")
         
-        if "No WAF/CDN security headers detected" in " ".join(tech_fingerprint.get("risk_indicators", [])):
+        if not auth_analysis.get("domain_alignment_pass", False) and "No WAF/CDN security headers detected" in " ".join(tech_fingerprint.get("risk_indicators", [])):
             score += WEIGHTS["tech_no_waf"]
             reasons.append("No WAF/CDN detected — direct origin exposure.")
     
     # 6h. Dork Intelligence (OSINT)
-    if dork_intel:
+    if dork_intel and not auth_analysis.get("domain_alignment_pass", False):
         if dork_intel.get("categories", {}).get("phishing_pages"):
             score += WEIGHTS["dork_phishing_pages"]
             reasons.append(f"Dork scan found potential phishing pages ({len(dork_intel['categories']['phishing_pages'])} results).")
@@ -157,24 +145,12 @@ def calculate_fraud_score(
         if dork_intel.get("categories", {}).get("leaked_credentials"):
             score += WEIGHTS["dork_leaked_creds"]
             reasons.append(f"Dork scan found possible credential leaks ({len(dork_intel['categories']['leaked_credentials'])} results).")
-        
-        if dork_intel.get("categories", {}).get("sensitive_files"):
-            score += WEIGHTS["dork_sensitive_files"]
-            reasons.append(f"Dork scan found exposed sensitive files ({len(dork_intel['categories']['sensitive_files'])} results).")
-        
-        if dork_intel.get("categories", {}).get("threat_intel"):
-            score += WEIGHTS["dork_threat_intel"]
-            reasons.append(f"Dork scan found threat intelligence mentions ({len(dork_intel['categories']['threat_intel'])} results).")
     
     # 6i. IP Network Context
-    if ip_network_context:
+    if ip_network_context and not auth_analysis.get("domain_alignment_pass", False):
         if "cloud hosting CIDR" in " ".join(ip_network_context.get("network_risk_indicators", [])):
             score += WEIGHTS["ip_cloud_hosting_cidr"]
             reasons.append(f"Origin IP in cloud hosting CIDR ({ip_network_context.get('cidr', 'unknown')}).")
-        
-        # Could check neighbors against blocklists in future
-        # if ip_network_context.get("neighbor_blocklisted"):
-        #     score += WEIGHTS["ip_network_malicious_neighbors"]
     
     # 7. AI/ML Deep Threat Indicators
     if ai_ml_analysis:
@@ -201,8 +177,26 @@ def calculate_fraud_score(
             score += 30
             reasons.append(f"Malicious Attachment Vector: {len(suspicious_att)} high-risk file extension(s) detected ({', '.join([a['filename'] for a in suspicious_att])}).")
 
+    # 8. Cryptographic Authenticity Validation Discount
+    is_fully_authenticated = (
+        auth_analysis.get("spf") == "pass" and
+        auth_analysis.get("dkim") == "pass" and
+        auth_analysis.get("dmarc") == "pass" and
+        auth_analysis.get("domain_alignment_pass", False)
+    )
+    has_attack_payload = (
+        domain_check.get("is_lookalike", False) or
+        text_signals.get("link_mismatch_count", 0) > 0 or
+        text_signals.get("has_shortener", False) or
+        (ai_ml_analysis and ai_ml_analysis.get("classification", {}).get("primary_threat", "clean") not in ["clean", "legitimate"] and ai_ml_analysis.get("classification", {}).get("confidence", 0) > 0.75)
+    )
+    
+    if is_fully_authenticated and not has_attack_payload and urgency_count == 0 and auth_count == 0:
+        score = 0
+        reasons = ["Email is cryptographically authenticated (SPF, DKIM, DMARC PASS) and originates from the legitimate domain."]
+
     # Cap score at 100
-    score = min(score, 100)
+    score = min(max(0, score), 100)
     
     # Map score to a risk level
     if score <= 30:
@@ -214,7 +208,7 @@ def calculate_fraud_score(
         
     # If it's a completely clean email, provide a reassuring reason
     if score == 0 and len(reasons) == 0:
-        reasons.append("No obvious threat indicators detected.")
+        reasons.append("No obvious threat indicators detected. Email conforms to standard legitimate baseline.")
         
     return {
         "score": score,

@@ -6,7 +6,7 @@ from typing import Dict, Any, List, Optional
 CRTSH_URL = "https://crt.sh/?q=%.{domain}&output=json"
 HACKERTARGET_URL = "https://api.hackertarget.com/hostsearch/?q={domain}"
 HACKERTARGET_SUBDOMAINS_URL = "https://api.hackertarget.com/hostsearch/?q={domain}"
-REQUEST_TIMEOUT = 10
+REQUEST_TIMEOUT = 1.5
 
 def _query_crtsh(domain: str) -> List[str]:
     """Query crt.sh Certificate Transparency logs for subdomains."""
@@ -89,16 +89,15 @@ def enumerate_subdomains(domain: str) -> Dict[str, Any]:
     elif result["subdomain_count"] > 20:
         result["risk_indicators"].append(f"Moderate subdomain footprint ({result['subdomain_count']} subdomains)")
 
-    # Check for suspicious subdomain patterns
-    suspicious_patterns = [
-        "admin", "login", "secure", "portal", "webmail", "mail", "email",
-        "payroll", "hr", "finance", "accounting", "billing", "invoice",
-        "support", "helpdesk", "service", "api", "dev", "test", "staging",
-        "vpn", "remote", "citrix", "rdp", "ssh", "ftp", "git", "jenkins"
+    # Check for deceptive / phishing-specific subdomain patterns
+    phishing_subdomain_patterns = [
+        "verify-account", "security-update", "update-billing", "login-auth",
+        "suspension-warning", "account-lock", "password-reset", "credential-check",
+        "secure-login-verify", "bank-verification", "payroll-portal-auth"
     ]
     suspicious_found = []
     for sub in all_subs:
-        for pattern in suspicious_patterns:
+        for pattern in phishing_subdomain_patterns:
             if pattern in sub and sub != domain:
                 suspicious_found.append(sub)
                 break

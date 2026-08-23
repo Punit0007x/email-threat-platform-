@@ -7,6 +7,7 @@ DB_PATH = "data/cases.db"
 
 def _check_historical_correlations(domain: str, origin_ip: str, from_addr: str) -> Dict[str, Any]:
     """Check if indicators have been seen in previous cases."""
+    init_case_database()
     correlations = {
         "domain_seen_before": False,
         "domain_case_count": 0,
@@ -21,11 +22,11 @@ def _check_historical_correlations(domain: str, origin_ip: str, from_addr: str) 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     
-    # Check domain history
+    # Check domain history (only match previous high-risk/malicious incidents)
     if domain:
         cursor.execute("""
             SELECT COUNT(*) as cnt, GROUP_CONCAT(DISTINCT campaign_id) as camps
-            FROM incident_cases WHERE sender_domain = ?
+            FROM incident_cases WHERE sender_domain = ? AND fraud_score >= 60
         """, (domain,))
         row = cursor.fetchone()
         if row and row[0] > 0:
@@ -34,11 +35,11 @@ def _check_historical_correlations(domain: str, origin_ip: str, from_addr: str) 
             if row[1]:
                 correlations["linked_campaigns"].extend([c.strip() for c in row[1].split(",")])
     
-    # Check IP history
+    # Check IP history (only match previous high-risk/malicious incidents)
     if origin_ip:
         cursor.execute("""
             SELECT COUNT(*) as cnt, GROUP_CONCAT(DISTINCT campaign_id) as camps
-            FROM incident_cases WHERE origin_ip = ?
+            FROM incident_cases WHERE origin_ip = ? AND fraud_score >= 60
         """, (origin_ip,))
         row = cursor.fetchone()
         if row and row[0] > 0:
@@ -47,11 +48,11 @@ def _check_historical_correlations(domain: str, origin_ip: str, from_addr: str) 
             if row[1]:
                 correlations["linked_campaigns"].extend([c.strip() for c in row[1].split(",")])
     
-    # Check sender address history
+    # Check sender address history (only match previous high-risk/malicious incidents)
     if from_addr:
         cursor.execute("""
             SELECT COUNT(*) as cnt, GROUP_CONCAT(DISTINCT campaign_id) as camps
-            FROM incident_cases WHERE from_address = ?
+            FROM incident_cases WHERE from_address = ? AND fraud_score >= 60
         """, (from_addr,))
         row = cursor.fetchone()
         if row and row[0] > 0:

@@ -1,7 +1,10 @@
 import json
 import logging
 import os
-from confluent_kafka import Producer
+try:
+    from confluent_kafka import Producer
+except ImportError:
+    Producer = None
 
 logger = logging.getLogger(__name__)
 
@@ -10,14 +13,17 @@ class EventBus:
         self.bootstrap_servers = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
         self.producer = None
         
-        try:
-            self.producer = Producer({
-                'bootstrap.servers': self.bootstrap_servers,
-                'client.id': 'fastapi-orchestrator'
-            })
-            logger.info(f"Connected to Kafka at {self.bootstrap_servers}")
-        except Exception as e:
-            logger.warning(f"Kafka not available: {e}. Running in standalone mode.")
+        if Producer is not None:
+            try:
+                self.producer = Producer({
+                    'bootstrap.servers': self.bootstrap_servers,
+                    'client.id': 'fastapi-orchestrator'
+                })
+                logger.info(f"Connected to Kafka at {self.bootstrap_servers}")
+            except Exception as e:
+                logger.warning(f"Kafka not available: {e}. Running in standalone mode.")
+        else:
+            logger.info("Kafka producer not installed. Running EventBus in standalone mode.")
 
     def publish_email_ingested(self, email_id: str, email_data: dict):
         """

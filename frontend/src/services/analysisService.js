@@ -19,7 +19,7 @@ export async function analyzeEmail(file) {
       try {
         const errorData = await response.json();
         errorMessage = errorData.detail || errorMessage;
-      } catch (e) {
+      } catch {
         // ignore JSON parse error
       }
       throw new Error(errorMessage);

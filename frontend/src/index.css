@@ -1,5 +1,92 @@
 @import "tailwindcss";
 
-body {
-  @apply bg-slate-900 text-slate-100;
+@layer base {
+  body {
+    background-color: #070d18;
+    color: #f1f5f9;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Tactical SOC Grid Background */
+.cyber-grid {
+  background-color: #070d18;
+  background-size: 28px 28px;
+  background-image: 
+    linear-gradient(to right, rgba(56, 189, 248, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(56, 189, 248, 0.04) 1px, transparent 1px);
+}
+
+/* Tactical Ambient Lighting */
+.ambient-glow {
+  background: 
+    radial-gradient(circle at 50% 0%, rgba(14, 165, 233, 0.09), transparent 50%),
+    radial-gradient(circle at 100% 30%, rgba(99, 102, 241, 0.07), transparent 50%),
+    radial-gradient(circle at 0% 70%, rgba(16, 185, 129, 0.05), transparent 50%);
+}
+
+/* Tactical SOC Hardware Panel */
+.cyber-panel {
+  position: relative;
+  background: rgba(11, 20, 38, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(51, 65, 85, 0.8);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(56, 189, 248, 0.08) inset;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cyber-panel:hover {
+  border-color: rgba(56, 189, 248, 0.4);
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.7), 0 0 1px 1px rgba(56, 189, 248, 0.15) inset;
+}
+
+/* Tactical Card Header Strip */
+.soc-header-strip {
+  background: linear-gradient(90deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.6));
+  border-bottom: 1px solid rgba(51, 65, 85, 0.8);
+}
+
+/* Technical Monospace Micro-Tags */
+.tech-tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* Refined Dark Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #070d18;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #38bdf8;
+}
+
+/* Scanning Progress Laser */
+@keyframes laser-sweep {
+  0% {
+    top: 0%;
+    opacity: 0.5;
+  }
+  50% {
+    top: 96%;
+    opacity: 0.9;
+  }
+  100% {
+    top: 0%;
+    opacity: 0.5;
+  }
+}
+.animate-laser {
+  animation: laser-sweep 1.8s infinite ease-in-out;
 }

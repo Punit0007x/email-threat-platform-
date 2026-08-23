@@ -93,15 +93,20 @@ TECH_SIGNATURES = {
 }
 
 PHISHING_KIT_INDICATORS = [
-    r'login.*form.*action.*http',
-    r'password.*type=["\']hidden',
-    r'credential.*harvest',
+    r'evilginx',
+    r'modlishka',
+    r'gophish',
+    r'phishlet',
+    r'credential.*harvester',
     r'phish.*kit',
-    r'fake.*login',
+    r'fake.*login.*harvest',
     r'steal.*password',
+    r'hiddeneye',
+    r'blackeye',
+    r'shellphish'
 ]
 
-def _fetch_page(url: str, timeout: int = 8) -> Optional[Dict[str, Any]]:
+def _fetch_page(url: str, timeout: float = 1.5) -> Optional[Dict[str, Any]]:
     """Fetch a page and return content, headers, and status."""
     if not url.startswith(('http://', 'https://')):
         url = 'https://' + url
