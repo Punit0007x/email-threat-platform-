@@ -18,7 +18,7 @@ export default function ThreatWaveform({ score = 0, isHighRisk = false }) {
       // Color scheme based on threat score
       let strokeColor = '#10b981'; // Emerald
       if (score > 70) {
-        strokeColor = '#ff4757'; // Braun Red / Safety Orange
+        strokeColor = '#ef4444'; // Braun Red / Safety Orange
       } else if (score > 30) {
         strokeColor = '#f59e0b'; // Amber
       }
@@ -72,12 +72,12 @@ export default function ThreatWaveform({ score = 0, isHighRisk = false }) {
   return (
     <div className="flex items-center gap-2.5 slot-recessed-sm px-3 py-1.5">
       <div className="flex flex-col">
-        <span className="text-[9px] font-mono text-[#4a5568] uppercase font-bold tracking-widest">Signal Telemetry</span>
-        <span className="text-[10px] font-mono font-bold text-[#2d3436]">
+        <span className="text-[9px] font-mono text-[#64748b] uppercase font-bold tracking-widest">Signal Telemetry</span>
+        <span className="text-[10px] font-mono font-bold text-[#0f172a]">
           {score > 70 ? 'ANOMALOUS FLUX' : score > 30 ? 'MODERATE ACTIVITY' : 'NOMINAL BASELINE'}
         </span>
       </div>
-      <div className="slot-dark-screen p-0.5 rounded border border-[#babecc]/50 overflow-hidden flex-shrink-0">
+      <div className="slot-dark-screen p-0.5 rounded border border-[#e2e8f0]/50 overflow-hidden flex-shrink-0">
         <canvas 
           ref={canvasRef} 
           width={140} 

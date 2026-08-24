@@ -13,7 +13,7 @@ const getStatusBadge = (status) => {
   } else if (s === 'fail' || s === 'hardfail') {
     return {
       text: 'FAIL',
-      color: 'bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/30',
+      color: 'bg-[#ef4444]/15 text-[#d63031] border-[#ef4444]/30',
       icon: ShieldAlert,
       led: 'led-node-red'
     };
@@ -27,7 +27,7 @@ const getStatusBadge = (status) => {
   }
   return {
     text: s.toUpperCase(),
-    color: 'bg-[#e0e5ec] text-[#4a5568] border-[#babecc]',
+    color: 'bg-[#ffffff] text-[#64748b] border-[#e2e8f0]',
     icon: Lock,
     led: 'led-node-off'
   };
@@ -54,7 +54,7 @@ export default function AuthPanel({ data }) {
           return (
             <div key={idx} className="slot-recessed p-3.5 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-[#4a5568] font-bold uppercase tracking-wider">{p.name}</span>
+                <span className="text-[10px] text-[#64748b] font-bold uppercase tracking-wider">{p.name}</span>
                 <span className={`led-node ${badge.led}`} />
               </div>
               <div className="flex items-center justify-between">
@@ -62,7 +62,7 @@ export default function AuthPanel({ data }) {
                   <Icon className="w-3.5 h-3.5" />
                   <span>{badge.text}</span>
                 </div>
-                <span className="text-[10px] text-[#4a5568] font-sans font-medium">{p.desc}</span>
+                <span className="text-[10px] text-[#64748b] font-sans font-medium">{p.desc}</span>
               </div>
             </div>
           );
@@ -71,8 +71,8 @@ export default function AuthPanel({ data }) {
 
       {/* DMARC Alignment Alert */}
       {auth.dmarc_alignment === false && (
-        <div className="slot-recessed p-3.5 flex items-center gap-2.5 border-l-4 border-l-[#ff4757] text-xs text-[#d63031] font-mono">
-          <ShieldAlert className="w-4 h-4 text-[#ff4757] flex-shrink-0" />
+        <div className="slot-recessed p-3.5 flex items-center gap-2.5 border-l-4 border-l-[#ef4444] text-xs text-[#d63031] font-mono">
+          <ShieldAlert className="w-4 h-4 text-[#ef4444] flex-shrink-0" />
           <span><strong>DMARC Alignment Breach:</strong> Header 'From' domain does not align with verified SPF / DKIM signing identities.</span>
         </div>
       )}

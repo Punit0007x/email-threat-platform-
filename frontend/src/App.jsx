@@ -1,24 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, useInView } from 'framer-motion';
 import { 
-  Upload, 
-  AlertCircle, 
-  FileText, 
-  BookOpen, 
-  Search, 
-  ShieldAlert, 
-  Cpu, 
-  Zap, 
-  Terminal, 
-  Sparkles,
-  Compass,
-  Activity,
-  Brain,
-  Scan,
-  Network,
-  Mail,
-  ShieldCheck,
-  Eye,
-  Radio
+  Upload, AlertCircle, FileText, BookOpen, Search, Zap, Terminal, Sparkles, Radio, Database
 } from 'lucide-react';
 import { analyzeEmail } from './services/analysisService';
 
@@ -31,127 +14,40 @@ import MapPanel from './components/MapPanel';
 import AdvancedSOC from './components/AdvancedSOC';
 import CustodyReportPanel from './components/CustodyReportPanel';
 import GraphAttributionPanel from './components/GraphAttributionPanel';
-import CaseHistoryPanel from './components/CaseHistoryPanel';
 import PlaybookModal from './components/PlaybookModal';
 import IOCSearchModal from './components/IOCSearchModal';
 import CyberScanOverlay from './components/CyberScanOverlay';
-import ThreatWaveform from './components/ThreatWaveform';
 import EmailBodyDissector from './components/EmailBodyDissector';
+import DashboardView from './components/DashboardView';
 
 const DEMO_EMAILS = [
   {
     id: "sample",
     label: "PayPal Brand Phishing",
-    badge: "CRITICAL SPOOF",
-    color: "bg-[#e0e5ec] text-[#2d3436] hover:text-[#ff4757]",
-    badgeColor: "bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/30",
-    led: "led-node-red",
+    badge: "CRITICAL",
     filename: "sample.eml",
-    content: `From: Security <security@paypa1.com>
-To: victim@company.com
-Subject: URGENT: Your account has been suspended!
-Date: Wed, 22 Aug 2026 09:00:00 +0000
-Message-ID: <1234567890@example.com>
-Reply-To: sender-reply@example.com
-Return-Path: <bounce@attacker-vps.com>
-Received: from mail.example.com (mail.example.com [192.168.1.100])
-	by mx.company.com with ESMTP id 12345;
-	Wed, 22 Aug 2026 09:00:10 +0000
-Authentication-Results: mx.company.com;
-	spf=fail smtp.mailfrom=bounce@attacker-vps.com;
-	dkim=none header.i=@paypa1.com;
-	dmarc=fail (p=reject sp=reject dis=none) header.from=paypa1.com
-Content-Type: multipart/alternative; boundary="BOUNDARY"
-
---BOUNDARY
-Content-Type: text/plain; charset="utf-8"
-
-Your account will be closed. Act now.
-Please verify immediately at http://bit.ly/fake-link
-
---BOUNDARY
-Content-Type: text/html; charset="utf-8"
-
-<html>
-<body>
-<p>Your account will be closed. Act now.</p>
-<p>Please <a href="http://bit.ly/fake-link">verify immediately</a></p>
-<p>Visit <a href="http://attacker.com/login">https://paypal.com/login</a></p>
-</body>
-</html>
---BOUNDARY--`
+    content: `From: Security <security@paypa1.com>\nTo: victim@company.com\nSubject: URGENT: Your account has been suspended!\nDate: Wed, 22 Aug 2026 09:00:00 +0000\nMessage-ID: <1234567890@example.com>\nReply-To: sender-reply@example.com\nReturn-Path: <bounce@attacker-vps.com>\nReceived: from mail.example.com (mail.example.com [192.168.1.100])\n\tby mx.company.com with ESMTP id 12345;\n\tWed, 22 Aug 2026 09:00:10 +0000\nAuthentication-Results: mx.company.com;\n\tspf=fail smtp.mailfrom=bounce@attacker-vps.com;\n\tdkim=none header.i=@paypa1.com;\n\tdmarc=fail (p=reject sp=reject dis=none) header.from=paypa1.com\nContent-Type: multipart/alternative; boundary="BOUNDARY"\n\n--BOUNDARY\nContent-Type: text/plain; charset="utf-8"\n\nYour account will be closed. Act now.\nPlease verify immediately at http://bit.ly/fake-link\n\n--BOUNDARY\nContent-Type: text/html; charset="utf-8"\n\n<html>\n<body>\n<p>Your account will be closed. Act now.</p>\n<p>Please <a href="http://bit.ly/fake-link">verify immediately</a></p>\n<p>Visit <a href="http://attacker.com/login">https://paypal.com/login</a></p>\n</body>\n</html>\n--BOUNDARY--`
   },
   {
     id: "bec",
     label: "BEC Executive Wire Fraud",
-    badge: "VIP IMPERSONATION",
-    color: "bg-[#e0e5ec] text-[#2d3436] hover:text-[#7048e8]",
-    badgeColor: "bg-[#7048e8]/15 text-[#5f3dc4] border-[#7048e8]/30",
-    led: "led-node-amber",
+    badge: "VIP SPOOF",
     filename: "bec_ceo_fraud.eml",
-    content: `From: "Tim Cook (CEO)" <ceo.apple.exec@gmail.com>
-To: payroll-dept@company.com
-Reply-To: executive-finance-secure@protonmail.com
-Subject: URGENT: Update my direct deposit information for upcoming payroll
-Date: Thu, 20 Aug 2026 09:30:00 +0000
-Message-ID: <bec-attack-sample-999@apple.com>
-
-Hi Payroll Team,
-
-I am currently in an urgent offsite board meeting and cannot take calls.
-Please update my bank account details for my upcoming direct deposit paycheck immediately.
-Attached are the new routing numbers. Do not process via the old account.
-
-Please keep this matter confidential between us.
-
-Thanks,
-Tim Cook
-Chief Executive Officer`
+    content: `From: "Tim Cook (CEO)" <ceo.apple.exec@gmail.com>\nTo: payroll-dept@company.com\nReply-To: executive-finance-secure@protonmail.com\nSubject: URGENT: Update my direct deposit information\nDate: Thu, 20 Aug 2026 09:30:00 +0000\nMessage-ID: <bec-attack@apple.com>\n\nHi Payroll Team,\n\nI am currently in an urgent offsite board meeting and cannot take calls.\nPlease update my bank account details for my upcoming direct deposit paycheck immediately.\nAttached are the new routing numbers. Do not process via the old account.\n\nPlease keep this matter confidential between us.\n\nThanks,\nTim Cook`
   },
   {
     id: "multi_hop",
     label: "Multi-Hop Relay Anomaly",
-    badge: "RELAY DEVIATION",
-    color: "bg-[#e0e5ec] text-[#2d3436] hover:text-[#d97706]",
-    badgeColor: "bg-[#f59e0b]/15 text-[#b45309] border-[#f59e0b]/30",
-    led: "led-node-amber",
+    badge: "ANOMALY",
     filename: "multi_hop.eml",
-    content: `From: hacker@evil.com
-To: victim@company.com
-Subject: You won!
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49]) by mx.company.com with ESMTP id 123; Wed, 22 Aug 2026 09:05:00 +0000
-Received: from attacker-vps.xyz (attacker-vps.xyz [89.123.45.67]) by mail.google.com with ESMTP id 456; Wed, 22 Aug 2026 09:04:55 +0000
-Received: from localhost (localhost [127.0.0.1]) by attacker-vps.xyz; Wed, 22 Aug 2026 09:04:00 +0000
-
-Click here.`
+    content: `From: hacker@evil.com\nTo: victim@company.com\nSubject: You won!\nReceived: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49]) by mx.company.com with ESMTP id 123; Wed, 22 Aug 2026 09:05:00 +0000\nReceived: from attacker-vps.xyz (attacker-vps.xyz [89.123.45.67]) by mail.google.com with ESMTP id 456; Wed, 22 Aug 2026 09:04:55 +0000\nReceived: from localhost (localhost [127.0.0.1]) by attacker-vps.xyz; Wed, 22 Aug 2026 09:04:00 +0000\n\nClick here.`
   },
   {
     id: "clean",
     label: "Clean GitHub Notice",
-    badge: "BENIGN PASS",
-    color: "bg-[#e0e5ec] text-[#2d3436] hover:text-[#059669]",
-    badgeColor: "bg-[#10b981]/15 text-[#047857] border-[#10b981]/30",
-    led: "led-node-green",
+    badge: "BENIGN",
     filename: "clean.eml",
-    content: `From: support@github.com
-To: user@example.com
-Subject: Your GitHub repository was starred
-Date: Wed, 22 Aug 2026 09:00:00 +0000
-Message-ID: <clean123@github.com>
-Reply-To: noreply@github.com
-Return-Path: <bounce@github.com>
-Received: from out-1.github.com (out-1.github.com [192.30.252.1])
-	by mx.company.com with ESMTP id 12345;
-	Wed, 22 Aug 2026 09:00:10 +0000
-Authentication-Results: mx.company.com;
-	spf=pass (mx.company.com: domain of bounce@github.com designates 192.30.252.1 as permitted sender) smtp.mailfrom=bounce@github.com;
-	dkim=pass header.i=@github.com;
-	dmarc=pass (p=reject sp=reject dis=none) header.from=github.com
-Content-Type: text/plain; charset="utf-8"
-
-Hi there,
-Someone just starred your repository!
-Check it out at https://github.com/punit007x/my-repo`
+    content: `From: support@github.com\nTo: user@example.com\nSubject: Your GitHub repository was starred\nDate: Wed, 22 Aug 2026 09:00:00 +0000\nMessage-ID: <clean123@github.com>\nReply-To: noreply@github.com\nReturn-Path: <bounce@github.com>\nReceived: from out-1.github.com (out-1.github.com [192.30.252.1])\n\tby mx.company.com with ESMTP id 12345;\n\tWed, 22 Aug 2026 09:00:10 +0000\nAuthentication-Results: mx.company.com;\n\tspf=pass (mx.company.com: domain of bounce@github.com designates 192.30.252.1 as permitted sender) smtp.mailfrom=bounce@github.com;\n\tdkim=pass header.i=@github.com;\n\tdmarc=pass (p=reject sp=reject dis=none) header.from=github.com\nContent-Type: text/plain; charset="utf-8"\n\nHi there,\nSomeone just starred your repository!\nCheck it out at https://github.com/punit007x/my-repo`
   }
 ];
 
@@ -160,31 +56,53 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [results, setResults] = useState(null);
+  
   const [showPlaybook, setShowPlaybook] = useState(false);
   const [showIOCSearch, setShowIOCSearch] = useState(false);
   const [iocQuery, setIocQuery] = useState('');
-  const [activeView, setActiveView] = useState('radar'); // 'radar' | 'ai' | 'dissector' | 'geo' | 'osint' | 'graph' | 'headers' | 'custody'
+  
+  const [activeView, setActiveView] = useState('summary');
+  const [activeSection, setActiveSection] = useState(1);
+
+  const heroRef = useRef(null);
+  const scannerRef = useRef(null);
+  const dashboardRef = useRef(null);
+  
+  const isHeroInView = useInView(heroRef, { amount: 0.5 });
+  const isScannerInView = useInView(scannerRef, { amount: 0.5 });
+  const isDashboardInView = useInView(dashboardRef, { amount: 0.5 });
+
+  useEffect(() => {
+    if (isHeroInView) setActiveSection(1);
+    else if (isScannerInView) setActiveSection(2);
+    else if (isDashboardInView) setActiveSection(3);
+  }, [isHeroInView, isScannerInView, isDashboardInView]);
 
   // Load shared data from Chrome extension (injected via scripting API)
   useEffect(() => {
+    const handleExtensionData = (data) => {
+      setResults(data);
+      setActiveView('summary');
+      setTimeout(() => {
+        dashboardRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    };
+
     // 1. Check if data was set in localStorage before the app fully loaded
     const shared = localStorage.getItem('shieldmail_shared_result');
     if (shared) {
       try {
-        const data = JSON.parse(shared);
-        setResults(data);
-        setActiveView('radar');
+        handleExtensionData(JSON.parse(shared));
         localStorage.removeItem('shieldmail_shared_result'); // Clean up
       } catch (err) {
         console.error("Failed to parse shared data from localStorage", err);
       }
     }
 
-    // 2. Listen for custom event if the extension injects data while the app is already open
+    // 2. Listen for custom events dispatched by the content script while app is open
     const handleSharedData = (event) => {
       if (event.detail && event.detail.data) {
-        setResults(event.detail.data);
-        setActiveView('radar');
+        handleExtensionData(event.detail.data);
       }
     };
     window.addEventListener('shieldmail_inject', handleSharedData);
@@ -198,13 +116,10 @@ function App() {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files?.[0];
-    if (selectedFile && (selectedFile.name.endsWith('.eml') || selectedFile.type === 'message/rfc822' || selectedFile.size > 0)) {
+    if (selectedFile) {
       setFile(selectedFile);
       setError(null);
       handleAnalyze(selectedFile);
-    } else if (selectedFile) {
-      setFile(null);
-      setError("Please select a valid .eml file.");
     }
   };
 
@@ -234,10 +149,11 @@ function App() {
     try {
       const data = await analyzeEmail(targetFile);
       setResults(data);
-      setActiveView('radar');
+      setActiveView('summary');
+      dashboardRef.current?.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       console.error("Analysis failed:", err);
-      setError(err.message || "Failed to analyze email. Please ensure backend is running.");
+      setError(err.message || "Failed to analyze email.");
     } finally {
       setLoading(false);
     }
@@ -250,146 +166,105 @@ function App() {
     handleAnalyze(demoFile);
   };
 
-  const threatScore = results?.fraud_assessment?.score ?? 0;
-  const isHighRisk = threatScore > 70;
-  const isMediumRisk = threatScore > 30 && threatScore <= 70;
-
   return (
-    <div className="min-h-screen chassis-bg p-4 sm:p-8 text-[#2d3436] font-sans selection:bg-[#ff4757] selection:text-white">
-      <div className="max-w-7xl mx-auto space-y-7">
+    <div className="h-screen w-full overflow-y-scroll snap-y snap-mandatory bg-[#0A0A0C] font-sans selection:bg-[#ff4757] selection:text-white">
+      
+      {/* Floating Navigation Pill */}
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-white/10 border border-white/20 px-6 py-3 rounded-full flex gap-4 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]">
+        {[1, 2, 3].map((num) => (
+          <div 
+            key={num} 
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${activeSection === num ? 'bg-white scale-125' : 'bg-white/30'}`}
+          />
+        ))}
+      </nav>
+
+      {/* SECTION 1: HERO */}
+      <section ref={heroRef} className="snap-start h-screen w-full bg-[#0A0A0C] flex flex-col justify-center items-center text-white relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-slate-800/20 blur-[120px] rounded-full pointer-events-none" />
         
-        {/* Tactical Industrial Telemetry Ribbon */}
-        <header className="panel-chassis px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 font-mono font-bold text-[#2d3436] uppercase tracking-wider">
-              <span className="led-node led-node-green animate-pulse" />
-              <span>SOC SENTINEL: ARMED</span>
-            </div>
-            <span className="text-[#a3b1c6] font-mono hidden sm:inline">|</span>
-            <div className="hidden sm:flex items-center gap-2 text-[#4a5568] font-mono text-[11px] font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#10b981]" />
-              <span>BLOCKCHAIN NOTARY: SYNCED</span>
-            </div>
-            <span className="text-[#a3b1c6] font-mono hidden md:inline">|</span>
-            <div className="hidden md:flex items-center gap-2 text-[#4a5568] font-mono text-[11px] font-semibold">
-              <Cpu className="w-3.5 h-3.5 text-[#ff4757]" />
-              <span>NEURAL ENSEMBLE: ACTIVE</span>
-            </div>
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="z-10 text-center max-w-4xl px-4"
+        >
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-mono font-bold tracking-widest uppercase mb-8">
+            <Zap className="w-4 h-4 text-slate-500" />
+            <span>Email Threat Operations Center</span>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="slot-recessed-sm px-3 py-1 font-mono text-[10px] font-bold text-[#4a5568] uppercase tracking-wider flex items-center gap-1.5">
-              <Radio className="w-3 h-3 text-[#ff4757] animate-pulse" />
-              <span>NODE: FASTAPI:8000</span>
-            </div>
+          <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6">
+            Intelligent <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-500 to-cyan-400">Threat Detonation</span>
+          </h1>
+          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-10">
+            Advanced forensic parsing, speed-of-light relay anomaly triangulation, computer vision OCR detonation, and neural campaign attribution.
+          </p>
+          <div className="flex items-center justify-center gap-4">
+             <button onClick={() => scannerRef.current?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-full font-bold transition-all shadow-[0_0_20px_rgba(15,23,42,0.4)]">
+               Initialize Scan Bay
+             </button>
+             <button onClick={() => setShowPlaybook(true)} className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full font-bold transition-all">
+               SOC Playbook
+             </button>
           </div>
-        </header>
+        </motion.div>
+      </section>
 
-        {/* Hero Section & Machine Title */}
-        <section className="flex flex-col lg:flex-row items-center justify-between gap-6 py-2">
-          <div className="space-y-2 text-center lg:text-left max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md slot-recessed-sm text-[#4a5568] text-xs font-mono font-bold tracking-widest uppercase">
-              <Zap className="w-3.5 h-3.5 text-[#ff4757]" />
-              <span>FORENSIC OPERATIONS // INCIDENT TRIAGE ENGINE v2.8</span>
-            </div>
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#2d3436] drop-shadow-[0_1px_0_#ffffff]">
-              Email Threat <span className="text-[#ff4757]">Command Center</span>
-            </h1>
-            <p className="text-xs sm:text-sm text-[#4a5568] max-w-2xl leading-relaxed font-sans font-medium">
-              RFC-822 header stream parsing, speed-of-light relay anomaly triangulation, computer vision OCR detonation, and neural campaign attribution.
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-3 flex-shrink-0 font-mono">
-            <button
-              onClick={() => setShowIOCSearch(true)}
-              className="btn-tactile-secondary px-4 py-2.5 text-xs font-bold"
-            >
-              <Search className="w-4 h-4 text-[#ff4757]" />
-              <span>[LOOKUP IOC]</span>
-            </button>
+      {/* SECTION 2: SCANNER */}
+      <section ref={scannerRef} className="snap-start h-screen w-full bg-[#0f172a] flex flex-col justify-center items-center relative overflow-hidden text-white">
+        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+        
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6 }}
+          className="z-10 w-full max-w-4xl px-4"
+        >
+          <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 shadow-2xl">
+             <div className="flex items-center gap-3 mb-6 border-b border-white/10 pb-4">
+                <Terminal className="w-5 h-5 text-slate-400" />
+                <h2 className="text-xl font-bold uppercase tracking-wider font-mono">Ingestion Bay</h2>
+             </div>
 
-            <button
-              onClick={() => setShowPlaybook(true)}
-              className="btn-tactile-secondary px-4 py-2.5 text-xs font-bold"
-            >
-              <BookOpen className="w-4 h-4 text-[#4a5568]" />
-              <span>[SOC PLAYBOOK]</span>
-            </button>
-          </div>
-        </section>
-
-        {/* Upload & Demo Presets Chamber (Bolted Physical Module) */}
-        <section className="panel-chassis p-6 sm:p-8 space-y-6 relative overflow-hidden">
-          
-          {/* Corner Screw Heads & Vent Louvers */}
-          <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
-          <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
-          <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
-          <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
-
-          <div className="flex items-center justify-between border-b border-[#d1d9e6] pb-3 px-2">
-            <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-[#ff4757]" />
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#2d3436]">
-                INGESTION BAY // RFC-822 STREAM
-              </span>
-            </div>
-            <div className="vent-louvers">
-              <div className="vent-slot" />
-              <div className="vent-slot" />
-              <div className="vent-slot" />
-            </div>
-          </div>
-
-          <div className="flex flex-col items-center justify-center space-y-6 relative z-10">
-            
-            {/* Tactical Dropzone (Recessed Data Bay) */}
-            <label 
+             <label 
               onDrop={handleDrop}
               onDragOver={handleDragOver}
-              className="flex flex-col items-center justify-center w-full max-w-4xl h-44 border-2 border-dashed border-[#babecc] hover:border-[#ff4757] rounded-2xl cursor-pointer slot-recessed transition-all group relative overflow-hidden"
+              className="flex flex-col items-center justify-center w-full h-56 border-2 border-dashed border-slate-400/50 hover:border-white hover:bg-white/5 rounded-2xl cursor-pointer transition-all group relative overflow-hidden mb-8"
             >
-              <div className="flex flex-col items-center justify-center pt-3 pb-4 space-y-2">
-                <div className="p-3 bg-[#e0e5ec] text-[#ff4757] rounded-2xl shadow-[var(--shadow-card)] group-hover:shadow-[var(--shadow-floating)] group-hover:scale-105 transition-all border border-white/60">
-                  <Upload className="w-6 h-6" />
+              <div className="flex flex-col items-center justify-center p-6 space-y-4">
+                <div className="p-4 bg-slate-800/20 text-slate-300 rounded-full group-hover:scale-110 transition-transform">
+                  <Upload className="w-8 h-8" />
                 </div>
-                <p className="text-sm font-bold text-[#2d3436] group-hover:text-[#ff4757] transition-colors font-sans">
-                  Drop target <span className="text-[#ff4757] font-mono font-bold">.EML</span> file here or <span className="underline decoration-[#ff4757] underline-offset-4">browse filesystem</span>
+                <p className="text-lg font-bold">
+                  Drop <span className="text-slate-300 font-mono">.EML</span> file here or click to browse
                 </p>
-                <p className="text-xs text-[#4a5568] font-mono flex items-center gap-1.5 font-medium">
-                  <Sparkles className="w-3.5 h-3.5 text-[#f59e0b]" />
-                  Automatic SHA-256 Tamper-Evident Ledger & Ethereum Custody Seal
+                <p className="text-sm text-slate-300/70 font-mono flex items-center gap-2">
+                  <Sparkles className="w-4 h-4" /> Secure Sandbox Environment
                 </p>
               </div>
               <input type="file" className="hidden" accept=".eml" onChange={handleFileChange} />
             </label>
 
             {/* Quick Demo Attack Presets */}
-            <div className="w-full max-w-4xl space-y-3">
-              <div className="flex items-center justify-between text-xs text-[#4a5568] border-b border-[#d1d9e6] pb-2 px-1">
-                <span className="font-bold text-[#2d3436] flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider">
-                  <Radio className="w-3.5 h-3.5 text-[#ff4757]" />
-                  // Instant Sandbox Attack Presets:
+            <div>
+              <div className="flex items-center justify-between text-sm text-slate-300 mb-4">
+                <span className="font-bold flex items-center gap-2 font-mono uppercase tracking-wider">
+                  <Radio className="w-4 h-4" /> Sandbox Attack Presets
                 </span>
-                <span className="text-[#ff4757] font-mono text-[11px] font-bold">[1-Click Live Ingestion]</span>
               </div>
               
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {DEMO_EMAILS.map((demo) => (
                   <button
                     key={demo.id}
                     onClick={() => handleLoadDemo(demo)}
                     disabled={loading}
-                    className="btn-tactile-secondary p-3.5 flex flex-col justify-between text-left cursor-pointer disabled:opacity-50"
+                    className="bg-black/20 hover:bg-black/40 border border-white/10 rounded-xl p-4 text-left transition-all disabled:opacity-50"
                   >
-                    <div className="flex items-center justify-between w-full mb-1">
-                      <span className="truncate font-bold text-[#2d3436] text-xs font-sans">{demo.label}</span>
-                      <span className={`led-node ${demo.led}`} />
-                    </div>
-                    <div className="flex items-center justify-between w-full mt-2 pt-2 border-t border-[#d1d9e6]/80 font-mono">
-                      <span className="text-[10px] text-[#4a5568] truncate">{demo.filename}</span>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold flex-shrink-0 ml-1 ${demo.badgeColor}`}>
+                    <div className="font-bold text-sm mb-2">{demo.label}</div>
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/10 font-mono">
+                      <span className="text-[10px] text-slate-400 truncate">{demo.filename}</span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded border border-white/20 bg-white/10 ml-2">
                         {demo.badge}
                       </span>
                     </div>
@@ -398,190 +273,113 @@ function App() {
               </div>
             </div>
 
-            {/* Selected File Action Bar */}
-            {file && (
-              <div className="flex items-center space-x-3 slot-recessed p-3.5 rounded-xl w-full max-w-4xl border border-[#babecc]/60 animate-in fade-in">
-                <FileText className="w-5 h-5 text-[#ff4757] flex-shrink-0" />
-                <div className="flex-1 truncate">
-                  <span className="text-xs font-bold text-[#2d3436] font-mono block truncate">{file.name}</span>
-                  <span className="text-[11px] text-[#4a5568] font-mono font-medium">{(file.size / 1024).toFixed(1)} KB &bull; Stream buffer loaded</span>
-                </div>
-                <button 
-                  onClick={() => handleAnalyze()}
-                  disabled={loading}
-                  className="btn-tactile-primary px-5 py-2 text-xs font-mono"
-                >
-                  {loading ? "[ANALYZING...]" : "[INITIATE THREAT SCAN]"}
-                </button>
-              </div>
-            )}
-
             {error && (
-              <div className="flex items-center space-x-2 text-[#d63031] slot-recessed p-3.5 rounded-xl w-full max-w-4xl text-xs font-mono border-l-4 border-l-[#d63031]">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>ERROR: {error}</span>
+              <div className="mt-6 flex items-center space-x-2 text-red-300 bg-red-900/40 p-4 rounded-xl border border-red-500/30 text-sm font-mono">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <span>{error}</span>
               </div>
             )}
-            
           </div>
-        </section>
+        </motion.div>
+      </section>
 
-        {/* Results Section with Industrial Navigation Dock */}
-        {results && (
-          <section className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
+      {/* SECTION 3: ANALYSIS / DASHBOARD */}
+      <section ref={dashboardRef} className="snap-start h-screen w-full bg-[#F8FAFC] relative">
+        {results ? (
+          <div className="pt-24 pb-12 px-4 sm:px-8 max-w-[90rem] mx-auto h-full flex flex-col">
             
-            {/* Live Threat Quick Telemetry Strip */}
-            <div className="panel-chassis p-4 sm:p-5 flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center space-x-4">
-                <div className={`p-3.5 rounded-xl font-mono text-2xl font-black slot-recessed ${isHighRisk ? 'text-[#ff4757]' : (isMediumRisk ? 'text-[#d97706]' : 'text-[#059669]')}`}>
-                  {threatScore}/100
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs uppercase font-mono font-bold text-[#4a5568]">// INCIDENT VERDICT:</span>
-                    <span className={`text-xs font-bold uppercase px-2.5 py-0.5 rounded-md font-mono ${isHighRisk ? 'bg-[#ff4757]/15 text-[#d63031] border border-[#ff4757]/30' : (isMediumRisk ? 'bg-[#f59e0b]/15 text-[#b45309] border border-[#f59e0b]/30' : 'bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30')}`}>
-                      {results.fraud_assessment?.risk_level} Risk Level
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-[#2d3436] truncate max-w-xl mt-0.5 font-sans">
-                    {results.subject || "No Subject"}
-                  </h3>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <ThreatWaveform score={threatScore} isHighRisk={isHighRisk} />
-
-                <div className="flex items-center gap-2 text-xs font-mono">
-                  <div className="slot-recessed-sm px-3 py-1.5 text-[#4a5568]">
-                    ORIGIN: <strong className="text-[#2d3436] font-bold">{results.trace?.best_guess_ip || 'N/A'}</strong>
-                  </div>
-                  <div className="slot-recessed-sm px-3 py-1.5 text-[#4a5568]">
-                    THREAT: <strong className="text-[#ff4757] font-bold">{results.ai_ml_analysis?.classification?.primary_threat?.replace(/_/g, ' ').toUpperCase() || 'CLEAN'}</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Industrial Navigation Dock (Key Switches) */}
-            <div className="flex items-center gap-2 overflow-x-auto p-2 slot-recessed rounded-2xl">
+            {/* Tab Navigation System */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-2 flex flex-wrap gap-2 shadow-sm mb-6">
               {[
-                { id: 'radar', code: '01', label: 'Threat Radar', icon: Activity },
-                { id: 'ai', code: '02', label: 'Neural AI & Trap', icon: Brain },
-                { id: 'dissector', code: '03', label: 'Body Dissector & Sandbox', icon: Eye },
-                { id: 'geo', code: '04', label: 'Geo-Origin & Physics', icon: Compass },
-                { id: 'osint', code: '05', label: 'Vision & Deep OSINT', icon: Scan },
-                { id: 'graph', code: '06', label: 'Attribution Graph', icon: Network },
-                { id: 'headers', code: '07', label: 'Header Polygraph', icon: Mail },
-                { id: 'custody', code: '08', label: 'Evidence Vault', icon: ShieldCheck },
-                { id: 'advanced', code: '09', label: 'God-Level SOC', icon: Zap },
-              ].map((tab) => {
-                const Icon = tab.icon;
-                const isActive = activeView === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveView(tab.id)}
-                    className={`key-switch flex items-center gap-2 px-4 py-2.5 text-xs font-bold flex-shrink-0 ${isActive ? 'active' : ''}`}
-                  >
-                    <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-[#ff4757]' : 'text-[#8896aa]'}`}>
-                      [{tab.code}]
-                    </span>
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#ff4757]' : 'text-[#4a5568]'}`} />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
+                { id: 'summary', label: 'Summary & Verdict' },
+                { id: 'content', label: 'Email Content' },
+                { id: 'sender', label: 'Sender Details' },
+                { id: 'network', label: 'Network & Origin' },
+                { id: 'report', label: 'Analysis Report' },
+                { id: 'advanced', label: 'God-Level SOC' },
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveView(tab.id)}
+                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeView === tab.id ? 'bg-[#0f172a] text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+              <div className="ml-auto flex gap-2">
+                 <button onClick={() => setShowIOCSearch(true)} className="px-3 py-2 rounded-xl text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2">
+                   <Search className="w-4 h-4"/> IOC Search
+                 </button>
+                 <button onClick={() => setResults(null)} className="px-3 py-2 rounded-xl text-sm font-bold bg-red-50 text-red-600 hover:bg-red-100 border border-red-100">
+                   Clear Session
+                 </button>
+              </div>
             </div>
 
-            {/* Dynamic View Display Container */}
-            <div className="space-y-6">
-              {activeView === 'radar' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
+            {/* GlassCard Ecosystem for Results */}
+            <div className="flex-1 bg-white/60 backdrop-blur-xl border border-gray-200 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-y-auto">
+              
+              {activeView === 'summary' && (
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-6">
                   <FraudScorePanel data={results} />
-                </div>
-              )}
-
-              {activeView === 'ai' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
                   <AIMLThreatPanel data={results} />
-                </div>
+                </motion.div>
               )}
 
-              {activeView === 'dissector' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
+              {activeView === 'content' && (
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-6">
                   <EmailBodyDissector data={results} onLookupIOC={handleLookupIOC} />
-                </div>
-              )}
-
-              {activeView === 'geo' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
-                  <MapPanel data={results} />
-                </div>
-              )}
-
-              {activeView === 'osint' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
                   <DeepOSINTPanel data={results} />
-                </div>
+                </motion.div>
               )}
 
-              {activeView === 'graph' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
-                  <GraphAttributionPanel data={results} onLookupIOC={handleLookupIOC} />
-                </div>
-              )}
-
-              {activeView === 'headers' && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in duration-250">
+              {activeView === 'sender' && (
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   <HeaderPanel data={results} />
                   <AuthPanel data={results} />
-                </div>
+                </motion.div>
               )}
 
-              {activeView === 'custody' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
+              {activeView === 'network' && (
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-6">
+                  <GraphAttributionPanel data={results} onLookupIOC={handleLookupIOC} />
+                  <MapPanel data={results} />
+                </motion.div>
+              )}
+
+              {activeView === 'report' && (
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-6">
                   <CustodyReportPanel data={results} />
-                  <CaseHistoryPanel />
-                </div>
+                </motion.div>
               )}
 
               {activeView === 'advanced' && (
-                <div className="animate-in fade-in duration-250">
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-6">
                   <AdvancedSOC data={results} />
-                </div>
+                </motion.div>
               )}
+
             </div>
-
-          </section>
+          </div>
+        ) : (
+          <DashboardView />
         )}
+      </section>
 
-        {/* Persistent Case Management & Campaigns when no active email is loaded */}
-        {!results && (
-          <CaseHistoryPanel />
-        )}
-
-        {/* Master Investigation Playbook Modal */}
-        <PlaybookModal isOpen={showPlaybook} onClose={() => setShowPlaybook(false)} />
-
-        {/* Global IOC Threat Dossier Modal */}
-        <IOCSearchModal 
-          isOpen={showIOCSearch} 
-          onClose={() => {
-            setShowIOCSearch(false);
-            setIocQuery('');
-          }} 
-          initialQuery={iocQuery}
-        />
-
-        {/* Threat Scanner Overlay */}
-        <CyberScanOverlay isOpen={loading} />
-        
-      </div>
+      {/* Modals & Overlays */}
+      <PlaybookModal isOpen={showPlaybook} onClose={() => setShowPlaybook(false)} />
+      <IOCSearchModal 
+        isOpen={showIOCSearch} 
+        onClose={() => {
+          setShowIOCSearch(false);
+          setIocQuery('');
+        }} 
+        initialQuery={iocQuery}
+      />
+      <CyberScanOverlay isOpen={loading} />
+      
     </div>
   );
 }
 
 export default App;
-
-

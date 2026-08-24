@@ -130,7 +130,7 @@ export default function ThreatRadarGraphic({ data, score = 0 }) {
 
         // Blip color by severity
         let blipColor = '#10b981'; // Green
-        if (blip.severity === 'high') blipColor = '#ff4757'; // Red
+        if (blip.severity === 'high') blipColor = '#ef4444'; // Red
         else if (blip.severity === 'med') blipColor = '#f59e0b'; // Amber
 
         // Pulse ring around blip
@@ -168,7 +168,7 @@ export default function ThreatRadarGraphic({ data, score = 0 }) {
     <div className="panel-dark-tech p-5 sm:p-6 space-y-4 shadow-xl">
       <div className="flex items-center justify-between border-b border-white/10 pb-3">
         <div className="flex items-center gap-2 font-mono">
-          <Target className="w-4 h-4 text-[#ff4757] animate-pulse" />
+          <Target className="w-4 h-4 text-[#ef4444] animate-pulse" />
           <h4 className="text-xs font-bold text-white uppercase tracking-wider">
             RADAR INSTRUMENTATION // 360° BEARING
           </h4>
@@ -187,7 +187,7 @@ export default function ThreatRadarGraphic({ data, score = 0 }) {
             className="rounded-full"
           />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-2 h-2 rounded-full bg-[#ff4757] shadow-[0_0_8px_#ff4757]"></div>
+            <div className="w-2 h-2 rounded-full bg-[#ef4444] shadow-[0_0_8px_#ef4444]"></div>
           </div>
         </div>
 
@@ -199,12 +199,12 @@ export default function ThreatRadarGraphic({ data, score = 0 }) {
           {blips.map((blip) => (
             <div 
               key={blip.id}
-              className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#ff4757]/50 transition-all shadow-sm group"
+              className="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-[#ef4444]/50 transition-all shadow-sm group"
             >
-              <span className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${blip.severity === 'high' ? 'bg-[#ff4757] shadow-[0_0_6px_#ff4757]' : blip.severity === 'med' ? 'bg-[#f59e0b] shadow-[0_0_6px_#f59e0b]' : 'bg-[#10b981]'}`}></span>
+              <span className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${blip.severity === 'high' ? 'bg-[#ef4444] shadow-[0_0_6px_#ef4444]' : blip.severity === 'med' ? 'bg-[#f59e0b] shadow-[0_0_6px_#f59e0b]' : 'bg-[#10b981]'}`}></span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-white group-hover:text-[#ff4757] font-sans truncate">{blip.label}</span>
+                  <span className="text-xs font-bold text-white group-hover:text-[#ef4444] font-sans truncate">{blip.label}</span>
                   <span className="text-[9px] font-mono text-[#a8b2d1] uppercase font-semibold">AZ {blip.angle}°</span>
                 </div>
                 <p className="text-[11px] text-[#cbd5e1] leading-tight mt-0.5 truncate font-sans">{blip.desc}</p>

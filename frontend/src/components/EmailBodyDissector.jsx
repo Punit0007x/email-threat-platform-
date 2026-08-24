@@ -68,7 +68,7 @@ function detectObfuscatedStrings(text) {
       fullRaw: match[0],
       decoded: decodeURIComponent(match[1]),
       confidence: 'Critical',
-      color: 'text-[#d63031] border-[#ff4757]/30 bg-[#ff4757]/10'
+      color: 'text-[#d63031] border-[#ef4444]/30 bg-[#ef4444]/10'
     });
   }
 
@@ -195,7 +195,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
   };
 
   const safeSandboxedHtml = useMemo(() => {
-    if (!htmlBody) return `<div style="font-family: monospace; color: #2d3436; background: #e0e5ec; padding: 20px;">[No HTML Body Stream Present. Showing Plaintext Payload.]<br><br>${plainBody.replace(/\n/g, '<br>')}</div>`;
+    if (!htmlBody) return `<div style="font-family: monospace; color: #0f172a; background: #ffffff; padding: 20px;">[No HTML Body Stream Present. Showing Plaintext Payload.]<br><br>${plainBody.replace(/\n/g, '<br>')}</div>`;
 
     let sanitized = htmlBody
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '<!-- [DANGEROUS SCRIPT BLOCKED BY SANDBOX] -->')
@@ -205,9 +205,9 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
     const injectedStyles = `
       <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #2d3436; background: #f0f2f5; padding: 16px; line-height: 1.6; }
-        a { color: #ff4757; text-decoration: underline; font-weight: bold; }
-        .threat-highlight-link { background: rgba(255, 71, 87, 0.15) !important; border: 1px solid #ff4757 !important; color: #d63031 !important; padding: 2px 4px !important; border-radius: 4px !important; font-weight: bold !important; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #0f172a; background: #f8fafc; padding: 16px; line-height: 1.6; }
+        a { color: #ef4444; text-decoration: underline; font-weight: bold; }
+        .threat-highlight-link { background: rgba(255, 71, 87, 0.15) !important; border: 1px solid #ef4444 !important; color: #d63031 !important; padding: 2px 4px !important; border-radius: 4px !important; font-weight: bold !important; }
         .threat-highlight-hidden { background: rgba(245, 158, 11, 0.2) !important; border: 1px dashed #f59e0b !important; color: #b45309 !important; display: inline-block !important; font-size: 12px !important; }
       </style>
     `;
@@ -225,19 +225,19 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
       <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
 
       {/* Header with Mode Switcher */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#d1d9e6] pb-4 px-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#f8fafc] pb-4 px-2">
         <div className="flex items-center space-x-3.5">
-          <div className="p-3 bg-[#e0e5ec] text-[#ff4757] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
+          <div className="p-3 bg-[#ffffff] text-[#ef4444] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
             <Eye className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#2d3436] flex items-center gap-2 font-sans">
+            <h2 className="text-lg font-bold text-[#0f172a] flex items-center gap-2 font-sans">
               Email Payload Dissector & Sandbox
               <span className="text-[10px] bg-[#10b981]/15 text-[#047857] font-mono font-bold px-2 py-0.5 rounded border border-[#10b981]/30">
                 ISOLATED SANDBOX
               </span>
             </h2>
-            <p className="text-xs text-[#4a5568]">
+            <p className="text-xs text-[#64748b]">
               Safe WYSIWYG rendering, deceptive link divergence, hidden zero-font text, and automated payload de-obfuscation
             </p>
           </div>
@@ -272,29 +272,29 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
       {/* Threat Metrics Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
         <div className="slot-recessed p-3 flex items-center justify-between">
-          <span className="text-[#4a5568] font-bold">Deceptive Links:</span>
-          <span className={`font-bold font-mono ${linkMismatches.length > 0 ? 'text-[#ff4757]' : 'text-[#059669]'}`}>
+          <span className="text-[#64748b] font-bold">Deceptive Links:</span>
+          <span className={`font-bold font-mono ${linkMismatches.length > 0 ? 'text-[#ef4444]' : 'text-[#059669]'}`}>
             {linkMismatches.length} Detected
           </span>
         </div>
 
         <div className="slot-recessed p-3 flex items-center justify-between">
-          <span className="text-[#4a5568] font-bold">Obfuscated Strings:</span>
-          <span className={`font-bold font-mono ${obfuscations.length > 0 ? 'text-[#d97706]' : 'text-[#2d3436]'}`}>
+          <span className="text-[#64748b] font-bold">Obfuscated Strings:</span>
+          <span className={`font-bold font-mono ${obfuscations.length > 0 ? 'text-[#d97706]' : 'text-[#0f172a]'}`}>
             {obfuscations.length} Detected
           </span>
         </div>
 
         <div className="slot-recessed p-3 flex items-center justify-between">
-          <span className="text-[#4a5568] font-bold">Hidden / Zero-Font:</span>
-          <span className={`font-bold font-mono ${hiddenText.length > 0 ? 'text-[#d97706]' : 'text-[#2d3436]'}`}>
+          <span className="text-[#64748b] font-bold">Hidden / Zero-Font:</span>
+          <span className={`font-bold font-mono ${hiddenText.length > 0 ? 'text-[#d97706]' : 'text-[#0f172a]'}`}>
             {hiddenText.length} Found
           </span>
         </div>
 
         <div className="slot-recessed p-3 flex items-center justify-between">
-          <span className="text-[#4a5568] font-bold">Tracking Beacons:</span>
-          <span className={`font-bold font-mono ${trackingPixels.length > 0 ? 'text-[#7048e8]' : 'text-[#2d3436]'}`}>
+          <span className="text-[#64748b] font-bold">Tracking Beacons:</span>
+          <span className={`font-bold font-mono ${trackingPixels.length > 0 ? 'text-[#7048e8]' : 'text-[#0f172a]'}`}>
             {trackingPixels.length} Pixels
           </span>
         </div>
@@ -303,15 +303,15 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
       {/* TAB 1: Safe Sandboxed WYSIWYG Preview */}
       {viewMode === 'wysiwyg' && (
         <div className="space-y-3 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between text-xs font-mono text-[#4a5568] slot-recessed-sm px-4 py-2">
+          <div className="flex items-center justify-between text-xs font-mono text-[#64748b] slot-recessed-sm px-4 py-2">
             <span className="flex items-center gap-2 text-[#059669] font-bold">
               <Lock className="w-3.5 h-3.5" />
               SANDBOX SECURITY: SCRIPTS DISABLED & EXTERNAL BEACONS NEUTRALIZED
             </span>
-            <span className="text-[#8896aa] font-semibold">Render Engine: Chromium Isolated Frame</span>
+            <span className="text-[#94a3b8] font-semibold">Render Engine: Chromium Isolated Frame</span>
           </div>
 
-          <div className="w-full h-[450px] rounded-xl overflow-hidden slot-recessed border border-[#babecc]/60 shadow-inner bg-[#f0f2f5]">
+          <div className="w-full h-[450px] rounded-xl overflow-hidden slot-recessed border border-[#e2e8f0]/60 shadow-inner bg-[#f8fafc]">
             <iframe
               title="Sandboxed Email Preview"
               srcDoc={safeSandboxedHtml}
@@ -328,31 +328,31 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
           
           {/* Deceptive Links Callouts */}
           {linkMismatches.length > 0 ? (
-            <div className="slot-recessed p-5 space-y-3 border-l-4 border-l-[#ff4757]">
+            <div className="slot-recessed p-5 space-y-3 border-l-4 border-l-[#ef4444]">
               <h4 className="text-xs font-bold text-[#d63031] uppercase tracking-wider font-mono flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-[#ff4757]" />
+                <AlertTriangle className="w-4 h-4 text-[#ef4444]" />
                 Deceptive Link Divergence Detected ({linkMismatches.length})
               </h4>
-              <p className="text-xs text-[#2d3436] font-medium">
+              <p className="text-xs text-[#0f172a] font-medium">
                 The displayed anchor text in the email leads the victim to believe they are navigating to a legitimate service, but the underlying destination points to a malicious host.
               </p>
 
               <div className="space-y-2.5 pt-1">
                 {linkMismatches.map((mismatch, idx) => (
-                  <div key={idx} className="bg-[#f0f2f5] p-3.5 rounded-xl border border-[#babecc]/60 space-y-2 font-mono text-xs shadow-sm">
+                  <div key={idx} className="bg-[#f8fafc] p-3.5 rounded-xl border border-[#e2e8f0]/60 space-y-2 font-mono text-xs shadow-sm">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <div className="flex items-center gap-1.5 text-[#4a5568]">
+                      <div className="flex items-center gap-1.5 text-[#64748b]">
                         <span className="text-[10px] uppercase font-bold">Displayed Anchor:</span>
                         <strong className="text-[#059669] font-bold">{mismatch.text}</strong>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[9px] bg-[#ff4757]/15 text-[#d63031] px-2 py-0.5 rounded border border-[#ff4757]/30 font-bold">
+                        <span className="text-[9px] bg-[#ef4444]/15 text-[#d63031] px-2 py-0.5 rounded border border-[#ef4444]/30 font-bold">
                           MISMATCH
                         </span>
                         {onLookupIOC && (
                           <button
                             onClick={() => onLookupIOC(mismatch.href)}
-                            className="text-[10px] text-[#ff4757] hover:underline cursor-pointer font-bold"
+                            className="text-[10px] text-[#ef4444] hover:underline cursor-pointer font-bold"
                           >
                             Lookup Target IOC
                           </button>
@@ -360,7 +360,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-[#4a5568] truncate">
+                    <div className="flex items-center gap-1.5 text-[#64748b] truncate">
                       <span className="text-[10px] uppercase font-bold">Actual HREF Target:</span>
                       <span className="text-[#d63031] font-bold truncate">{mismatch.href}</span>
                     </div>
@@ -369,7 +369,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
               </div>
             </div>
           ) : (
-            <div className="slot-recessed p-4 text-xs text-[#4a5568] font-mono flex items-center gap-2">
+            <div className="slot-recessed p-4 text-xs text-[#64748b] font-mono flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#059669]" />
               <span>No deceptive link mismatches detected. Links match their visible anchor text.</span>
             </div>
@@ -384,12 +384,12 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {hiddenText.map((item, idx) => (
-                  <div key={idx} className="bg-[#f0f2f5] p-3 rounded-xl border border-[#babecc]/60 space-y-1 text-xs shadow-sm">
+                  <div key={idx} className="bg-[#f8fafc] p-3 rounded-xl border border-[#e2e8f0]/60 space-y-1 text-xs shadow-sm">
                     <div className="flex items-center justify-between">
                       <strong className="text-[#b45309] font-bold font-mono">{item.type}</strong>
-                      <span className="text-[10px] text-[#4a5568] font-mono font-semibold">{item.location}</span>
+                      <span className="text-[10px] text-[#64748b] font-mono font-semibold">{item.location}</span>
                     </div>
-                    <p className="text-[#2d3436] text-[11px] leading-relaxed font-sans">{item.desc}</p>
+                    <p className="text-[#0f172a] text-[11px] leading-relaxed font-sans">{item.desc}</p>
                   </div>
                 ))}
               </div>
@@ -398,10 +398,10 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
           {/* Plain Text Body Inspector */}
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-[#2d3436] uppercase tracking-wider font-mono">
+            <h4 className="text-xs font-bold text-[#0f172a] uppercase tracking-wider font-mono">
               Normalized Plaintext Stream
             </h4>
-            <div className="slot-recessed p-4 text-xs font-mono text-[#2d3436] max-h-72 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+            <div className="slot-recessed p-4 text-xs font-mono text-[#0f172a] max-h-72 overflow-y-auto whitespace-pre-wrap leading-relaxed">
               {plainBody || "[No Plaintext Stream Detected]"}
             </div>
           </div>
@@ -415,22 +415,22 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
           
           {/* Automated De-Obfuscated Findings */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold text-[#2d3436] uppercase tracking-wider font-mono flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-[#ff4757]" />
+            <h4 className="text-xs font-bold text-[#0f172a] uppercase tracking-wider font-mono flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-[#ef4444]" />
               Automated Payload De-Obfuscation ({obfuscations.length})
             </h4>
 
             {obfuscations.length > 0 ? (
               <div className="space-y-3">
                 {obfuscations.map((item, idx) => (
-                  <div key={idx} className="bg-[#f0f2f5] p-4 rounded-xl border border-[#babecc]/60 space-y-2.5 font-mono text-xs shadow-sm">
+                  <div key={idx} className="bg-[#f8fafc] p-4 rounded-xl border border-[#e2e8f0]/60 space-y-2.5 font-mono text-xs shadow-sm">
                     <div className="flex items-center justify-between">
                       <span className={`px-2 py-0.5 rounded border text-[10px] font-bold ${item.color}`}>
                         {item.type}
                       </span>
                       <button
                         onClick={() => copyToClipboard(item.decoded, `item-${idx}`)}
-                        className="text-[11px] text-[#4a5568] hover:text-[#2d3436] flex items-center gap-1 cursor-pointer font-sans font-bold"
+                        className="text-[11px] text-[#64748b] hover:text-[#0f172a] flex items-center gap-1 cursor-pointer font-sans font-bold"
                       >
                         {copiedId === `item-${idx}` ? <Check className="w-3.5 h-3.5 text-[#059669]" /> : <Copy className="w-3.5 h-3.5" />}
                         {copiedId === `item-${idx}` ? 'Copied' : 'Copy Decoded'}
@@ -439,8 +439,8 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
                       <div className="space-y-1">
-                        <span className="text-[#4a5568] uppercase text-[10px] font-bold">Obfuscated Raw Input:</span>
-                        <div className="slot-recessed p-2.5 text-[#4a5568] break-all max-h-24 overflow-y-auto">
+                        <span className="text-[#64748b] uppercase text-[10px] font-bold">Obfuscated Raw Input:</span>
+                        <div className="slot-recessed p-2.5 text-[#64748b] break-all max-h-24 overflow-y-auto">
                           {item.fullRaw}
                         </div>
                       </div>
@@ -456,7 +456,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
                 ))}
               </div>
             ) : (
-              <div className="slot-recessed p-4 text-xs text-[#4a5568] font-mono flex items-center gap-2">
+              <div className="slot-recessed p-4 text-xs text-[#64748b] font-mono flex items-center gap-2">
                 <Check className="w-4 h-4 text-[#059669]" />
                 <span>No complex Base64, Hex, or Script obfuscation layers detected in this payload.</span>
               </div>
@@ -465,11 +465,11 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
           {/* Interactive De-Obfuscator Sandbox Workbench */}
           <div className="slot-recessed p-5 space-y-4">
-            <h4 className="text-xs font-bold text-[#2d3436] uppercase tracking-wider font-mono flex items-center gap-2">
+            <h4 className="text-xs font-bold text-[#0f172a] uppercase tracking-wider font-mono flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#f59e0b]" />
               Live Analyst De-Obfuscator Sandbox Workbench
             </h4>
-            <p className="text-xs text-[#4a5568]">
+            <p className="text-xs text-[#64748b]">
               Paste any suspicious encoded string, Base64 block, Hex byte array, or wrapped URL to immediately unpack it in real-time.
             </p>
 
@@ -479,7 +479,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
                 onChange={(e) => setCustomInput(e.target.value)}
                 placeholder="Paste encoded string here (e.g. SGVsbG8gV29ybGQ= or \x61\x64\x6d\x69\x6e or https://google.com/url?q=...)"
                 rows={3}
-                className="w-full bg-[#f0f2f5] border border-[#babecc] rounded-xl p-3 text-xs font-mono text-[#2d3436] placeholder-[#8896aa] focus:outline-none focus:border-[#ff4757] shadow-inner"
+                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-3 text-xs font-mono text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:border-[#ef4444] shadow-inner"
               />
 
               <button
@@ -490,12 +490,12 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
               </button>
 
               {customDecoded && (
-                <div className="bg-[#f0f2f5] p-4 rounded-xl border border-[#0ea5e9]/40 space-y-2 font-mono text-xs shadow-sm animate-in fade-in">
+                <div className="bg-[#f8fafc] p-4 rounded-xl border border-[#0ea5e9]/40 space-y-2 font-mono text-xs shadow-sm animate-in fade-in">
                   <div className="flex items-center justify-between text-[#0284c7] font-bold text-[11px]">
                     <span>Format Identified: {customDecoded.type}</span>
                     <button
                       onClick={() => copyToClipboard(customDecoded.decoded, 'custom')}
-                      className="text-[10px] text-[#4a5568] hover:text-[#2d3436] flex items-center gap-1 cursor-pointer font-sans"
+                      className="text-[10px] text-[#64748b] hover:text-[#0f172a] flex items-center gap-1 cursor-pointer font-sans"
                     >
                       {copiedId === 'custom' ? <Check className="w-3.5 h-3.5 text-[#059669]" /> : <Copy className="w-3.5 h-3.5" />}
                       {copiedId === 'custom' ? 'Copied' : 'Copy'}
@@ -515,18 +515,18 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
       {/* TAB 4: Raw MIME Source Code */}
       {viewMode === 'raw' && (
         <div className="space-y-3 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between text-xs font-mono text-[#4a5568]">
+          <div className="flex items-center justify-between text-xs font-mono text-[#64748b]">
             <span className="font-bold">Raw HTML / MIME Source Code Stream</span>
             <button
               onClick={() => copyToClipboard(htmlBody || plainBody, 'raw-source')}
-              className="text-[11px] text-[#ff4757] hover:underline flex items-center gap-1 cursor-pointer font-bold"
+              className="text-[11px] text-[#ef4444] hover:underline flex items-center gap-1 cursor-pointer font-bold"
             >
               {copiedId === 'raw-source' ? <Check className="w-3.5 h-3.5 text-[#059669]" /> : <Copy className="w-3.5 h-3.5" />}
               {copiedId === 'raw-source' ? 'Source Copied' : 'Copy Source'}
             </button>
           </div>
 
-          <div className="slot-recessed p-4 text-xs font-mono text-[#2d3436] max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+          <div className="slot-recessed p-4 text-xs font-mono text-[#0f172a] max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed">
             {htmlBody || plainBody || "[No Raw Body Content Available]"}
           </div>
         </div>

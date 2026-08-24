@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Network, Server, User, Mail, Link, Database, Search, X } from 'lucide-react';
 
 const NODE_COLORS = {
-  high: "bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/40",
+  high: "bg-[#ef4444]/15 text-[#d63031] border-[#ef4444]/40",
   critical: "bg-[#7048e8]/15 text-[#5f3dc4] border-[#7048e8]/40",
   medium: "bg-[#f59e0b]/15 text-[#b45309] border-[#f59e0b]/40",
   low: "bg-[#0ea5e9]/15 text-[#0369a1] border-[#0ea5e9]/40"
@@ -22,7 +22,7 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
 
   // Define synthetic graph nodes
   const nodes = [
-    { id: 'actor', label: 'Threat Actor / Cluster', type: 'actor', color: '#ff4757', icon: User, x: 80, y: 150, risk: threat.is_threat ? 'Critical' : 'Low' },
+    { id: 'actor', label: 'Threat Actor / Cluster', type: 'actor', color: '#ef4444', icon: User, x: 80, y: 150, risk: threat.is_threat ? 'Critical' : 'Low' },
     { id: 'ip', label: `IP: ${origin.ip || '198.51.100.24'}`, type: 'infrastructure', color: '#0ea5e9', icon: Server, x: 260, y: 80, risk: origin.is_proxy ? 'High' : 'Low' },
     { id: 'domain', label: `Domain: ${domain}`, type: 'domain', color: '#f59e0b', icon: Link, x: 260, y: 220, risk: whois.domain_age_days < 30 ? 'High' : 'Low' },
     { id: 'sender', label: `Sender: ${sender}`, type: 'mailbox', color: '#7048e8', icon: Mail, x: 440, y: 150, risk: auth.spf === 'fail' ? 'High' : 'Clean' },
@@ -105,16 +105,16 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
       <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d1d9e6] pb-4 px-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#f8fafc] pb-4 px-2">
         <div className="flex items-center space-x-3.5">
-          <div className="p-3 bg-[#e0e5ec] text-[#7048e8] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
+          <div className="p-3 bg-[#ffffff] text-[#7048e8] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
             <Network className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#2d3436] flex items-center gap-2">
+            <h2 className="text-lg font-bold text-[#0f172a] flex items-center gap-2">
               Threat Attribution Graph & Topology
             </h2>
-            <p className="text-xs text-[#4a5568]">
+            <p className="text-xs text-[#64748b]">
               Relational graph nodes connecting Threat Actor clusters, proxy relays, domain registrars, and mailbox identities
             </p>
           </div>
@@ -147,7 +147,7 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
                     y1={srcNode.y} 
                     x2={tgtNode.x} 
                     y2={tgtNode.y} 
-                    stroke={isConnected ? "#ff4757" : "#babecc"} 
+                    stroke={isConnected ? "#ef4444" : "#e2e8f0"} 
                     strokeWidth={isConnected ? "2.5" : "1.5"} 
                     strokeDasharray={isConnected ? "none" : "5,5"}
                     className="transition-all duration-300"
@@ -156,7 +156,7 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
                   <text 
                     x={(srcNode.x + tgtNode.x) / 2} 
                     y={(srcNode.y + tgtNode.y) / 2 - 8} 
-                    fill="#4a5568" 
+                    fill="#64748b" 
                     fontSize="9" 
                     fontFamily="monospace"
                     fontWeight="bold"
@@ -199,7 +199,7 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
                     cx={node.x} 
                     cy={node.y} 
                     r={22} 
-                    fill="#f0f2f5" 
+                    fill="#f8fafc" 
                     stroke={node.color} 
                     strokeWidth={isSelected ? "3" : "2"} 
                     filter="drop-shadow(0 4px 6px rgba(0,0,0,0.15))"
@@ -220,7 +220,7 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
                   <text 
                     x={node.x} 
                     y={node.y + 36} 
-                    fill="#2d3436" 
+                    fill="#0f172a" 
                     fontSize="10" 
                     fontFamily="sans-serif"
                     fontWeight="bold" 
@@ -238,26 +238,26 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
         {/* Node Telemetry Inspector Drawer */}
         <div className="slot-recessed p-5 space-y-4 flex flex-col justify-between">
           <div className="space-y-3">
-            <div className="border-b border-[#babecc]/50 pb-3">
-              <span className="text-[10px] font-mono font-bold text-[#4a5568] uppercase tracking-wider block">
+            <div className="border-b border-[#e2e8f0]/50 pb-3">
+              <span className="text-[10px] font-mono font-bold text-[#64748b] uppercase tracking-wider block">
                 Selected Entity Telemetry
               </span>
-              <h3 className="text-xs font-bold text-[#2d3436] font-mono mt-0.5">
+              <h3 className="text-xs font-bold text-[#0f172a] font-mono mt-0.5">
                 {activeDetails.title}
               </h3>
             </div>
 
             <div className="space-y-2.5 text-xs font-mono">
               {activeDetails.details.map((item, idx) => (
-                <div key={idx} className="bg-[#f0f2f5] p-2.5 rounded-xl border border-[#babecc]/50 shadow-sm space-y-0.5">
-                  <span className="text-[#4a5568] text-[10px] uppercase font-bold block">{item.label}:</span>
-                  <span className="text-[#2d3436] font-bold break-all block">{item.val}</span>
+                <div key={idx} className="bg-[#f8fafc] p-2.5 rounded-xl border border-[#e2e8f0]/50 shadow-sm space-y-0.5">
+                  <span className="text-[#64748b] text-[10px] uppercase font-bold block">{item.label}:</span>
+                  <span className="text-[#0f172a] font-bold break-all block">{item.val}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <p className="text-[11px] text-[#4a5568] italic font-sans pt-2 border-t border-[#babecc]/50">
+          <p className="text-[11px] text-[#64748b] italic font-sans pt-2 border-t border-[#e2e8f0]/50">
             Click any node on the topology diagram to inspect real-time attribution links and cryptographic evidence.
           </p>
         </div>
