@@ -26,9 +26,37 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === 'SCAN_GMAIL_RAW') {
     processGmailRaw(message.messageId, message.rawEmail, sendResponse);
     return true; // Keep the message channel open for async sendResponse
+  } else if (message.action === 'OPEN_DASHBOARD') {
+    const data = message.data;
+    chrome.tabs.query({ url: 'http://localhost:5173/*' }, (tabs) => {
+      if (tabs.length > 0) {
+        const tab = tabs[0];
+        chrome.tabs.update(tab.id, { active: true });
+        chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: (dataPayload) => {
+            localStorage.setItem('shieldmail_shared_result', JSON.stringify(dataPayload));
+            window.dispatchEvent(new CustomEvent('shieldmail_inject', { detail: { data: dataPayload } }));
+          },
+          args: [data]
+        });
+      } else {
+        chrome.tabs.create({ url: 'http://localhost:5173/' }, (tab) => {
+          setTimeout(() => {
+            chrome.scripting.executeScript({
+              target: { tabId: tab.id },
+              func: (dataPayload) => {
+                localStorage.setItem('shieldmail_shared_result', JSON.stringify(dataPayload));
+                window.dispatchEvent(new CustomEvent('shieldmail_inject', { detail: { data: dataPayload } }));
+              },
+              args: [data]
+            });
+          }, 800);
+        });
+      }
+    });
   }
 });
-
 async function processGmailRaw(messageId, rawEmail, sendResponse) {
   try {
     const blob = new Blob([rawEmail], { type: 'message/rfc822' });

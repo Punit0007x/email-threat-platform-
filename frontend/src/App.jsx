@@ -108,7 +108,6 @@ function App() {
     window.addEventListener('shieldmail_inject', handleSharedData);
     return () => window.removeEventListener('shieldmail_inject', handleSharedData);
   }, []);
-
   const handleLookupIOC = (ioc) => {
     setIocQuery(ioc);
     setShowIOCSearch(true);
