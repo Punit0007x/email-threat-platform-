@@ -1,6 +1,9 @@
 import requests
 import re
 from typing import Dict, Any, List, Optional
+import urllib3
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 TECH_SIGNATURES = {
     "CMS": {
