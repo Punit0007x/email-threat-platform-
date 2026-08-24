@@ -8,6 +8,7 @@ from fastapi import FastAPI, Response
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.analyze import router as analyze_router
+from app.api.advanced_soc import router as advanced_soc_router
 
 app = FastAPI(
     title="Email Threat Intelligence Platform",
@@ -32,6 +33,7 @@ app.add_middleware(
 
 # Register the API endpoints
 app.include_router(analyze_router)
+app.include_router(advanced_soc_router)
 
 @app.get("/")
 async def root():

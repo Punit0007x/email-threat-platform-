@@ -1,0 +1,1362 @@
+[
+    [
+        "Project status update for Q3 roadmap. Hi team, please find attached the slide deck for tomorrow's all-hands review.",
+        "clean"
+    ],
+    [
+        "Meeting notes from today's sprint planning session. We agreed on the priority tasks for sprint 14.",
+        "clean"
+    ],
+    [
+        "Can we reschedule our 1:1 call to Thursday afternoon? Let me know if that time works for you.",
+        "clean"
+    ],
+    [
+        "Weekly engineering sync agenda: 1. Architecture migration 2. Performance benchmark 3. Open PR reviews.",
+        "clean"
+    ],
+    [
+        "Thank you for reaching out regarding the partnership proposal. Our team will review and follow up next week.",
+        "clean"
+    ],
+    [
+        "Quarterly financial report is now available on the internal intranet portal for all department heads.",
+        "clean"
+    ],
+    [
+        "Invitation to company tech seminar: Modernizing cloud infrastructure and microservices with Kubernetes.",
+        "clean"
+    ],
+    [
+        "Lunch and learn session on generative AI ethics this Friday at 12 PM in the main conference hall.",
+        "clean"
+    ],
+    [
+        "Draft review: Please review the updated contract terms before we send them to the legal department.",
+        "clean"
+    ],
+    [
+        "Welcome to the team! Here is your onboarding checklist and links to setting up your developer environment.",
+        "clean"
+    ],
+    [
+        "Office closure announcement: The office will be closed on Monday for the national holiday.",
+        "clean"
+    ],
+    [
+        "Customer feedback summary for July: Satisfaction scores increased by 8% following our latest release.",
+        "clean"
+    ],
+    [
+        "Here are the logs from yesterday's server deployment. Everything completed with zero downtime.",
+        "clean"
+    ],
+    [
+        "Attached is the approved budget forecast for FY 2027. Please let me know if you have questions.",
+        "clean"
+    ],
+    [
+        "Reminder: Annual performance review self-evaluations are due by the end of this month.",
+        "clean"
+    ],
+    [
+        "Thank you for attending the quarterly town hall. You can view the recording on our internal portal.",
+        "clean"
+    ],
+    [
+        "I hope you are doing well. I wanted to inform you that, due to my father's medical condition, I won't be able to continue working from the office.",
+        "clean"
+    ],
+    [
+        "Please find attached the latest UX mockups for the dashboard redesign. Looking forward to your feedback.",
+        "clean"
+    ],
+    [
+        "Just a quick heads up that I will be taking PTO next week from Tuesday to Friday. I've updated my calendar.",
+        "clean"
+    ],
+    [
+        "The client has approved the final statement of work. I have attached the signed copy for our records.",
+        "clean"
+    ],
+    [
+        "Don't forget to submit your expense reports by EOD Friday for the current billing cycle.",
+        "clean"
+    ],
+    [
+        "Can you please review the attached pull request? It addresses the memory leak issue in the background worker.",
+        "clean"
+    ],
+    [
+        "Let's grab a coffee and discuss the Q4 marketing strategy later today.",
+        "clean"
+    ],
+    [
+        "Congratulations to Sarah for winning the employee of the month award! Well deserved.",
+        "clean"
+    ],
+    [
+        "The staging environment will be down for maintenance tonight between 2 AM and 4 AM.",
+        "clean"
+    ],
+    [
+        "Please be advised that the fire alarm testing will occur tomorrow at 10:00 AM.",
+        "clean"
+    ],
+    [
+        "Our new remote work policy has been uploaded to the HR portal. Please read it at your earliest convenience.",
+        "clean"
+    ],
+    [
+        "Are we still on for the sync with the external auditors this afternoon?",
+        "clean"
+    ],
+    [
+        "Attached is the raw dataset from the recent customer survey. Let me know if you need help analyzing it.",
+        "clean"
+    ],
+    [
+        "I'm running about 5 minutes late for the standup, please start without me.",
+        "clean"
+    ],
+    [
+        "Happy Friday! Just a reminder that the company picnic is happening next weekend. RSVP by Wednesday.",
+        "clean"
+    ],
+    [
+        "Project status update for Q3 roadmap. Hi team, please find attached the slide deck for tomorrow's all-hands review.",
+        "clean"
+    ],
+    [
+        "Meeting notes from today's sprint planning session. We agreed on the priority tasks for sprint 14.",
+        "clean"
+    ],
+    [
+        "Can we reschedule our 1:1 call to Thursday afternoon? Let me know if that time works for you.",
+        "clean"
+    ],
+    [
+        "Weekly engineering sync agenda: 1. Architecture migration 2. Performance benchmark 3. Open PR reviews.",
+        "clean"
+    ],
+    [
+        "Thank you for reaching out regarding the partnership proposal. Our team will review and follow up next week.",
+        "clean"
+    ],
+    [
+        "Quarterly financial report is now available on the internal intranet portal for all department heads.",
+        "clean"
+    ],
+    [
+        "Invitation to company tech seminar: Modernizing cloud infrastructure and microservices with Kubernetes.",
+        "clean"
+    ],
+    [
+        "Lunch and learn session on generative AI ethics this Friday at 12 PM in the main conference hall.",
+        "clean"
+    ],
+    [
+        "Draft review: Please review the updated contract terms before we send them to the legal department.",
+        "clean"
+    ],
+    [
+        "Welcome to the team! Here is your onboarding checklist and links to setting up your developer environment.",
+        "clean"
+    ],
+    [
+        "Office closure announcement: The office will be closed on Monday for the national holiday.",
+        "clean"
+    ],
+    [
+        "Customer feedback summary for July: Satisfaction scores increased by 8% following our latest release.",
+        "clean"
+    ],
+    [
+        "Here are the logs from yesterday's server deployment. Everything completed with zero downtime.",
+        "clean"
+    ],
+    [
+        "Attached is the approved budget forecast for FY 2027. Please let me know if you have questions.",
+        "clean"
+    ],
+    [
+        "Reminder: Annual performance review self-evaluations are due by the end of this month.",
+        "clean"
+    ],
+    [
+        "Thank you for attending the quarterly town hall. You can view the recording on our internal portal.",
+        "clean"
+    ],
+    [
+        "I hope you are doing well. I wanted to inform you that, due to my father's medical condition, I won't be able to continue working from the office.",
+        "clean"
+    ],
+    [
+        "Please find attached the latest UX mockups for the dashboard redesign. Looking forward to your feedback.",
+        "clean"
+    ],
+    [
+        "Just a quick heads up that I will be taking PTO next week from Tuesday to Friday. I've updated my calendar.",
+        "clean"
+    ],
+    [
+        "The client has approved the final statement of work. I have attached the signed copy for our records.",
+        "clean"
+    ],
+    [
+        "Don't forget to submit your expense reports by EOD Friday for the current billing cycle.",
+        "clean"
+    ],
+    [
+        "Can you please review the attached pull request? It addresses the memory leak issue in the background worker.",
+        "clean"
+    ],
+    [
+        "Let's grab a coffee and discuss the Q4 marketing strategy later today.",
+        "clean"
+    ],
+    [
+        "Congratulations to Sarah for winning the employee of the month award! Well deserved.",
+        "clean"
+    ],
+    [
+        "The staging environment will be down for maintenance tonight between 2 AM and 4 AM.",
+        "clean"
+    ],
+    [
+        "Please be advised that the fire alarm testing will occur tomorrow at 10:00 AM.",
+        "clean"
+    ],
+    [
+        "Our new remote work policy has been uploaded to the HR portal. Please read it at your earliest convenience.",
+        "clean"
+    ],
+    [
+        "Are we still on for the sync with the external auditors this afternoon?",
+        "clean"
+    ],
+    [
+        "Attached is the raw dataset from the recent customer survey. Let me know if you need help analyzing it.",
+        "clean"
+    ],
+    [
+        "I'm running about 5 minutes late for the standup, please start without me.",
+        "clean"
+    ],
+    [
+        "Happy Friday! Just a reminder that the company picnic is happening next weekend. RSVP by Wednesday.",
+        "clean"
+    ],
+    [
+        "Project status update for Q3 roadmap. Hi team, please find attached the slide deck for tomorrow's all-hands review.",
+        "clean"
+    ],
+    [
+        "Meeting notes from today's sprint planning session. We agreed on the priority tasks for sprint 14.",
+        "clean"
+    ],
+    [
+        "Can we reschedule our 1:1 call to Thursday afternoon? Let me know if that time works for you.",
+        "clean"
+    ],
+    [
+        "Weekly engineering sync agenda: 1. Architecture migration 2. Performance benchmark 3. Open PR reviews.",
+        "clean"
+    ],
+    [
+        "Thank you for reaching out regarding the partnership proposal. Our team will review and follow up next week.",
+        "clean"
+    ],
+    [
+        "Quarterly financial report is now available on the internal intranet portal for all department heads.",
+        "clean"
+    ],
+    [
+        "Invitation to company tech seminar: Modernizing cloud infrastructure and microservices with Kubernetes.",
+        "clean"
+    ],
+    [
+        "Lunch and learn session on generative AI ethics this Friday at 12 PM in the main conference hall.",
+        "clean"
+    ],
+    [
+        "Draft review: Please review the updated contract terms before we send them to the legal department.",
+        "clean"
+    ],
+    [
+        "Welcome to the team! Here is your onboarding checklist and links to setting up your developer environment.",
+        "clean"
+    ],
+    [
+        "Office closure announcement: The office will be closed on Monday for the national holiday.",
+        "clean"
+    ],
+    [
+        "Customer feedback summary for July: Satisfaction scores increased by 8% following our latest release.",
+        "clean"
+    ],
+    [
+        "Here are the logs from yesterday's server deployment. Everything completed with zero downtime.",
+        "clean"
+    ],
+    [
+        "Attached is the approved budget forecast for FY 2027. Please let me know if you have questions.",
+        "clean"
+    ],
+    [
+        "Reminder: Annual performance review self-evaluations are due by the end of this month.",
+        "clean"
+    ],
+    [
+        "Thank you for attending the quarterly town hall. You can view the recording on our internal portal.",
+        "clean"
+    ],
+    [
+        "I hope you are doing well. I wanted to inform you that, due to my father's medical condition, I won't be able to continue working from the office.",
+        "clean"
+    ],
+    [
+        "Please find attached the latest UX mockups for the dashboard redesign. Looking forward to your feedback.",
+        "clean"
+    ],
+    [
+        "Just a quick heads up that I will be taking PTO next week from Tuesday to Friday. I've updated my calendar.",
+        "clean"
+    ],
+    [
+        "The client has approved the final statement of work. I have attached the signed copy for our records.",
+        "clean"
+    ],
+    [
+        "Don't forget to submit your expense reports by EOD Friday for the current billing cycle.",
+        "clean"
+    ],
+    [
+        "Can you please review the attached pull request? It addresses the memory leak issue in the background worker.",
+        "clean"
+    ],
+    [
+        "Let's grab a coffee and discuss the Q4 marketing strategy later today.",
+        "clean"
+    ],
+    [
+        "Congratulations to Sarah for winning the employee of the month award! Well deserved.",
+        "clean"
+    ],
+    [
+        "The staging environment will be down for maintenance tonight between 2 AM and 4 AM.",
+        "clean"
+    ],
+    [
+        "Please be advised that the fire alarm testing will occur tomorrow at 10:00 AM.",
+        "clean"
+    ],
+    [
+        "Our new remote work policy has been uploaded to the HR portal. Please read it at your earliest convenience.",
+        "clean"
+    ],
+    [
+        "Are we still on for the sync with the external auditors this afternoon?",
+        "clean"
+    ],
+    [
+        "Attached is the raw dataset from the recent customer survey. Let me know if you need help analyzing it.",
+        "clean"
+    ],
+    [
+        "I'm running about 5 minutes late for the standup, please start without me.",
+        "clean"
+    ],
+    [
+        "Happy Friday! Just a reminder that the company picnic is happening next weekend. RSVP by Wednesday.",
+        "clean"
+    ],
+    [
+        "Project status update for Q3 roadmap. Hi team, please find attached the slide deck for tomorrow's all-hands review.",
+        "clean"
+    ],
+    [
+        "Meeting notes from today's sprint planning session. We agreed on the priority tasks for sprint 14.",
+        "clean"
+    ],
+    [
+        "Can we reschedule our 1:1 call to Thursday afternoon? Let me know if that time works for you.",
+        "clean"
+    ],
+    [
+        "Weekly engineering sync agenda: 1. Architecture migration 2. Performance benchmark 3. Open PR reviews.",
+        "clean"
+    ],
+    [
+        "Thank you for reaching out regarding the partnership proposal. Our team will review and follow up next week.",
+        "clean"
+    ],
+    [
+        "Quarterly financial report is now available on the internal intranet portal for all department heads.",
+        "clean"
+    ],
+    [
+        "Invitation to company tech seminar: Modernizing cloud infrastructure and microservices with Kubernetes.",
+        "clean"
+    ],
+    [
+        "Lunch and learn session on generative AI ethics this Friday at 12 PM in the main conference hall.",
+        "clean"
+    ],
+    [
+        "Draft review: Please review the updated contract terms before we send them to the legal department.",
+        "clean"
+    ],
+    [
+        "Welcome to the team! Here is your onboarding checklist and links to setting up your developer environment.",
+        "clean"
+    ],
+    [
+        "Office closure announcement: The office will be closed on Monday for the national holiday.",
+        "clean"
+    ],
+    [
+        "Customer feedback summary for July: Satisfaction scores increased by 8% following our latest release.",
+        "clean"
+    ],
+    [
+        "Here are the logs from yesterday's server deployment. Everything completed with zero downtime.",
+        "clean"
+    ],
+    [
+        "Attached is the approved budget forecast for FY 2027. Please let me know if you have questions.",
+        "clean"
+    ],
+    [
+        "Reminder: Annual performance review self-evaluations are due by the end of this month.",
+        "clean"
+    ],
+    [
+        "Thank you for attending the quarterly town hall. You can view the recording on our internal portal.",
+        "clean"
+    ],
+    [
+        "I hope you are doing well. I wanted to inform you that, due to my father's medical condition, I won't be able to continue working from the office.",
+        "clean"
+    ],
+    [
+        "Please find attached the latest UX mockups for the dashboard redesign. Looking forward to your feedback.",
+        "clean"
+    ],
+    [
+        "Just a quick heads up that I will be taking PTO next week from Tuesday to Friday. I've updated my calendar.",
+        "clean"
+    ],
+    [
+        "The client has approved the final statement of work. I have attached the signed copy for our records.",
+        "clean"
+    ],
+    [
+        "Don't forget to submit your expense reports by EOD Friday for the current billing cycle.",
+        "clean"
+    ],
+    [
+        "Can you please review the attached pull request? It addresses the memory leak issue in the background worker.",
+        "clean"
+    ],
+    [
+        "Let's grab a coffee and discuss the Q4 marketing strategy later today.",
+        "clean"
+    ],
+    [
+        "Congratulations to Sarah for winning the employee of the month award! Well deserved.",
+        "clean"
+    ],
+    [
+        "The staging environment will be down for maintenance tonight between 2 AM and 4 AM.",
+        "clean"
+    ],
+    [
+        "Please be advised that the fire alarm testing will occur tomorrow at 10:00 AM.",
+        "clean"
+    ],
+    [
+        "Our new remote work policy has been uploaded to the HR portal. Please read it at your earliest convenience.",
+        "clean"
+    ],
+    [
+        "Are we still on for the sync with the external auditors this afternoon?",
+        "clean"
+    ],
+    [
+        "Attached is the raw dataset from the recent customer survey. Let me know if you need help analyzing it.",
+        "clean"
+    ],
+    [
+        "I'm running about 5 minutes late for the standup, please start without me.",
+        "clean"
+    ],
+    [
+        "Happy Friday! Just a reminder that the company picnic is happening next weekend. RSVP by Wednesday.",
+        "clean"
+    ],
+    [
+        "URGENT: Your Office 365 password will expire in 2 hours. Click here to verify your credentials and retain access.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Security Alert: Unauthorized sign-in attempt detected on your account. Log in immediately to confirm your identity.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Your mailbox storage is 98% full. Incoming messages will be blocked. Click below to upgrade your quota and verify password.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "HR Portal Notice: Mandatory benefit enrollment review. Please log in to your employee account to confirm details.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Your Google Workspace account has been flagged for suspicious activity. Re-authenticate your password within 24 hours.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "IT Helpdesk: Critical security patch required for your email client. Enter your network login to continue synchronization.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Suspicious login from Russia (IP: 185.220.101.5). If this was not you, reset your password immediately at our portal.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Action Required: Your multi-factor authentication (MFA) token expired. Re-verify your passcode on the security page.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Internal IT: Server maintenance scheduled. Confirm your active account credentials to prevent automated deletion.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Account Suspension: Your access has been locked due to repeated invalid login attempts. Click here to unlock.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Microsoft Identity: Re-verify your security credentials immediately to prevent email termination.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Docusign: You have received an urgent document for signature. Click here to log in and sign.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Service notification: Your domain email will be deactivated unless you update your login credentials now.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Please verify your identity to access the secure encrypted message from HR. Click the link and enter your email password.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Your Webmail account requires verification. Failure to verify within 24 hours will result in permanent account suspension.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Zoom: You missed a scheduled meeting. Click here to listen to the recorded audio file by logging into your account.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Action Required: Update your billing information to maintain your active subscription. Log in to your portal now.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Your password was successfully reset. If you did not make this change, click here to secure your account immediately.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Important message from the IT Administrator: Click the link below to migrate your mailbox to the new secure server.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Due to a recent security update, we need you to confirm your email details. Follow the link to avoid account restriction.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "You have (1) new voicemail message from an unknown caller. Click here to authenticate and listen.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Verify your account: We noticed unusual activity. Please confirm your details to continue using our services securely.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Update your employee profile immediately to ensure your payroll is processed correctly this month. Click here to log in.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "URGENT: Your Office 365 password will expire in 2 hours. Click here to verify your credentials and retain access.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Security Alert: Unauthorized sign-in attempt detected on your account. Log in immediately to confirm your identity.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Your mailbox storage is 98% full. Incoming messages will be blocked. Click below to upgrade your quota and verify password.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "HR Portal Notice: Mandatory benefit enrollment review. Please log in to your employee account to confirm details.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Your Google Workspace account has been flagged for suspicious activity. Re-authenticate your password within 24 hours.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "IT Helpdesk: Critical security patch required for your email client. Enter your network login to continue synchronization.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Suspicious login from Russia (IP: 185.220.101.5). If this was not you, reset your password immediately at our portal.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Action Required: Your multi-factor authentication (MFA) token expired. Re-verify your passcode on the security page.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Internal IT: Server maintenance scheduled. Confirm your active account credentials to prevent automated deletion.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Account Suspension: Your access has been locked due to repeated invalid login attempts. Click here to unlock.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Microsoft Identity: Re-verify your security credentials immediately to prevent email termination.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Docusign: You have received an urgent document for signature. Click here to log in and sign.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Service notification: Your domain email will be deactivated unless you update your login credentials now.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Please verify your identity to access the secure encrypted message from HR. Click the link and enter your email password.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Your Webmail account requires verification. Failure to verify within 24 hours will result in permanent account suspension.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Zoom: You missed a scheduled meeting. Click here to listen to the recorded audio file by logging into your account.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Action Required: Update your billing information to maintain your active subscription. Log in to your portal now.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Your password was successfully reset. If you did not make this change, click here to secure your account immediately.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Important message from the IT Administrator: Click the link below to migrate your mailbox to the new secure server.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Due to a recent security update, we need you to confirm your email details. Follow the link to avoid account restriction.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "You have (1) new voicemail message from an unknown caller. Click here to authenticate and listen.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Verify your account: We noticed unusual activity. Please confirm your details to continue using our services securely.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Update your employee profile immediately to ensure your payroll is processed correctly this month. Click here to log in.",
+        "phishing_credential_harvesting"
+    ],
+    [
+        "Are you at your desk right now? I need you to handle an urgent confidential task for me. Only reply via email.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "URGENT: Update my direct deposit information for the upcoming payroll cycle. Attached are my new bank routing details.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "I am currently in an offsite executive board meeting. I need you to purchase 5 Apple gift cards for a client presentation immediately.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Quick favor: Please process an urgent wire transfer for the acquisition deposit today. Keep this strictly confidential.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Please change my bank account on file for my upcoming salary paycheck. Do not process via the old account.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "From the desk of the CEO: Need an urgent payment sent to our partner vendor before 3 PM today. Awaiting your confirmation.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Confidential acquisition: We are closing a private deal. Wire funds to the escrow account details attached.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Are you available? I need you to assist with an emergency executive payment immediately while I am in meetings.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "From Executive Office: Urgent wire needed for foreign vendor settlement. Let me know when you are ready to execute.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Direct Deposit change request: Please route my upcoming compensation to this newly opened checking account.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "CEO Request: Need Google Play cards purchased for the team awards today. Send photos of the back codes ASAP.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "I'm tied up in a conference all day. I need you to discreetly handle a wire transfer to a new vendor. Reply when ready.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Please process this wire immediately. We cannot afford any delays on this partnership agreement. Confidentiality is paramount.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "I need you to update my payroll direct deposit to this new routing number before the cutoff time today.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Can you run a quick errand for me? I need you to buy 10 Amazon gift cards for client gifts. I'll reimburse you tomorrow.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "This is highly confidential. I'm finalizing an acquisition and need you to initiate a SWIFT transfer to the attached offshore account.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Are you in the office? I need you to bypass standard procedure for an urgent vendor payment. The board approved it.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Please do not call me, I am in a board meeting. I just need you to wire the funds to the account detailed below immediately.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Urgent request: Please amend my banking details for all future payroll deposits starting this week.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "I need a quick favor. Please purchase 5 iTunes gift cards and email me the codes right away. I am presenting them to clients.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Are you at your desk right now? I need you to handle an urgent confidential task for me. Only reply via email.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "URGENT: Update my direct deposit information for the upcoming payroll cycle. Attached are my new bank routing details.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "I am currently in an offsite executive board meeting. I need you to purchase 5 Apple gift cards for a client presentation immediately.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Quick favor: Please process an urgent wire transfer for the acquisition deposit today. Keep this strictly confidential.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Please change my bank account on file for my upcoming salary paycheck. Do not process via the old account.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "From the desk of the CEO: Need an urgent payment sent to our partner vendor before 3 PM today. Awaiting your confirmation.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Confidential acquisition: We are closing a private deal. Wire funds to the escrow account details attached.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Are you available? I need you to assist with an emergency executive payment immediately while I am in meetings.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "From Executive Office: Urgent wire needed for foreign vendor settlement. Let me know when you are ready to execute.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Direct Deposit change request: Please route my upcoming compensation to this newly opened checking account.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "CEO Request: Need Google Play cards purchased for the team awards today. Send photos of the back codes ASAP.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "I'm tied up in a conference all day. I need you to discreetly handle a wire transfer to a new vendor. Reply when ready.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Please process this wire immediately. We cannot afford any delays on this partnership agreement. Confidentiality is paramount.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "I need you to update my payroll direct deposit to this new routing number before the cutoff time today.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Can you run a quick errand for me? I need you to buy 10 Amazon gift cards for client gifts. I'll reimburse you tomorrow.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "This is highly confidential. I'm finalizing an acquisition and need you to initiate a SWIFT transfer to the attached offshore account.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Are you in the office? I need you to bypass standard procedure for an urgent vendor payment. The board approved it.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Please do not call me, I am in a board meeting. I just need you to wire the funds to the account detailed below immediately.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "Urgent request: Please amend my banking details for all future payroll deposits starting this week.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "I need a quick favor. Please purchase 5 iTunes gift cards and email me the codes right away. I am presenting them to clients.",
+        "bec_executive_impersonation"
+    ],
+    [
+        "INVOICE OVERDUE: Final notice regarding unpaid invoice #INV-9082. Remit payment to our updated banking account.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Notice of updated remittance bank account: Our previous banking partner has changed. Process all pending wire transfers here.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Outstanding billing statement: Payment of $14,500.00 is due immediately. Find updated wire transfer details in attached PDF.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Supplier payment notification: Please route the upcoming invoice settlement to our new International IBAN account.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Urgent payment request: Attached is the revised commercial invoice with our new corporate bank details.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Billing department: Past due invoice penalty will be applied unless payment confirmation is submitted within 24 hours.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Accounts Payable: Please find attached our revised statement of account with new beneficiary bank details.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Wire remittance advice: Complete the overdue transfer for invoice 88219 before close of business today.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Vendor invoice: Our banking details have been updated due to an annual audit. Remit all future invoices here.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Attached is the proforma invoice for your recent order. Please ensure payment is routed to the new account details provided.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Your payment for invoice #4459 is declined. Please wire the funds to our alternate account to avoid late fees.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Please be advised that we have changed our banking institution. Update your records and send the pending payment to the attached account.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Urgent: We have not received payment for the attached invoice. Please process the wire transfer immediately to avoid service disruption.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Remittance update: Our accounts receivable department has issued new payment instructions. See the attached document.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Final demand for payment: Invoice #99102 is 30 days past due. Please remit payment to our new holding account immediately.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Please process the attached invoice for the consulting services rendered last month. Note the new routing number.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Our banking details have been permanently updated. Do not send funds to the previous account. Use the attached instructions.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Urgent: The wire transfer for the latest invoice bounced. Please resend the payment to our alternate corporate account.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "INVOICE OVERDUE: Final notice regarding unpaid invoice #INV-9082. Remit payment to our updated banking account.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Notice of updated remittance bank account: Our previous banking partner has changed. Process all pending wire transfers here.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Outstanding billing statement: Payment of $14,500.00 is due immediately. Find updated wire transfer details in attached PDF.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Supplier payment notification: Please route the upcoming invoice settlement to our new International IBAN account.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Urgent payment request: Attached is the revised commercial invoice with our new corporate bank details.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Billing department: Past due invoice penalty will be applied unless payment confirmation is submitted within 24 hours.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Accounts Payable: Please find attached our revised statement of account with new beneficiary bank details.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Wire remittance advice: Complete the overdue transfer for invoice 88219 before close of business today.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Vendor invoice: Our banking details have been updated due to an annual audit. Remit all future invoices here.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Attached is the proforma invoice for your recent order. Please ensure payment is routed to the new account details provided.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Your payment for invoice #4459 is declined. Please wire the funds to our alternate account to avoid late fees.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Please be advised that we have changed our banking institution. Update your records and send the pending payment to the attached account.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Urgent: We have not received payment for the attached invoice. Please process the wire transfer immediately to avoid service disruption.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Remittance update: Our accounts receivable department has issued new payment instructions. See the attached document.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Final demand for payment: Invoice #99102 is 30 days past due. Please remit payment to our new holding account immediately.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Please process the attached invoice for the consulting services rendered last month. Note the new routing number.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Our banking details have been permanently updated. Do not send funds to the previous account. Use the attached instructions.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "Urgent: The wire transfer for the latest invoice bounced. Please resend the payment to our alternate corporate account.",
+        "invoice_payment_fraud"
+    ],
+    [
+        "I have recorded you through your webcam and installed malware on your device. Send $2,000 in Bitcoin to prevent public release.",
+        "extortion_blackmail"
+    ],
+    [
+        "Security breach notice: We have compromised your private data and contacts. Pay 0.15 BTC to wallet bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh.",
+        "extortion_blackmail"
+    ],
+    [
+        "Final warning: Your personal files will be leaked online unless payment is transferred to our Monero address immediately.",
+        "extortion_blackmail"
+    ],
+    [
+        "Your device has been infected with Pegasus spyware. You have 48 hours to remit Bitcoin payment to this address.",
+        "extortion_blackmail"
+    ],
+    [
+        "I know your secret password. If you do not pay $1,500 in crypto to my BTC address, I will send video to all your contacts.",
+        "extortion_blackmail"
+    ],
+    [
+        "Blackmail alert: Your confidential records and browsing history will be published unless ransom is paid in Bitcoin.",
+        "extortion_blackmail"
+    ],
+    [
+        "Compromised system alert: Pay 0.25 BTC to our wallet or all encrypted company files will be permanently deleted.",
+        "extortion_blackmail"
+    ],
+    [
+        "I have full control over your device and network. I have downloaded all your sensitive files. Pay 1 BTC to the following address to prevent a data leak.",
+        "extortion_blackmail"
+    ],
+    [
+        "Your website has been hacked. We have stolen your entire database. Send $5,000 in Ethereum or we will sell it on the dark web.",
+        "extortion_blackmail"
+    ],
+    [
+        "We have compromised your servers and encrypted all your databases. Pay the ransom in Bitcoin within 72 hours to get the decryption key.",
+        "extortion_blackmail"
+    ],
+    [
+        "I have embarrassing videos of you. I will send them to your family and coworkers unless you transfer $1,000 in Bitcoin to my wallet.",
+        "extortion_blackmail"
+    ],
+    [
+        "Your company's proprietary source code has been stolen. We will release it publicly if our demand of 5 BTC is not met by Friday.",
+        "extortion_blackmail"
+    ],
+    [
+        "I am a hacker who has breached your network. I have sensitive financial documents. Pay the ransom or I will notify the authorities.",
+        "extortion_blackmail"
+    ],
+    [
+        "We are launching a massive DDoS attack against your infrastructure. Pay the protection fee in crypto to stop the attack immediately.",
+        "extortion_blackmail"
+    ],
+    [
+        "Your systems are locked by our ransomware. Do not try to recover the files yourself. Pay 0.5 BTC to the provided address for the decryptor.",
+        "extortion_blackmail"
+    ],
+    [
+        "I have recorded you through your webcam and installed malware on your device. Send $2,000 in Bitcoin to prevent public release.",
+        "extortion_blackmail"
+    ],
+    [
+        "Security breach notice: We have compromised your private data and contacts. Pay 0.15 BTC to wallet bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh.",
+        "extortion_blackmail"
+    ],
+    [
+        "Final warning: Your personal files will be leaked online unless payment is transferred to our Monero address immediately.",
+        "extortion_blackmail"
+    ],
+    [
+        "Your device has been infected with Pegasus spyware. You have 48 hours to remit Bitcoin payment to this address.",
+        "extortion_blackmail"
+    ],
+    [
+        "I know your secret password. If you do not pay $1,500 in crypto to my BTC address, I will send video to all your contacts.",
+        "extortion_blackmail"
+    ],
+    [
+        "Blackmail alert: Your confidential records and browsing history will be published unless ransom is paid in Bitcoin.",
+        "extortion_blackmail"
+    ],
+    [
+        "Compromised system alert: Pay 0.25 BTC to our wallet or all encrypted company files will be permanently deleted.",
+        "extortion_blackmail"
+    ],
+    [
+        "I have full control over your device and network. I have downloaded all your sensitive files. Pay 1 BTC to the following address to prevent a data leak.",
+        "extortion_blackmail"
+    ],
+    [
+        "Your website has been hacked. We have stolen your entire database. Send $5,000 in Ethereum or we will sell it on the dark web.",
+        "extortion_blackmail"
+    ],
+    [
+        "We have compromised your servers and encrypted all your databases. Pay the ransom in Bitcoin within 72 hours to get the decryption key.",
+        "extortion_blackmail"
+    ],
+    [
+        "I have embarrassing videos of you. I will send them to your family and coworkers unless you transfer $1,000 in Bitcoin to my wallet.",
+        "extortion_blackmail"
+    ],
+    [
+        "Your company's proprietary source code has been stolen. We will release it publicly if our demand of 5 BTC is not met by Friday.",
+        "extortion_blackmail"
+    ],
+    [
+        "I am a hacker who has breached your network. I have sensitive financial documents. Pay the ransom or I will notify the authorities.",
+        "extortion_blackmail"
+    ],
+    [
+        "We are launching a massive DDoS attack against your infrastructure. Pay the protection fee in crypto to stop the attack immediately.",
+        "extortion_blackmail"
+    ],
+    [
+        "Your systems are locked by our ransomware. Do not try to recover the files yourself. Pay 0.5 BTC to the provided address for the decryptor.",
+        "extortion_blackmail"
+    ],
+    [
+        "Please find the attached macro-enabled document. Enable content and macros to view the encrypted financial statement.",
+        "malware_delivery"
+    ],
+    [
+        "Shipping delivery tracking: Your package could not be delivered. Download and open the attached ZIP archive to print label.",
+        "malware_delivery"
+    ],
+    [
+        "Urgent subpoena notice: Open the attached ISO disk image file to review the legal summons and complaint.",
+        "malware_delivery"
+    ],
+    [
+        "Attached is the software update installer (update_security.exe). Run the executable as administrator to apply the patch.",
+        "malware_delivery"
+    ],
+    [
+        "Purchase order confirmation: Download the attached RAR file and extract invoice.vbs to inspect order specifications.",
+        "malware_delivery"
+    ],
+    [
+        "Court summons notification: Download the attached encrypted zip file and execute the script inside to review your court date.",
+        "malware_delivery"
+    ],
+    [
+        "Bank Statement encrypted payload: Open the attached HTML file and enable script execution to decrypt your statement.",
+        "malware_delivery"
+    ],
+    [
+        "E-sign document: Download attached file payload.wsf to view the legally binding contract.",
+        "malware_delivery"
+    ],
+    [
+        "Your flight booking confirmation is attached. Open the PDF.exe file to print your boarding pass.",
+        "malware_delivery"
+    ],
+    [
+        "Important tax document attached. Please open the spreadsheet and enable macros to view your W-2 form.",
+        "malware_delivery"
+    ],
+    [
+        "We have received your resume. Please complete the attached application form (app_form.docm) and return it to us.",
+        "malware_delivery"
+    ],
+    [
+        "You have a new secure fax message. Download the attached .scr file to view the document.",
+        "malware_delivery"
+    ],
+    [
+        "Your account statement is ready. The attached document is password protected. Enable content to view the details.",
+        "malware_delivery"
+    ],
+    [
+        "Critical security patch released for your OS. Run the attached executable to secure your system against the latest threats.",
+        "malware_delivery"
+    ],
+    [
+        "Attached is the remittance advice for the recent wire transfer. Extract the archive and open the .js file to view the details.",
+        "malware_delivery"
+    ],
+    [
+        "Please review the attached project proposal. Open the .doc file and enable editing to add your comments.",
+        "malware_delivery"
+    ],
+    [
+        "Please find the attached macro-enabled document. Enable content and macros to view the encrypted financial statement.",
+        "malware_delivery"
+    ],
+    [
+        "Shipping delivery tracking: Your package could not be delivered. Download and open the attached ZIP archive to print label.",
+        "malware_delivery"
+    ],
+    [
+        "Urgent subpoena notice: Open the attached ISO disk image file to review the legal summons and complaint.",
+        "malware_delivery"
+    ],
+    [
+        "Attached is the software update installer (update_security.exe). Run the executable as administrator to apply the patch.",
+        "malware_delivery"
+    ],
+    [
+        "Purchase order confirmation: Download the attached RAR file and extract invoice.vbs to inspect order specifications.",
+        "malware_delivery"
+    ],
+    [
+        "Court summons notification: Download the attached encrypted zip file and execute the script inside to review your court date.",
+        "malware_delivery"
+    ],
+    [
+        "Bank Statement encrypted payload: Open the attached HTML file and enable script execution to decrypt your statement.",
+        "malware_delivery"
+    ],
+    [
+        "E-sign document: Download attached file payload.wsf to view the legally binding contract.",
+        "malware_delivery"
+    ],
+    [
+        "Your flight booking confirmation is attached. Open the PDF.exe file to print your boarding pass.",
+        "malware_delivery"
+    ],
+    [
+        "Important tax document attached. Please open the spreadsheet and enable macros to view your W-2 form.",
+        "malware_delivery"
+    ],
+    [
+        "We have received your resume. Please complete the attached application form (app_form.docm) and return it to us.",
+        "malware_delivery"
+    ],
+    [
+        "You have a new secure fax message. Download the attached .scr file to view the document.",
+        "malware_delivery"
+    ],
+    [
+        "Your account statement is ready. The attached document is password protected. Enable content to view the details.",
+        "malware_delivery"
+    ],
+    [
+        "Critical security patch released for your OS. Run the attached executable to secure your system against the latest threats.",
+        "malware_delivery"
+    ],
+    [
+        "Attached is the remittance advice for the recent wire transfer. Extract the archive and open the .js file to view the details.",
+        "malware_delivery"
+    ],
+    [
+        "Please review the attached project proposal. Open the .doc file and enable editing to add your comments.",
+        "malware_delivery"
+    ],
+    [
+        "PayPal Security: Your account has been temporarily restricted due to unauthorized activity. Verify at paypa1.com.",
+        "brand_impersonation"
+    ],
+    [
+        "Apple Support: Your iCloud subscription has been suspended. Update your credit card billing details to restore storage.",
+        "brand_impersonation"
+    ],
+    [
+        "Amazon Order Confirmation: You have purchased iPhone 16 Pro for $1,299. If you did not make this purchase, dispute here.",
+        "brand_impersonation"
+    ],
+    [
+        "Netflix Account Suspended: We were unable to authorize your monthly membership fee. Update payment method now.",
+        "brand_impersonation"
+    ],
+    [
+        "Microsoft 365: Your license has been revoked. Re-activate your enterprise subscription at rnicrosoft.com.",
+        "brand_impersonation"
+    ],
+    [
+        "FedEx Delivery Alert: Package #9872134 is pending customs tax clearance. Pay clearance fee at fedex-tracking-portal.net.",
+        "brand_impersonation"
+    ],
+    [
+        "Chase Bank Alert: Unusual debit card activity detected. Confirm your banking credentials at chase-verification-online.com.",
+        "brand_impersonation"
+    ],
+    [
+        "DHL Express: Your shipment delivery failed due to incorrect address. Pay rescheduling fee on dhl-portal-update.com.",
+        "brand_impersonation"
+    ],
+    [
+        "Bank of America: Security notice on your online banking access. Re-verify your account details now.",
+        "brand_impersonation"
+    ],
+    [
+        "Wells Fargo: Your online banking access has been locked for security reasons. Click here to verify your identity.",
+        "brand_impersonation"
+    ],
+    [
+        "LinkedIn: You have 5 new pending connection requests. Log in at link3din.com to view their profiles.",
+        "brand_impersonation"
+    ],
+    [
+        "Facebook Security: Someone tried to log into your account from an unrecognized device. Secure your account at faceb00k-security.com.",
+        "brand_impersonation"
+    ],
+    [
+        "Instagram Support: Your account will be deleted in 24 hours due to a copyright violation. Appeal here at instagram-appeals-help.com.",
+        "brand_impersonation"
+    ],
+    [
+        "UPS Notification: We were unable to deliver your package. Track your shipment at ups-tracking-updates.com.",
+        "brand_impersonation"
+    ],
+    [
+        "Spotify Premium: Your payment method failed. Update your billing details at spotify-billing-portal.com to keep your music playing.",
+        "brand_impersonation"
+    ],
+    [
+        "Google Security: A suspicious sign-in attempt was blocked. Review the activity at g00gle-security-alert.com.",
+        "brand_impersonation"
+    ],
+    [
+        "PayPal Security: Your account has been temporarily restricted due to unauthorized activity. Verify at paypa1.com.",
+        "brand_impersonation"
+    ],
+    [
+        "Apple Support: Your iCloud subscription has been suspended. Update your credit card billing details to restore storage.",
+        "brand_impersonation"
+    ],
+    [
+        "Amazon Order Confirmation: You have purchased iPhone 16 Pro for $1,299. If you did not make this purchase, dispute here.",
+        "brand_impersonation"
+    ],
+    [
+        "Netflix Account Suspended: We were unable to authorize your monthly membership fee. Update payment method now.",
+        "brand_impersonation"
+    ],
+    [
+        "Microsoft 365: Your license has been revoked. Re-activate your enterprise subscription at rnicrosoft.com.",
+        "brand_impersonation"
+    ],
+    [
+        "FedEx Delivery Alert: Package #9872134 is pending customs tax clearance. Pay clearance fee at fedex-tracking-portal.net.",
+        "brand_impersonation"
+    ],
+    [
+        "Chase Bank Alert: Unusual debit card activity detected. Confirm your banking credentials at chase-verification-online.com.",
+        "brand_impersonation"
+    ],
+    [
+        "DHL Express: Your shipment delivery failed due to incorrect address. Pay rescheduling fee on dhl-portal-update.com.",
+        "brand_impersonation"
+    ],
+    [
+        "Bank of America: Security notice on your online banking access. Re-verify your account details now.",
+        "brand_impersonation"
+    ],
+    [
+        "Wells Fargo: Your online banking access has been locked for security reasons. Click here to verify your identity.",
+        "brand_impersonation"
+    ],
+    [
+        "LinkedIn: You have 5 new pending connection requests. Log in at link3din.com to view their profiles.",
+        "brand_impersonation"
+    ],
+    [
+        "Facebook Security: Someone tried to log into your account from an unrecognized device. Secure your account at faceb00k-security.com.",
+        "brand_impersonation"
+    ],
+    [
+        "Instagram Support: Your account will be deleted in 24 hours due to a copyright violation. Appeal here at instagram-appeals-help.com.",
+        "brand_impersonation"
+    ],
+    [
+        "UPS Notification: We were unable to deliver your package. Track your shipment at ups-tracking-updates.com.",
+        "brand_impersonation"
+    ],
+    [
+        "Spotify Premium: Your payment method failed. Update your billing details at spotify-billing-portal.com to keep your music playing.",
+        "brand_impersonation"
+    ],
+    [
+        "Google Security: A suspicious sign-in attempt was blocked. Review the activity at g00gle-security-alert.com.",
+        "brand_impersonation"
+    ]
+]

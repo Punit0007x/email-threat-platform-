@@ -145,13 +145,14 @@ def perform_ai_forensic_reasoning(
             You are a Principal Cyber Threat Intelligence Analyst. Analyze this suspicious email telemetry:
             - From: {from_addr}
             - Subject: {subject}
+            - Body Text Snippet: {email_data.get('body_plain', '')[:1500]}
             - Primary Threat Classification: {primary_threat}
             - BEC Indicators: {bec_analysis.get('bec_indicators')}
             - Manipulation Vectors: {features.get('manipulation_vectors', {}).get('detected')}
             - Extracted URLs: {urls}
             - Attachments: {[a.get('filename') for a in suspicious_att]}
             
-            Provide a strict JSON response with:
+            Based on the wording, tone, and tactics used in the body text, provide a strict JSON response with:
             {{
                 "forensic_summary": "2-3 sentences concise SOC executive summary",
                 "attacker_intent": "Detailed breakdown of attacker motivation and desired impact",

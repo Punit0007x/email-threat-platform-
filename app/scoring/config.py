@@ -62,8 +62,8 @@ SPOOFED_BRANDS = [
 
 # Fraud Scoring Weights (Maximum theoretical score is capped at 100)
 WEIGHTS = {
-    "auth_fail_or_missing": 25,
-    "domain_alignment_fail": 25,
+    "auth_fail_or_missing": 15,
+    "domain_alignment_fail": 10,
     "domain_lookalike": 35,
     "urgency_phrase": 10,
     "authority_phrase": 10,

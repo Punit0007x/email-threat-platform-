@@ -28,6 +28,7 @@ import FraudScorePanel from './components/FraudScorePanel';
 import AIMLThreatPanel from './components/AIMLThreatPanel';
 import DeepOSINTPanel from './components/DeepOSINTPanel';
 import MapPanel from './components/MapPanel';
+import AdvancedSOC from './components/AdvancedSOC';
 import CustodyReportPanel from './components/CustodyReportPanel';
 import GraphAttributionPanel from './components/GraphAttributionPanel';
 import CaseHistoryPanel from './components/CaseHistoryPanel';
@@ -447,6 +448,7 @@ function App() {
                 { id: 'graph', code: '06', label: 'Attribution Graph', icon: Network },
                 { id: 'headers', code: '07', label: 'Header Polygraph', icon: Mail },
                 { id: 'custody', code: '08', label: 'Evidence Vault', icon: ShieldCheck },
+                { id: 'advanced', code: '09', label: 'God-Level SOC', icon: Zap },
               ].map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeView === tab.id;
@@ -515,6 +517,12 @@ function App() {
                 <div className="space-y-6 animate-in fade-in duration-250">
                   <CustodyReportPanel data={results} />
                   <CaseHistoryPanel />
+                </div>
+              )}
+
+              {activeView === 'advanced' && (
+                <div className="animate-in fade-in duration-250">
+                  <AdvancedSOC data={results} />
                 </div>
               )}
             </div>

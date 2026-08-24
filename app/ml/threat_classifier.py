@@ -83,9 +83,12 @@ def classify_email_threat(
     if domain_check.get("is_lookalike") or domain_check.get("is_subdomain_spoof"):
         logits["brand_impersonation"] += 4.5
         logits["clean"] -= 3.5
-    if not auth_analysis.get("domain_alignment_pass", True):
-        logits["brand_impersonation"] += 1.5
-        logits["phishing_credential_harvesting"] += 1.0
+        
+    # Only penalize for alignment if the email ACTUALLY attempted SPF/DKIM but failed
+    has_auth_attempt = auth_analysis.get("spf") != "not_present" or auth_analysis.get("dkim") != "not_present"
+    if has_auth_attempt and not auth_analysis.get("domain_alignment_pass", True):
+        logits["brand_impersonation"] += 1.0
+        logits["phishing_credential_harvesting"] += 0.5
         
     # Baseline reinforcement for legitimate authenticated messages
     if auth_analysis.get("domain_alignment_pass") and auth_analysis.get("spf") == "pass" and auth_analysis.get("dkim") == "pass":

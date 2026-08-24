@@ -42,7 +42,8 @@ def extract_top_predictive_tokens(text: str, predicted_class: str, top_n: int = 
     try:
         model = get_trained_model()
         vectorizer = model.named_steps['tfidf']
-        classifier = model.named_steps['clf']
+        ensemble_clf = model.named_steps['clf']
+        classifier = ensemble_clf.named_estimators_['lr']
         
         if predicted_class not in classifier.classes_:
             return []

@@ -105,7 +105,11 @@ def calculate_fraud_score(
     # 6d. Threat Intelligence Correlation / Repeat Offender
     if threat_correlations:
         repeat_score = threat_correlations.get("repeat_offender_score", 0)
-        if repeat_score > 0 and not auth_analysis.get("domain_alignment_pass", False):
+        from app.ml.bec_engine import FREE_WEBMAIL_DOMAINS
+        sender_domain = auth_analysis.get("from_domain", "")
+        print(f"DEBUG FRAUD SCORE: sender_domain={sender_domain}, FREE_WEBMAIL_DOMAINS={FREE_WEBMAIL_DOMAINS}")
+        # Don't heavily penalize massive shared domains like gmail.com just because they appear in previous cases
+        if repeat_score > 0 and sender_domain not in FREE_WEBMAIL_DOMAINS and not auth_analysis.get("domain_alignment_pass", False):
             score += int(repeat_score * WEIGHTS["repeat_offender"])
             reasons.append(f"Repeat offender intelligence: Indicators seen in {threat_correlations.get('domain_case_count', 0) + threat_correlations.get('ip_case_count', 0)} prior malicious case(s).")
     

@@ -12,119 +12,13 @@ MODEL_SAVE_PATH = "app/ml/models/threat_model.joblib"
 SPAM_CSV_PATH = "spam.csv"
 
 
-# Curated benchmark dataset representing the 7 threat categories
-TRAINING_DATA = [
-    # --- 1. CLEAN / LEGITIMATE (Enron & Corporate Communications) ---
-    ("Project status update for Q3 roadmap. Hi team, please find attached the slide deck for tomorrow's all-hands review.", "clean"),
-    ("Meeting notes from today's sprint planning session. We agreed on the priority tasks for sprint 14.", "clean"),
-    ("Can we reschedule our 1:1 call to Thursday afternoon? Let me know if that time works for you.", "clean"),
-    ("Weekly engineering sync agenda: 1. Architecture migration 2. Performance benchmark 3. Open PR reviews.", "clean"),
-    ("Thank you for reaching out regarding the partnership proposal. Our team will review and follow up next week.", "clean"),
-    ("Quarterly financial report is now available on the internal intranet portal for all department heads.", "clean"),
-    ("Invitation to company tech seminar: Modernizing cloud infrastructure and microservices with Kubernetes.", "clean"),
-    ("Lunch and learn session on generative AI ethics this Friday at 12 PM in the main conference hall.", "clean"),
-    ("Draft review: Please review the updated contract terms before we send them to the legal department.", "clean"),
-    ("Welcome to the team! Here is your onboarding checklist and links to setting up your developer environment.", "clean"),
-    ("Office closure announcement: The office will be closed on Monday for the national holiday.", "clean"),
-    ("Customer feedback summary for July: Satisfaction scores increased by 8% following our latest release.", "clean"),
-    ("Here are the logs from yesterday's server deployment. Everything completed with zero downtime.", "clean"),
-    ("Attached is the approved budget forecast for FY 2027. Please let me know if you have questions.", "clean"),
-    ("Reminder: Annual performance review self-evaluations are due by the end of this month.", "clean"),
-    ("Thank you for attending the quarterly town hall. You can view the recording on our internal portal.", "clean"),
-
-    # --- 2. PHISHING / CREDENTIAL HARVESTING (Nazario & CEAS Corpus) ---
-    ("URGENT: Your Office 365 password will expire in 2 hours. Click here to verify your credentials and retain access.", "phishing_credential_harvesting"),
-    ("Security Alert: Unauthorized sign-in attempt detected on your account. Log in immediately to confirm your identity.", "phishing_credential_harvesting"),
-    ("Your mailbox storage is 98% full. Incoming messages will be blocked. Click below to upgrade your quota and verify password.", "phishing_credential_harvesting"),
-    ("HR Portal Notice: Mandatory benefit enrollment review. Please log in to your employee account to confirm details.", "phishing_credential_harvesting"),
-    ("Your Google Workspace account has been flagged for suspicious activity. Re-authenticate your password within 24 hours.", "phishing_credential_harvesting"),
-    ("IT Helpdesk: Critical security patch required for your email client. Enter your network login to continue synchronization.", "phishing_credential_harvesting"),
-    ("Suspicious login from Russia (IP: 185.220.101.5). If this was not you, reset your password immediately at our portal.", "phishing_credential_harvesting"),
-    ("Action Required: Your multi-factor authentication (MFA) token expired. Re-verify your passcode on the security page.", "phishing_credential_harvesting"),
-    ("Internal IT: Server maintenance scheduled. Confirm your active account credentials to prevent automated deletion.", "phishing_credential_harvesting"),
-    ("Account Suspension: Your access has been locked due to repeated invalid login attempts. Click here to unlock.", "phishing_credential_harvesting"),
-    ("Microsoft Identity: Re-verify your security credentials immediately to prevent email termination.", "phishing_credential_harvesting"),
-    ("Docusign: You have received an urgent document for signature. Click here to log in and sign.", "phishing_credential_harvesting"),
-    ("Service notification: Your domain email will be deactivated unless you update your login credentials now.", "phishing_credential_harvesting"),
-
-    # --- 3. BEC / EXECUTIVE IMPERSONATION ---
-    ("Are you at your desk right now? I need you to handle an urgent confidential task for me. Only reply via email.", "bec_executive_impersonation"),
-    ("URGENT: Update my direct deposit information for the upcoming payroll cycle. Attached are my new bank routing details.", "bec_executive_impersonation"),
-    ("I am currently in an offsite executive board meeting. I need you to purchase 5 Apple gift cards for a client presentation immediately.", "bec_executive_impersonation"),
-    ("Quick favor: Please process an urgent wire transfer for the acquisition deposit today. Keep this strictly confidential.", "bec_executive_impersonation"),
-    ("Please change my bank account on file for my upcoming salary paycheck. Do not process via the old account.", "bec_executive_impersonation"),
-    ("From the desk of the CEO: Need an urgent payment sent to our partner vendor before 3 PM today. Awaiting your confirmation.", "bec_executive_impersonation"),
-    ("Confidential acquisition: We are closing a private deal. Wire funds to the escrow account details attached.", "bec_executive_impersonation"),
-    ("Are you available? I need you to assist with an emergency executive payment immediately while I am in meetings.", "bec_executive_impersonation"),
-    ("From Executive Office: Urgent wire needed for foreign vendor settlement. Let me know when you are ready to execute.", "bec_executive_impersonation"),
-    ("Direct Deposit change request: Please route my upcoming compensation to this newly opened checking account.", "bec_executive_impersonation"),
-    ("CEO Request: Need Google Play cards purchased for the team awards today. Send photos of the back codes ASAP.", "bec_executive_impersonation"),
-
-    # --- 4. INVOICE / PAYMENT FRAUD ---
-    ("INVOICE OVERDUE: Final notice regarding unpaid invoice #INV-9082. Remit payment to our updated banking account.", "invoice_payment_fraud"),
-    ("Notice of updated remittance bank account: Our previous banking partner has changed. Process all pending wire transfers here.", "invoice_payment_fraud"),
-    ("Outstanding billing statement: Payment of $14,500.00 is due immediately. Find updated wire transfer details in attached PDF.", "invoice_payment_fraud"),
-    ("Supplier payment notification: Please route the upcoming invoice settlement to our new International IBAN account.", "invoice_payment_fraud"),
-    ("Urgent payment request: Attached is the revised commercial invoice with our new corporate bank details.", "invoice_payment_fraud"),
-    ("Billing department: Past due invoice penalty will be applied unless payment confirmation is submitted within 24 hours.", "invoice_payment_fraud"),
-    ("Accounts Payable: Please find attached our revised statement of account with new beneficiary bank details.", "invoice_payment_fraud"),
-    ("Wire remittance advice: Complete the overdue transfer for invoice 88219 before close of business today.", "invoice_payment_fraud"),
-    ("Vendor invoice: Our banking details have been updated due to an annual audit. Remit all future invoices here.", "invoice_payment_fraud"),
-
-    # --- 5. EXTORTION / BLACKMAIL ---
-    ("I have recorded you through your webcam and installed malware on your device. Send $2,000 in Bitcoin to prevent public release.", "extortion_blackmail"),
-    ("Security breach notice: We have compromised your private data and contacts. Pay 0.15 BTC to wallet bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh.", "extortion_blackmail"),
-    ("Final warning: Your personal files will be leaked online unless payment is transferred to our Monero address immediately.", "extortion_blackmail"),
-    ("Your device has been infected with Pegasus spyware. You have 48 hours to remit Bitcoin payment to this address.", "extortion_blackmail"),
-    ("I know your secret password. If you do not pay $1,500 in crypto to my BTC address, I will send video to all your contacts.", "extortion_blackmail"),
-    ("Blackmail alert: Your confidential records and browsing history will be published unless ransom is paid in Bitcoin.", "extortion_blackmail"),
-    ("Compromised system alert: Pay 0.25 BTC to our wallet or all encrypted company files will be permanently deleted.", "extortion_blackmail"),
-
-    # --- 6. MALWARE DELIVERY ---
-    ("Please find the attached macro-enabled document. Enable content and macros to view the encrypted financial statement.", "malware_delivery"),
-    ("Shipping delivery tracking: Your package could not be delivered. Download and open the attached ZIP archive to print label.", "malware_delivery"),
-    ("Urgent subpoena notice: Open the attached ISO disk image file to review the legal summons and complaint.", "malware_delivery"),
-    ("Attached is the software update installer (update_security.exe). Run the executable as administrator to apply the patch.", "malware_delivery"),
-    ("Purchase order confirmation: Download the attached RAR file and extract invoice.vbs to inspect order specifications.", "malware_delivery"),
-    ("Court summons notification: Download the attached encrypted zip file and execute the script inside to review your court date.", "malware_delivery"),
-    ("Bank Statement encrypted payload: Open the attached HTML file and enable script execution to decrypt your statement.", "malware_delivery"),
-    ("E-sign document: Download attached file payload.wsf to view the legally binding contract.", "malware_delivery"),
-
-    # --- 7. BRAND IMPERSONATION & TYPOSQUATTING ---
-    ("PayPal Security: Your account has been temporarily restricted due to unauthorized activity. Verify at paypa1.com.", "brand_impersonation"),
-    ("Apple Support: Your iCloud subscription has been suspended. Update your credit card billing details to restore storage.", "brand_impersonation"),
-    ("Amazon Order Confirmation: You have purchased iPhone 16 Pro for $1,299. If you did not make this purchase, dispute here.", "brand_impersonation"),
-    ("Netflix Account Suspended: We were unable to authorize your monthly membership fee. Update payment method now.", "brand_impersonation"),
-    ("Microsoft 365: Your license has been revoked. Re-activate your enterprise subscription at rnicrosoft.com.", "brand_impersonation"),
-    ("FedEx Delivery Alert: Package #9872134 is pending customs tax clearance. Pay clearance fee at fedex-tracking-portal.net.", "brand_impersonation"),
-    ("Chase Bank Alert: Unusual debit card activity detected. Confirm your banking credentials at chase-verification-online.com.", "brand_impersonation"),
-    ("DHL Express: Your shipment delivery failed due to incorrect address. Pay rescheduling fee on dhl-portal-update.com.", "brand_impersonation"),
-    ("Bank of America: Security notice on your online banking access. Re-verify your account details now.", "brand_impersonation")
-]
-
 def load_all_training_samples():
-    """Combines curated forensic threat samples with external datasets (spam.csv) if available."""
-    samples = list(TRAINING_DATA)
-    
-    if os.path.exists(SPAM_CSV_PATH):
-        try:
-            df = pd.read_csv(SPAM_CSV_PATH, encoding='latin-1')
-            df = df[['v1', 'v2']].dropna()
-            
-            # Sample ham and spam to expand dataset while maintaining class balance
-            ham_samples = df[df['v1'] == 'ham']['v2'].sample(min(80, len(df[df['v1'] == 'ham'])), random_state=42)
-            spam_samples = df[df['v1'] == 'spam']['v2'].sample(min(80, len(df[df['v1'] == 'spam'])), random_state=42)
-            
-            for h in ham_samples:
-                samples.append((str(h).strip(), "clean"))
-            for s in spam_samples:
-                samples.append((str(s).strip(), "phishing_credential_harvesting"))
-                
-            print(f"Loaded {len(ham_samples) + len(spam_samples)} additional samples from '{SPAM_CSV_PATH}'")
-        except Exception as e:
-            print(f"Note: Could not load '{SPAM_CSV_PATH}': {e}")
-            
-    return samples
+    """Loads the massive synthetic corporate dataset."""
+    import json
+    dataset_path = os.path.join(os.path.dirname(__file__), "synthetic_dataset.json")
+    with open(dataset_path, 'r') as f:
+        samples = json.load(f)
+    return [tuple(x) for x in samples]
 
 def train_and_evaluate_model():
     """
@@ -150,19 +44,41 @@ def train_and_evaluate_model():
     print(f"Target Threat Classes : {len(set(labels))}")
 
     # Build Pipeline: TF-IDF (Unigrams + Bigrams) -> Calibrated Logistic Regression
+    from sklearn.ensemble import RandomForestClassifier, VotingClassifier
+    
+    # Advanced Ensemble Threat Classification Pipeline
+    tfidf = TfidfVectorizer(
+        ngram_range=(1, 3),
+        max_features=10000,
+        sublinear_tf=True,
+        stop_words='english'
+    )
+    
+    # 1. Calibrated Logistic Regression
+    lr = LogisticRegression(
+        C=5.0,
+        max_iter=1500,
+        class_weight='balanced',
+        random_state=42
+    )
+    
+    # 2. Random Forest for Non-linear Threat Signatures
+    rf = RandomForestClassifier(
+        n_estimators=150,
+        max_depth=None,
+        class_weight='balanced',
+        random_state=42
+    )
+    
+    # Combine into a powerful Voting Ensemble
+    ensemble = VotingClassifier(
+        estimators=[('lr', lr), ('rf', rf)],
+        voting='soft' # Soft voting enables probability calibration
+    )
+    
     pipeline = Pipeline([
-        ('tfidf', TfidfVectorizer(
-            ngram_range=(1, 2),
-            max_features=6000,
-            sublinear_tf=True,
-            stop_words='english'
-        )),
-        ('clf', LogisticRegression(
-            C=3.0,
-            max_iter=1000,
-            class_weight='balanced',
-            random_state=42
-        ))
+        ('tfidf', tfidf),
+        ('clf', ensemble)
     ])
 
     print("\nTraining Scikit-Learn Model...")
@@ -183,17 +99,17 @@ def train_and_evaluate_model():
 
     # Extract Top Informative N-grams per Class (For Explainability)
     vectorizer = pipeline.named_steps['tfidf']
-    classifier = pipeline.named_steps['clf']
+    classifier = pipeline.named_steps['clf'].named_estimators_['lr']
     feature_names = np.array(vectorizer.get_feature_names_out())
 
     print("\n" + "=" * 70)
     print("EXPLAINABILITY: TOP INFORMATIVE N-GRAMS PER THREAT CLASS")
     print("=" * 70)
-    for i, class_label in enumerate(classifier.classes_):
-        top_indices = np.argsort(classifier.coef_[i])[-4:]
-        top_features = feature_names[top_indices]
+    for i, class_label in enumerate(pipeline.classes_):
+        top10 = np.argsort(classifier.coef_[i])[-5:]
+        top_features = feature_names[top10]
         print(f"[{class_label.upper()}]")
-        print(f"  Top Predictive Features: {', '.join(reversed(top_features))}")
+        print(f"  Top Predictive Features: {', '.join(top_features)}")
 
     return pipeline
 

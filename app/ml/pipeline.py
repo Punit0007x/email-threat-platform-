@@ -55,6 +55,7 @@ def analyze_email_ai_ml(
     email_summary_ctx = {
         "from_address": from_address,
         "subject": subject,
+        "body_plain": body_plain,
         "urls": urls,
         "auth_analysis": auth_analysis
     }
