@@ -27,12 +27,12 @@ function detectObfuscatedStrings(text) {
       const decoded = atob(raw);
       if (/^[\x20-\x7E\r\n\t]+$/.test(decoded) && decoded.length > 5) {
         results.push({
-          type: 'Base64 Encoded Stream',
+          type: 'Base64 Encoded',
           raw: raw.substring(0, 40) + (raw.length > 40 ? '...' : ''),
           fullRaw: raw,
           decoded: decoded,
           confidence: 'High',
-          color: 'text-[#0284c7] border-[#0ea5e9]/30 bg-[#0ea5e9]/10'
+          color: 'text-blue-700 border-blue-200 bg-blue-50'
         });
       }
     } catch {
@@ -50,12 +50,12 @@ function detectObfuscatedStrings(text) {
       decoded += String.fromCharCode(parseInt(hexBytes.substr(i, 2), 16));
     }
     results.push({
-      type: 'Hex Escaped String',
+      type: 'Hex Escaped',
       raw: raw.substring(0, 40) + '...',
       fullRaw: raw,
       decoded: decoded,
       confidence: 'High',
-      color: 'text-[#b45309] border-[#f59e0b]/30 bg-[#f59e0b]/10'
+      color: 'text-orange-700 border-orange-200 bg-orange-50'
     });
   }
 
@@ -63,12 +63,12 @@ function detectObfuscatedStrings(text) {
   const redirectRegex = /https?:\/\/(?:www\.)?(?:google\.com\/url\?q=|bing\.com\/ck\/|l\.facebook\.com\/l\.php\?u=)(https?[^&\s]+)/gi;
   while ((match = redirectRegex.exec(text)) !== null) {
     results.push({
-      type: 'Open Redirector Wrapper',
+      type: 'Hidden Redirect',
       raw: match[0].substring(0, 45) + '...',
       fullRaw: match[0],
       decoded: decodeURIComponent(match[1]),
-      confidence: 'Critical',
-      color: 'text-[#d63031] border-[#ff4757]/30 bg-[#ff4757]/10'
+      confidence: 'High',
+      color: 'text-red-700 border-red-200 bg-red-50'
     });
   }
 
@@ -81,25 +81,25 @@ function detectHiddenText(html, plain) {
   const zeroWidthRegex = /[\u200B\u200C\u200D\uFEFF\u00A0]{2,}/g;
   if (plain && zeroWidthRegex.test(plain)) {
     hidden.push({
-      type: 'Zero-Width Unicode Characters',
-      location: 'Plaintext Stream',
-      desc: 'Invisible zero-width unicode spaces injected to break spam filter Bayesian tokenization.'
+      type: 'Invisible Characters',
+      location: 'Plain text',
+      desc: 'Invisible characters used to trick spam filters.'
     });
   }
 
   if (html) {
     if (html.includes('font-size:0') || html.includes('font-size: 0') || html.includes('display:none') || html.includes('display: none')) {
       hidden.push({
-        type: 'Zero-Font / Hidden CSS Elements',
-        location: 'HTML DOM',
-        desc: 'CSS rules (font-size: 0px or display: none) hiding text from victim while feeding tokens to spam engines.'
+        type: 'Hidden HTML Elements',
+        location: 'HTML Code',
+        desc: 'Text hidden using CSS rules so the user cannot see it, but spam filters process it.'
       });
     }
     if (html.includes('color:white;background:white') || html.includes('color:#ffffff;background:#ffffff') || html.includes('color: white; background: white')) {
       hidden.push({
-        type: 'White-on-White Camouflage Text',
-        location: 'HTML DOM Styling',
-        desc: 'Invisible white text on white background used for filter poisoning.'
+        type: 'White-on-White Text',
+        location: 'HTML Code',
+        desc: 'Invisible white text on a white background used to bypass filters.'
       });
     }
   }
@@ -131,7 +131,7 @@ function detectTrackingPixels(html) {
 }
 
 export default function EmailBodyDissector({ data, onLookupIOC }) {
-  const [viewMode, setViewMode] = useState('wysiwyg'); // 'wysiwyg' | 'text' | 'deobfuscate' | 'raw'
+  const [viewMode, setViewMode] = useState('wysiwyg');
   const [customInput, setCustomInput] = useState('');
   const [customDecoded, setCustomDecoded] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
@@ -177,7 +177,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
             for (let i = 0; i < cleanHex.length; i += 2) {
               hexStr += String.fromCharCode(parseInt(cleanHex.substr(i, 2), 16));
             }
-            result = { type: 'Hex Bytes Decoded', decoded: hexStr };
+            result = { type: 'Hex Decoded', decoded: hexStr };
           }
         } catch {
           result = { type: 'Plain text', decoded: input };
@@ -195,20 +195,18 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
   };
 
   const safeSandboxedHtml = useMemo(() => {
-    if (!htmlBody) return `<div style="font-family: monospace; color: #2d3436; background: #e0e5ec; padding: 20px;">[No HTML Body Stream Present. Showing Plaintext Payload.]<br><br>${plainBody.replace(/\n/g, '<br>')}</div>`;
+    if (!htmlBody) return `<div style="font-family: monospace; color: #374151; background: #f3f4f6; padding: 20px;">[No HTML content found. Showing plain text instead.]<br><br>${plainBody.replace(/\n/g, '<br>')}</div>`;
 
     let sanitized = htmlBody
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '<!-- [DANGEROUS SCRIPT BLOCKED BY SANDBOX] -->')
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '<!-- [SCRIPT BLOCKED FOR SAFETY] -->')
       .replace(/onload=/gi, 'data-blocked-onload=')
       .replace(/onerror=/gi, 'data-blocked-onerror=')
       .replace(/onclick=/gi, 'data-blocked-onclick=');
 
     const injectedStyles = `
       <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #2d3436; background: #f0f2f5; padding: 16px; line-height: 1.6; }
-        a { color: #ff4757; text-decoration: underline; font-weight: bold; }
-        .threat-highlight-link { background: rgba(255, 71, 87, 0.15) !important; border: 1px solid #ff4757 !important; color: #d63031 !important; padding: 2px 4px !important; border-radius: 4px !important; font-weight: bold !important; }
-        .threat-highlight-hidden { background: rgba(245, 158, 11, 0.2) !important; border: 1px dashed #f59e0b !important; color: #b45309 !important; display: inline-block !important; font-size: 12px !important; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #374151; background: #f9fafb; padding: 16px; line-height: 1.6; }
+        a { color: #dc2626; text-decoration: underline; font-weight: bold; }
       </style>
     `;
 
@@ -216,40 +214,34 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
   }, [htmlBody, plainBody]);
 
   return (
-    <div className="panel-chassis p-6 sm:p-8 space-y-6 relative overflow-hidden">
+    <div className="panel-chassis p-6 sm:p-8 space-y-6">
       
-      {/* Corner Screws */}
-      <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
-      <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
-      <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
-      <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
-
       {/* Header with Mode Switcher */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#d1d9e6] pb-4 px-2">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div className="flex items-center space-x-3.5">
-          <div className="p-3 bg-[#e0e5ec] text-[#ff4757] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
+          <div className="p-3 bg-red-50 text-red-600 rounded-2xl shadow-sm border border-red-100">
             <Eye className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#2d3436] flex items-center gap-2 font-sans">
-              Email Payload Dissector & Sandbox
-              <span className="text-[10px] bg-[#10b981]/15 text-[#047857] font-mono font-bold px-2 py-0.5 rounded border border-[#10b981]/30">
-                ISOLATED SANDBOX
+            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              Email Content Viewer
+              <span className="text-[10px] bg-green-50 text-green-700 font-semibold px-2 py-0.5 rounded border border-green-200">
+                PROTECTED VIEW
               </span>
             </h2>
-            <p className="text-xs text-[#4a5568]">
-              Safe WYSIWYG rendering, deceptive link divergence, hidden zero-font text, and automated payload de-obfuscation
+            <p className="text-sm text-gray-500">
+              View the email safely and inspect hidden content or deceptive links.
             </p>
           </div>
         </div>
 
         {/* View Mode Selector Tabs */}
-        <div className="flex items-center gap-1.5 p-1.5 slot-recessed rounded-xl font-mono text-xs">
+        <div className="flex items-center gap-1.5 p-1.5 bg-slate-50 border border-gray-200 rounded-xl text-sm font-medium">
           {[
-            { id: 'wysiwyg', label: 'Safe Preview', icon: Eye },
-            { id: 'text', label: 'Threat Callouts', icon: FileText },
-            { id: 'deobfuscate', label: 'De-Obfuscator', icon: Terminal },
-            { id: 'raw', label: 'Raw MIME Source', icon: Code },
+            { id: 'wysiwyg', label: 'Email View', icon: Eye },
+            { id: 'text', label: 'Suspicious Links', icon: FileText },
+            { id: 'deobfuscate', label: 'Hidden Code Viewer', icon: Terminal },
+            { id: 'raw', label: 'Raw Source', icon: Code },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = viewMode === tab.id;
@@ -257,11 +249,11 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
               <button
                 key={tab.id}
                 onClick={() => setViewMode(tab.id)}
-                className={`key-switch flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold ${
-                  isActive ? 'active' : ''
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ${
+                  isActive ? 'bg-white shadow-sm border border-gray-200 text-gray-800' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4" />
                 <span>{tab.label}</span>
               </button>
             );
@@ -270,48 +262,47 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
       </div>
 
       {/* Threat Metrics Strip */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-        <div className="slot-recessed p-3 flex items-center justify-between">
-          <span className="text-[#4a5568] font-bold">Deceptive Links:</span>
-          <span className={`font-bold font-mono ${linkMismatches.length > 0 ? 'text-[#ff4757]' : 'text-[#059669]'}`}>
-            {linkMismatches.length} Detected
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+        <div className="bg-slate-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between">
+          <span className="text-gray-600 font-medium">Deceptive Links:</span>
+          <span className={`font-semibold ${linkMismatches.length > 0 ? 'text-red-600' : 'text-green-600'}`}>
+            {linkMismatches.length} Found
           </span>
         </div>
 
-        <div className="slot-recessed p-3 flex items-center justify-between">
-          <span className="text-[#4a5568] font-bold">Obfuscated Strings:</span>
-          <span className={`font-bold font-mono ${obfuscations.length > 0 ? 'text-[#d97706]' : 'text-[#2d3436]'}`}>
-            {obfuscations.length} Detected
+        <div className="bg-slate-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between">
+          <span className="text-gray-600 font-medium">Hidden Code:</span>
+          <span className={`font-semibold ${obfuscations.length > 0 ? 'text-amber-600' : 'text-gray-800'}`}>
+            {obfuscations.length} Found
           </span>
         </div>
 
-        <div className="slot-recessed p-3 flex items-center justify-between">
-          <span className="text-[#4a5568] font-bold">Hidden / Zero-Font:</span>
-          <span className={`font-bold font-mono ${hiddenText.length > 0 ? 'text-[#d97706]' : 'text-[#2d3436]'}`}>
+        <div className="bg-slate-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between">
+          <span className="text-gray-600 font-medium">Invisible Text:</span>
+          <span className={`font-semibold ${hiddenText.length > 0 ? 'text-amber-600' : 'text-gray-800'}`}>
             {hiddenText.length} Found
           </span>
         </div>
 
-        <div className="slot-recessed p-3 flex items-center justify-between">
-          <span className="text-[#4a5568] font-bold">Tracking Beacons:</span>
-          <span className={`font-bold font-mono ${trackingPixels.length > 0 ? 'text-[#7048e8]' : 'text-[#2d3436]'}`}>
-            {trackingPixels.length} Pixels
+        <div className="bg-slate-50 border border-gray-200 rounded-xl p-3 flex items-center justify-between">
+          <span className="text-gray-600 font-medium">Tracking Pixels:</span>
+          <span className={`font-semibold ${trackingPixels.length > 0 ? 'text-purple-600' : 'text-gray-800'}`}>
+            {trackingPixels.length} Found
           </span>
         </div>
       </div>
 
       {/* TAB 1: Safe Sandboxed WYSIWYG Preview */}
       {viewMode === 'wysiwyg' && (
-        <div className="space-y-3 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between text-xs font-mono text-[#4a5568] slot-recessed-sm px-4 py-2">
-            <span className="flex items-center gap-2 text-[#059669] font-bold">
-              <Lock className="w-3.5 h-3.5" />
-              SANDBOX SECURITY: SCRIPTS DISABLED & EXTERNAL BEACONS NEUTRALIZED
+        <div className="space-y-3">
+          <div className="flex items-center text-sm text-gray-600 bg-slate-50 border border-gray-200 rounded-lg px-4 py-2">
+            <span className="flex items-center gap-2 text-green-600 font-semibold">
+              <Lock className="w-4 h-4" />
+              Security active: harmful code blocked.
             </span>
-            <span className="text-[#8896aa] font-semibold">Render Engine: Chromium Isolated Frame</span>
           </div>
 
-          <div className="w-full h-[450px] rounded-xl overflow-hidden slot-recessed border border-[#babecc]/60 shadow-inner bg-[#f0f2f5]">
+          <div className="w-full h-[450px] rounded-xl overflow-hidden border border-gray-200 bg-white">
             <iframe
               title="Sandboxed Email Preview"
               srcDoc={safeSandboxedHtml}
@@ -324,72 +315,72 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
       {/* TAB 2: Threat Callouts & Deceptive Links */}
       {viewMode === 'text' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="space-y-6">
           
           {/* Deceptive Links Callouts */}
           {linkMismatches.length > 0 ? (
-            <div className="slot-recessed p-5 space-y-3 border-l-4 border-l-[#ff4757]">
-              <h4 className="text-xs font-bold text-[#d63031] uppercase tracking-wider font-mono flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 text-[#ff4757]" />
-                Deceptive Link Divergence Detected ({linkMismatches.length})
+            <div className="bg-red-50 border border-red-100 rounded-xl p-5 space-y-3 border-l-4 border-l-red-500">
+              <h4 className="text-sm font-semibold text-red-700 flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-red-600" />
+                Deceptive Links Found ({linkMismatches.length})
               </h4>
-              <p className="text-xs text-[#2d3436] font-medium">
-                The displayed anchor text in the email leads the victim to believe they are navigating to a legitimate service, but the underlying destination points to a malicious host.
+              <p className="text-sm text-gray-700">
+                These links say one thing but take the user to a completely different website.
               </p>
 
-              <div className="space-y-2.5 pt-1">
+              <div className="space-y-3 pt-2">
                 {linkMismatches.map((mismatch, idx) => (
-                  <div key={idx} className="bg-[#f0f2f5] p-3.5 rounded-xl border border-[#babecc]/60 space-y-2 font-mono text-xs shadow-sm">
+                  <div key={idx} className="bg-white p-4 rounded-lg border border-gray-200 space-y-2 text-sm shadow-sm">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <div className="flex items-center gap-1.5 text-[#4a5568]">
-                        <span className="text-[10px] uppercase font-bold">Displayed Anchor:</span>
-                        <strong className="text-[#059669] font-bold">{mismatch.text}</strong>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <span className="text-xs uppercase font-semibold">Text user sees:</span>
+                        <strong className="text-green-700">{mismatch.text}</strong>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[9px] bg-[#ff4757]/15 text-[#d63031] px-2 py-0.5 rounded border border-[#ff4757]/30 font-bold">
+                        <span className="text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded font-semibold border border-red-200">
                           MISMATCH
                         </span>
                         {onLookupIOC && (
                           <button
                             onClick={() => onLookupIOC(mismatch.href)}
-                            className="text-[10px] text-[#ff4757] hover:underline cursor-pointer font-bold"
+                            className="text-xs text-red-600 hover:underline cursor-pointer font-semibold"
                           >
-                            Lookup Target IOC
+                            Investigate Target
                           </button>
                         )}
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 text-[#4a5568] truncate">
-                      <span className="text-[10px] uppercase font-bold">Actual HREF Target:</span>
-                      <span className="text-[#d63031] font-bold truncate">{mismatch.href}</span>
+                    <div className="flex items-center gap-2 text-gray-600 truncate">
+                      <span className="text-xs uppercase font-semibold">Where it actually goes:</span>
+                      <span className="text-red-700 font-medium truncate">{mismatch.href}</span>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="slot-recessed p-4 text-xs text-[#4a5568] font-mono flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#059669]" />
-              <span>No deceptive link mismatches detected. Links match their visible anchor text.</span>
+            <div className="bg-slate-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600 flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-green-600" />
+              <span>No deceptive links found. Links match the text shown to the user.</span>
             </div>
           )}
 
           {/* Hidden Zero-Font & Filter Poisoning Callouts */}
           {hiddenText.length > 0 && (
-            <div className="slot-recessed p-5 space-y-3 border-l-4 border-l-[#f59e0b]">
-              <h4 className="text-xs font-bold text-[#b45309] uppercase tracking-wider font-mono flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-[#f59e0b]" />
-                Hidden Zero-Font & Camouflage Poisoning ({hiddenText.length})
+            <div className="bg-amber-50 border border-amber-100 rounded-xl p-5 space-y-3 border-l-4 border-l-amber-500">
+              <h4 className="text-sm font-semibold text-amber-800 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-600" />
+                Invisible Text Found ({hiddenText.length})
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {hiddenText.map((item, idx) => (
-                  <div key={idx} className="bg-[#f0f2f5] p-3 rounded-xl border border-[#babecc]/60 space-y-1 text-xs shadow-sm">
+                  <div key={idx} className="bg-white p-3 rounded-lg border border-gray-200 space-y-1 text-sm shadow-sm">
                     <div className="flex items-center justify-between">
-                      <strong className="text-[#b45309] font-bold font-mono">{item.type}</strong>
-                      <span className="text-[10px] text-[#4a5568] font-mono font-semibold">{item.location}</span>
+                      <strong className="text-amber-800 font-semibold">{item.type}</strong>
+                      <span className="text-xs text-gray-500 font-medium">{item.location}</span>
                     </div>
-                    <p className="text-[#2d3436] text-[11px] leading-relaxed font-sans">{item.desc}</p>
+                    <p className="text-gray-700 text-xs leading-relaxed">{item.desc}</p>
                   </div>
                 ))}
               </div>
@@ -398,11 +389,11 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
           {/* Plain Text Body Inspector */}
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-[#2d3436] uppercase tracking-wider font-mono">
-              Normalized Plaintext Stream
+            <h4 className="text-sm font-semibold text-gray-800">
+              Plain Text Version
             </h4>
-            <div className="slot-recessed p-4 text-xs font-mono text-[#2d3436] max-h-72 overflow-y-auto whitespace-pre-wrap leading-relaxed">
-              {plainBody || "[No Plaintext Stream Detected]"}
+            <div className="bg-slate-50 border border-gray-200 rounded-xl p-4 text-sm font-mono text-gray-800 max-h-72 overflow-y-auto whitespace-pre-wrap">
+              {plainBody || "[No plain text version found]"}
             </div>
           </div>
 
@@ -411,43 +402,43 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
       {/* TAB 3: Automated & Interactive De-Obfuscator Studio */}
       {viewMode === 'deobfuscate' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="space-y-6">
           
           {/* Automated De-Obfuscated Findings */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold text-[#2d3436] uppercase tracking-wider font-mono flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-[#ff4757]" />
-              Automated Payload De-Obfuscation ({obfuscations.length})
+            <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+              <Terminal className="w-4 h-4 text-red-600" />
+              Automatically Uncovered Code ({obfuscations.length})
             </h4>
 
             {obfuscations.length > 0 ? (
               <div className="space-y-3">
                 {obfuscations.map((item, idx) => (
-                  <div key={idx} className="bg-[#f0f2f5] p-4 rounded-xl border border-[#babecc]/60 space-y-2.5 font-mono text-xs shadow-sm">
+                  <div key={idx} className="bg-white p-4 rounded-xl border border-gray-200 space-y-3 text-sm shadow-sm">
                     <div className="flex items-center justify-between">
-                      <span className={`px-2 py-0.5 rounded border text-[10px] font-bold ${item.color}`}>
+                      <span className={`px-2 py-1 rounded-md text-xs font-semibold border ${item.color}`}>
                         {item.type}
                       </span>
                       <button
                         onClick={() => copyToClipboard(item.decoded, `item-${idx}`)}
-                        className="text-[11px] text-[#4a5568] hover:text-[#2d3436] flex items-center gap-1 cursor-pointer font-sans font-bold"
+                        className="text-xs text-gray-500 hover:text-gray-800 flex items-center gap-1 font-medium transition-colors"
                       >
-                        {copiedId === `item-${idx}` ? <Check className="w-3.5 h-3.5 text-[#059669]" /> : <Copy className="w-3.5 h-3.5" />}
-                        {copiedId === `item-${idx}` ? 'Copied' : 'Copy Decoded'}
+                        {copiedId === `item-${idx}` ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                        {copiedId === `item-${idx}` ? 'Copied' : 'Copy'}
                       </button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-[11px]">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-1">
-                        <span className="text-[#4a5568] uppercase text-[10px] font-bold">Obfuscated Raw Input:</span>
-                        <div className="slot-recessed p-2.5 text-[#4a5568] break-all max-h-24 overflow-y-auto">
+                        <span className="text-gray-500 text-xs font-semibold uppercase">Hidden Input:</span>
+                        <div className="bg-slate-50 border border-gray-200 rounded-md p-3 text-gray-600 break-all max-h-24 overflow-y-auto font-mono text-xs">
                           {item.fullRaw}
                         </div>
                       </div>
 
                       <div className="space-y-1">
-                        <span className="text-[#059669] uppercase text-[10px] font-bold">Unpacked Payload:</span>
-                        <div className="slot-recessed p-2.5 text-[#059669] break-all max-h-24 overflow-y-auto font-bold bg-[#10b981]/5 border border-[#10b981]/20">
+                        <span className="text-green-600 text-xs font-semibold uppercase">Revealed Content:</span>
+                        <div className="bg-green-50 border border-green-200 rounded-md p-3 text-green-700 break-all max-h-24 overflow-y-auto font-mono text-xs font-semibold">
                           {item.decoded}
                         </div>
                       </div>
@@ -456,52 +447,52 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
                 ))}
               </div>
             ) : (
-              <div className="slot-recessed p-4 text-xs text-[#4a5568] font-mono flex items-center gap-2">
-                <Check className="w-4 h-4 text-[#059669]" />
-                <span>No complex Base64, Hex, or Script obfuscation layers detected in this payload.</span>
+              <div className="bg-slate-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-600 flex items-center gap-2">
+                <Check className="w-4 h-4 text-green-600" />
+                <span>No complex hidden code found in this email.</span>
               </div>
             )}
           </div>
 
           {/* Interactive De-Obfuscator Sandbox Workbench */}
-          <div className="slot-recessed p-5 space-y-4">
-            <h4 className="text-xs font-bold text-[#2d3436] uppercase tracking-wider font-mono flex items-center gap-2">
-              <Zap className="w-4 h-4 text-[#f59e0b]" />
-              Live Analyst De-Obfuscator Sandbox Workbench
+          <div className="bg-slate-50 border border-gray-200 rounded-xl p-5 space-y-4">
+            <h4 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+              <Zap className="w-4 h-4 text-amber-500" />
+              Manual Code Decrypter
             </h4>
-            <p className="text-xs text-[#4a5568]">
-              Paste any suspicious encoded string, Base64 block, Hex byte array, or wrapped URL to immediately unpack it in real-time.
+            <p className="text-sm text-gray-600">
+              Paste any suspicious encoded string to immediately decrypt it and see what it says.
             </p>
 
             <div className="space-y-3">
               <textarea
                 value={customInput}
                 onChange={(e) => setCustomInput(e.target.value)}
-                placeholder="Paste encoded string here (e.g. SGVsbG8gV29ybGQ= or \x61\x64\x6d\x69\x6e or https://google.com/url?q=...)"
+                placeholder="Paste encoded text here..."
                 rows={3}
-                className="w-full bg-[#f0f2f5] border border-[#babecc] rounded-xl p-3 text-xs font-mono text-[#2d3436] placeholder-[#8896aa] focus:outline-none focus:border-[#ff4757] shadow-inner"
+                className="w-full bg-white border border-gray-300 rounded-xl p-3 text-sm font-mono text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
 
               <button
                 onClick={handleDecodeCustom}
-                className="btn-tactile-primary px-4 py-2 text-xs font-mono"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
               >
-                Unpack & Decode Payload
+                Decrypt Text
               </button>
 
               {customDecoded && (
-                <div className="bg-[#f0f2f5] p-4 rounded-xl border border-[#0ea5e9]/40 space-y-2 font-mono text-xs shadow-sm animate-in fade-in">
-                  <div className="flex items-center justify-between text-[#0284c7] font-bold text-[11px]">
+                <div className="bg-white p-4 rounded-xl border border-blue-200 space-y-2 text-sm shadow-sm">
+                  <div className="flex items-center justify-between text-blue-700 font-semibold text-xs">
                     <span>Format Identified: {customDecoded.type}</span>
                     <button
                       onClick={() => copyToClipboard(customDecoded.decoded, 'custom')}
-                      className="text-[10px] text-[#4a5568] hover:text-[#2d3436] flex items-center gap-1 cursor-pointer font-sans"
+                      className="text-gray-500 hover:text-gray-800 flex items-center gap-1 font-medium"
                     >
-                      {copiedId === 'custom' ? <Check className="w-3.5 h-3.5 text-[#059669]" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copiedId === 'custom' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
                       {copiedId === 'custom' ? 'Copied' : 'Copy'}
                     </button>
                   </div>
-                  <div className="slot-recessed p-3 text-[#059669] break-all whitespace-pre-wrap font-bold bg-[#10b981]/5">
+                  <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-green-700 break-all whitespace-pre-wrap font-mono font-semibold">
                     {customDecoded.decoded}
                   </div>
                 </div>
@@ -514,20 +505,20 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
       {/* TAB 4: Raw MIME Source Code */}
       {viewMode === 'raw' && (
-        <div className="space-y-3 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between text-xs font-mono text-[#4a5568]">
-            <span className="font-bold">Raw HTML / MIME Source Code Stream</span>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between text-sm text-gray-600">
+            <span className="font-semibold text-gray-800">Raw Email Source Code</span>
             <button
               onClick={() => copyToClipboard(htmlBody || plainBody, 'raw-source')}
-              className="text-[11px] text-[#ff4757] hover:underline flex items-center gap-1 cursor-pointer font-bold"
+              className="text-xs text-blue-600 hover:underline flex items-center gap-1 font-semibold"
             >
-              {copiedId === 'raw-source' ? <Check className="w-3.5 h-3.5 text-[#059669]" /> : <Copy className="w-3.5 h-3.5" />}
-              {copiedId === 'raw-source' ? 'Source Copied' : 'Copy Source'}
+              {copiedId === 'raw-source' ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+              {copiedId === 'raw-source' ? 'Copied' : 'Copy Code'}
             </button>
           </div>
 
-          <div className="slot-recessed p-4 text-xs font-mono text-[#2d3436] max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed">
-            {htmlBody || plainBody || "[No Raw Body Content Available]"}
+          <div className="bg-slate-50 border border-gray-200 rounded-xl p-4 text-xs font-mono text-gray-800 max-h-96 overflow-y-auto whitespace-pre-wrap">
+            {htmlBody || plainBody || "[No code available]"}
           </div>
         </div>
       )}

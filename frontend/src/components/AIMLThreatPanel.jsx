@@ -17,12 +17,12 @@ import {
 
 const THREAT_LABELS = {
   clean: "Legitimate / Benign",
-  phishing_credential_harvesting: "Phishing: Credential Harvesting",
-  bec_executive_impersonation: "Business Email Compromise (BEC)",
-  invoice_payment_fraud: "Invoice & Payment Diversion",
+  phishing_credential_harvesting: "Phishing: Stealing Passwords",
+  bec_executive_impersonation: "Impersonation (e.g. Fake CEO)",
+  invoice_payment_fraud: "Fake Invoice & Payment Fraud",
   extortion_blackmail: "Extortion & Blackmail",
-  malware_delivery: "Malicious Payload / Malware Delivery",
-  brand_impersonation: "Brand Impersonation & Typosquatting"
+  malware_delivery: "Contains Viruses / Malware",
+  brand_impersonation: "Brand Impersonation (Fake Company)"
 };
 
 export default function AIMLThreatPanel({ data }) {
@@ -50,50 +50,41 @@ export default function AIMLThreatPanel({ data }) {
   const correlations = data.threat_correlations || {};
 
   return (
-    <div className="panel-chassis p-6 sm:p-8 space-y-6 relative overflow-hidden">
+    <div className="panel-chassis p-6 sm:p-8 space-y-6">
       
-      {/* Corner Screws */}
-      <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
-      <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
-      <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
-      <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
-
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d1d9e6] pb-4 px-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div className="flex items-center space-x-3.5">
-          <div className="p-3 bg-[#e0e5ec] text-[#7048e8] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
+          <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl shadow-sm border border-purple-100">
             <Brain className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#2d3436] flex items-center gap-2">
-              AI / ML Neural Threat Intelligence
-              <span className="text-[10px] bg-[#7048e8]/15 text-[#5f3dc4] font-mono font-bold px-2 py-0.5 rounded border border-[#7048e8]/30">
-                ENSEMBLE v2.1
-              </span>
+            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              AI Threat Analysis
             </h2>
-            <p className="text-xs text-[#4a5568]">
-              Multi-task NLP classification, BEC telemetry, synthetic language forensics, and MITRE ATT&CK mapping
+            <p className="text-sm text-gray-500">
+              Analyzing the content and behavior of the email to identify scams and manipulation.
             </p>
           </div>
         </div>
 
         {/* Primary Classification Pill */}
-        <div className="sm:text-right slot-recessed-sm px-4 py-2">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-[#4a5568] font-mono">Classification Verdict</div>
-          <div className={`text-sm font-black font-mono ${isThreat ? 'text-[#ff4757]' : 'text-[#059669]'}`}>
+        <div className="sm:text-right bg-slate-50 border border-gray-200 rounded-xl px-4 py-2">
+          <div className="text-xs font-semibold uppercase tracking-wider text-gray-500">Verdict</div>
+          <div className={`text-lg font-bold ${isThreat ? 'text-red-600' : 'text-green-600'}`}>
             {THREAT_LABELS[primaryThreat] || primaryThreat}
           </div>
-          <div className="text-[10px] text-[#4a5568] font-mono font-bold">Confidence: {confidencePct}%</div>
+          <div className="text-xs text-gray-500 font-medium">Confidence: {confidencePct}%</div>
         </div>
       </div>
 
       {/* Forensic Summary Alert */}
       {ai_forensics.forensic_summary && (
-        <div className="slot-recessed p-4 flex items-start gap-3 border-l-4 border-l-[#7048e8]">
-          <FileSearch className="w-5 h-5 text-[#7048e8] flex-shrink-0 mt-0.5" />
+        <div className="bg-purple-50 border border-purple-100 rounded-xl p-4 flex items-start gap-3 border-l-4 border-l-purple-500">
+          <FileSearch className="w-5 h-5 text-purple-600 flex-shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#2d3436] font-mono">Executive Forensic Brief</h4>
-            <p className="text-xs sm:text-sm text-[#2d3436] leading-relaxed font-sans font-medium">{ai_forensics.forensic_summary}</p>
+            <h4 className="text-sm font-semibold text-gray-800">AI Summary</h4>
+            <p className="text-sm text-gray-700 leading-relaxed">{ai_forensics.forensic_summary}</p>
           </div>
         </div>
       )}
@@ -102,10 +93,10 @@ export default function AIMLThreatPanel({ data }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Left Column: Category Probabilities */}
-        <div className="slot-recessed p-5 space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#2d3436] flex items-center gap-2 font-mono">
-            <TrendingUp className="w-4 h-4 text-[#ff4757]" />
-            Threat Category Probability Distribution
+        <div className="bg-slate-50 border border-gray-200 rounded-xl p-5 space-y-4">
+          <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+            <TrendingUp className="w-4 h-4 text-blue-600" />
+            What kind of threat is this?
           </h3>
 
           <div className="space-y-3">
@@ -114,19 +105,19 @@ export default function AIMLThreatPanel({ data }) {
               const isSelected = catKey === primaryThreat;
               const isClean = catKey === "clean";
 
-              let barColor = isClean ? "bg-[#10b981]" : "bg-[#ff4757]";
-              if (!isClean && pct >= 40) barColor = "bg-[#ff4757]";
-              else if (!isClean && pct >= 20) barColor = "bg-[#f59e0b]";
+              let barColor = isClean ? "bg-green-500" : "bg-red-500";
+              if (!isClean && pct >= 40) barColor = "bg-red-500";
+              else if (!isClean && pct >= 20) barColor = "bg-amber-500";
 
               return (
                 <div key={catKey} className="space-y-1">
-                  <div className="flex justify-between text-xs font-medium">
-                    <span className={isSelected ? "text-[#2d3436] font-bold" : "text-[#4a5568]"}>
+                  <div className="flex justify-between text-sm font-medium">
+                    <span className={isSelected ? "text-gray-900 font-semibold" : "text-gray-500"}>
                       {THREAT_LABELS[catKey] || catKey}
                     </span>
-                    <span className="font-mono font-bold text-[#2d3436]">{pct}%</span>
+                    <span className="font-semibold text-gray-700">{pct}%</span>
                   </div>
-                  <div className="h-2.5 w-full bg-[#d1d9e6] rounded-full overflow-hidden shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]">
+                  <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
                     <div 
                       className={`h-full transition-all duration-700 rounded-full ${barColor}`} 
                       style={{ width: `${pct}%` }} 
@@ -139,14 +130,14 @@ export default function AIMLThreatPanel({ data }) {
 
           {/* Explainable Predictive Tokens */}
           {explainableTokens.length > 0 && (
-            <div className="pt-3 border-t border-[#babecc]/50 space-y-1.5">
-              <span className="text-[#4a5568] font-bold uppercase text-[10px] tracking-wider flex items-center gap-1.5 font-mono">
-                <Sparkles className="w-3.5 h-3.5 text-[#ff4757]" />
-                Key Model Predictive N-Grams
+            <div className="pt-4 border-t border-gray-200 space-y-2">
+              <span className="text-gray-700 font-semibold text-sm flex items-center gap-1.5">
+                <Sparkles className="w-4 h-4 text-blue-600" />
+                Suspicious Keywords Found
               </span>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap gap-2">
                 {explainableTokens.map((tok, i) => (
-                  <span key={i} className="text-[11px] font-mono font-bold px-2 py-0.5 rounded bg-[#f0f2f5] text-[#2d3436] border border-[#babecc]/60 shadow-sm">
+                  <span key={i} className="text-xs font-semibold px-2 py-1 rounded-md bg-white text-gray-700 border border-gray-200 shadow-sm">
                     "{tok}"
                   </span>
                 ))}
@@ -156,9 +147,9 @@ export default function AIMLThreatPanel({ data }) {
 
           {/* Multi-Vector Threat Indicator */}
           {classification.is_multi_vector_attack && (
-            <div className="mt-3 p-3 bg-[#ff4757]/15 border border-[#ff4757]/30 rounded-xl flex items-center gap-2 text-xs text-[#d63031]">
-              <ShieldAlert className="w-4 h-4 text-[#ff4757] flex-shrink-0" />
-              <span>Multi-Vector Campaign: Combines <strong>{classification.detected_attack_vectors?.join(", ")}</strong></span>
+            <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-sm text-red-700">
+              <ShieldAlert className="w-5 h-5 text-red-500 flex-shrink-0" />
+              <span>Multi-Vector Attack: Combines <strong>{classification.detected_attack_vectors?.join(", ")}</strong></span>
             </div>
           )}
         </div>
@@ -167,34 +158,34 @@ export default function AIMLThreatPanel({ data }) {
         <div className="space-y-6">
           
           {/* Social Engineering Vectors */}
-          <div className="slot-recessed p-5 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#2d3436] flex items-center gap-2 font-mono">
-              <Flame className="w-4 h-4 text-[#f59e0b]" />
-              Social Engineering & Manipulation Vectors
+          <div className="bg-slate-50 border border-gray-200 rounded-xl p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+              <Flame className="w-4 h-4 text-amber-500" />
+              Manipulation Tactics Detected
             </h3>
 
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="bg-[#f0f2f5] p-2.5 rounded-xl border border-[#babecc]/50 shadow-sm">
-                <span className="text-[#4a5568] block font-mono text-[10px] uppercase font-bold">Urgency / Pressure:</span>
-                <span className={`font-bold font-mono text-sm ${manipScores.urgency > 0 ? 'text-[#d97706]' : 'text-[#2d3436]'}`}>
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                <span className="text-gray-500 block text-xs font-semibold uppercase mb-1">Urgency / Pressure:</span>
+                <span className={`font-semibold ${manipScores.urgency > 0 ? 'text-amber-600' : 'text-gray-700'}`}>
                   {manipScores.urgency || 0} trigger(s)
                 </span>
               </div>
-              <div className="bg-[#f0f2f5] p-2.5 rounded-xl border border-[#babecc]/50 shadow-sm">
-                <span className="text-[#4a5568] block font-mono text-[10px] uppercase font-bold">Fear & Intimidation:</span>
-                <span className={`font-bold font-mono text-sm ${manipScores.fear_intimidation > 0 ? 'text-[#ff4757]' : 'text-[#2d3436]'}`}>
+              <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                <span className="text-gray-500 block text-xs font-semibold uppercase mb-1">Fear & Intimidation:</span>
+                <span className={`font-semibold ${manipScores.fear_intimidation > 0 ? 'text-red-600' : 'text-gray-700'}`}>
                   {manipScores.fear_intimidation || 0} trigger(s)
                 </span>
               </div>
-              <div className="bg-[#f0f2f5] p-2.5 rounded-xl border border-[#babecc]/50 shadow-sm">
-                <span className="text-[#4a5568] block font-mono text-[10px] uppercase font-bold">Authority Framing:</span>
-                <span className={`font-bold font-mono text-sm ${manipScores.authority > 0 ? 'text-[#7048e8]' : 'text-[#2d3436]'}`}>
+              <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                <span className="text-gray-500 block text-xs font-semibold uppercase mb-1">Authority / Boss:</span>
+                <span className={`font-semibold ${manipScores.authority > 0 ? 'text-purple-600' : 'text-gray-700'}`}>
                   {manipScores.authority || 0} trigger(s)
                 </span>
               </div>
-              <div className="bg-[#f0f2f5] p-2.5 rounded-xl border border-[#babecc]/50 shadow-sm">
-                <span className="text-[#4a5568] block font-mono text-[10px] uppercase font-bold">Financial / Greed:</span>
-                <span className={`font-bold font-mono text-sm ${manipScores.financial_greed > 0 ? 'text-[#059669]' : 'text-[#2d3436]'}`}>
+              <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                <span className="text-gray-500 block text-xs font-semibold uppercase mb-1">Money / Greed:</span>
+                <span className={`font-semibold ${manipScores.financial_greed > 0 ? 'text-green-600' : 'text-gray-700'}`}>
                   {manipScores.financial_greed || 0} trigger(s)
                 </span>
               </div>
@@ -205,30 +196,30 @@ export default function AIMLThreatPanel({ data }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             
             {/* BEC Subcard */}
-            <div className="slot-recessed p-4 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#2d3436] font-mono">
-                <UserX className="w-4 h-4 text-[#7048e8]" />
-                BEC / VIP Spoofing
+            <div className="bg-slate-50 border border-gray-200 rounded-xl p-4 space-y-2">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                <UserX className="w-4 h-4 text-purple-600" />
+                Impersonation Risk
               </div>
-              <div className="text-2xl font-black font-mono text-[#2d3436]">
+              <div className="text-2xl font-bold text-gray-800">
                 {bec_analysis.bec_confidence_score || 0}%
               </div>
-              <p className="text-xs text-[#4a5568]">
+              <p className="text-sm text-gray-500">
                 {bec_analysis.bec_risk_level || "None"} Risk {bec_analysis.is_vip_impersonation ? "(VIP Target)" : ""}
               </p>
             </div>
 
             {/* Synthetic Subcard */}
-            <div className="slot-recessed p-4 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#2d3436] font-mono">
-                <Bot className="w-4 h-4 text-[#0ea5e9]" />
-                Synthetic Text (AI)
+            <div className="bg-slate-50 border border-gray-200 rounded-xl p-4 space-y-2">
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                <Bot className="w-4 h-4 text-blue-500" />
+                AI Generated Text
               </div>
-              <div className="text-2xl font-black font-mono text-[#2d3436]">
+              <div className="text-2xl font-bold text-gray-800">
                 {synthetic_analysis.synthetic_score || 0}%
               </div>
-              <p className="text-xs text-[#4a5568]">
-                {synthetic_analysis.is_likely_synthetic ? "Likely LLM-Authored" : "Human / Standard"}
+              <p className="text-sm text-gray-500">
+                {synthetic_analysis.is_likely_synthetic ? "Likely written by AI" : "Likely written by human"}
               </p>
             </div>
 
@@ -240,34 +231,31 @@ export default function AIMLThreatPanel({ data }) {
 
       {/* Semantic Vector Matches & Threat Correlations */}
       {(semanticMatches.length > 0 || correlations.domain_seen_before || correlations.ip_seen_before) && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
           
           {/* Vector DB Similar Threats */}
-          <div className="slot-recessed p-5 space-y-3">
-            <div className="flex items-center justify-between border-b border-[#babecc]/50 pb-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#2d3436] flex items-center gap-2 font-mono">
-                <Database className="w-4 h-4 text-[#7048e8]" />
-                Semantic Threat Memory (Vector DB)
+          <div className="bg-slate-50 border border-gray-200 rounded-xl p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-200 pb-3">
+              <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                <Database className="w-4 h-4 text-purple-600" />
+                Similar Past Scams
               </h3>
-              <span className="text-[10px] font-mono font-bold text-[#7048e8] bg-[#7048e8]/15 px-2 py-0.5 rounded border border-[#7048e8]/30">
-                ChromaDB
-              </span>
             </div>
             
             {semanticMatches.length > 0 ? (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {semanticMatches.map((m, idx) => (
-                  <div key={idx} className="bg-[#f0f2f5] border border-[#babecc]/60 p-3 rounded-xl flex items-center justify-between gap-3 text-xs shadow-sm">
-                    <div className="space-y-0.5 truncate">
-                      <div className="font-bold text-[#2d3436] truncate font-sans">
+                  <div key={idx} className="bg-white border border-gray-200 p-3 rounded-lg flex items-center justify-between gap-3 text-sm shadow-sm">
+                    <div className="space-y-1 truncate">
+                      <div className="font-semibold text-gray-800 truncate">
                         {m.metadata?.subject || m.email_id}
                       </div>
-                      <div className="text-[11px] text-[#4a5568] font-mono truncate">
+                      <div className="text-xs text-gray-500 truncate">
                         Sender: {m.metadata?.from || 'Unknown'}
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <span className="px-2 py-1 rounded bg-[#7048e8]/15 text-[#5f3dc4] font-mono font-bold text-[11px] border border-[#7048e8]/30">
+                      <span className="px-2 py-1 rounded bg-purple-50 text-purple-700 font-semibold text-xs border border-purple-100">
                         {m.confidence}% Match
                       </span>
                     </div>
@@ -275,36 +263,36 @@ export default function AIMLThreatPanel({ data }) {
                 ))}
               </div>
             ) : (
-              <p className="text-[#4a5568] italic text-xs py-2">No mathematical duplicates detected in vector threat database.</p>
+              <p className="text-gray-500 italic text-sm py-2">No similar emails found in our database.</p>
             )}
           </div>
 
           {/* Repeat Offender Cross-Case Correlations */}
-          <div className="slot-recessed p-5 space-y-3">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#2d3436] flex items-center gap-2 font-mono border-b border-[#babecc]/50 pb-2">
-              <History className="w-4 h-4 text-[#d97706]" />
-              Cross-Case Threat Correlation
+          <div className="bg-slate-50 border border-gray-200 rounded-xl p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2 border-b border-gray-200 pb-3">
+              <History className="w-4 h-4 text-amber-500" />
+              Attacker History
             </h3>
 
-            <div className="space-y-2 text-xs">
-              <div className="bg-[#f0f2f5] p-2.5 rounded-xl border border-[#babecc]/50 flex justify-between items-center font-mono shadow-sm">
-                <span className="text-[#4a5568] font-bold">Domain Historic Cases:</span>
-                <span className={correlations.domain_case_count > 0 ? 'text-[#d97706] font-bold' : 'text-[#2d3436]'}>
-                  {correlations.domain_case_count || 0} prior incident(s)
+            <div className="space-y-3 text-sm">
+              <div className="bg-white p-3 rounded-lg border border-gray-200 flex justify-between items-center shadow-sm">
+                <span className="text-gray-600 font-medium">Domain used in previous attacks:</span>
+                <span className={correlations.domain_case_count > 0 ? 'text-amber-600 font-bold' : 'text-gray-800 font-semibold'}>
+                  {correlations.domain_case_count || 0} times
                 </span>
               </div>
-              <div className="bg-[#f0f2f5] p-2.5 rounded-xl border border-[#babecc]/50 flex justify-between items-center font-mono shadow-sm">
-                <span className="text-[#4a5568] font-bold">Origin IP Historic Cases:</span>
-                <span className={correlations.ip_case_count > 0 ? 'text-[#d97706] font-bold' : 'text-[#2d3436]'}>
-                  {correlations.ip_case_count || 0} prior incident(s)
+              <div className="bg-white p-3 rounded-lg border border-gray-200 flex justify-between items-center shadow-sm">
+                <span className="text-gray-600 font-medium">IP Address used in previous attacks:</span>
+                <span className={correlations.ip_case_count > 0 ? 'text-amber-600 font-bold' : 'text-gray-800 font-semibold'}>
+                  {correlations.ip_case_count || 0} times
                 </span>
               </div>
               {correlations.linked_campaigns?.length > 0 && (
-                <div className="bg-[#f0f2f5] p-2.5 rounded-xl border border-[#babecc]/50 space-y-1 shadow-sm">
-                  <span className="text-[#4a5568] font-bold block text-[10px] uppercase tracking-wider font-mono">Linked Campaigns:</span>
-                  <div className="flex flex-wrap gap-1">
+                <div className="bg-white p-3 rounded-lg border border-gray-200 space-y-2 shadow-sm">
+                  <span className="text-gray-500 font-semibold block text-xs uppercase">Part of known campaigns:</span>
+                  <div className="flex flex-wrap gap-2">
                     {correlations.linked_campaigns.map((camp, idx) => (
-                      <span key={idx} className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#7048e8]/15 text-[#5f3dc4] border border-[#7048e8]/30">
+                      <span key={idx} className="text-xs font-semibold px-2 py-1 rounded bg-purple-50 text-purple-700 border border-purple-100">
                         {camp}
                       </span>
                     ))}
@@ -317,94 +305,20 @@ export default function AIMLThreatPanel({ data }) {
         </div>
       )}
 
-      {/* MITRE ATT&CK Matrix Mapping */}
-      {ttps.length > 0 && (
-        <div className="slot-recessed p-5 space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#2d3436] flex items-center gap-2 font-mono">
-            <Zap className="w-4 h-4 text-[#ff4757]" />
-            MITRE ATT&CK® Tactics & Techniques
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {ttps.map((ttp, idx) => (
-              <div key={idx} className="bg-[#f0f2f5] border border-[#babecc]/60 p-3 rounded-xl flex items-start space-x-3 shadow-sm">
-                <span className="font-mono text-xs font-bold px-2 py-1 bg-[#ff4757]/15 text-[#d63031] rounded border border-[#ff4757]/30 flex-shrink-0">
-                  {ttp.id}
-                </span>
-                <div className="text-xs space-y-0.5">
-                  <div className="font-bold text-[#2d3436] flex items-center gap-1.5 font-sans">
-                    {ttp.name}
-                    <span className="text-[10px] text-[#4a5568] font-mono font-normal">({ttp.tactic})</span>
-                  </div>
-                  <p className="text-[#4a5568] text-[11px] leading-relaxed font-sans">{ttp.description}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Active Defense: Autonomous ScamBaiter Counter-Engagement */}
-      {isThreat && (
-        <div className="panel-dark-tech p-5 space-y-3 border-l-4 border-l-[#ff4757]">
-          <div className="flex items-center justify-between border-b border-white/10 pb-3">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 bg-[#ff4757]/20 text-[#ff4757] rounded-lg border border-[#ff4757]/40">
-                <ShieldAlert className="w-4 h-4" />
-              </span>
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-white font-mono flex items-center gap-2">
-                  Active Defense: Autonomous Tarpitting (ScamBaiter)
-                </h3>
-                <p className="text-[11px] text-[#a8b2d1]">Resource exhaustion & real-time deanonymization beacon</p>
-              </div>
-            </div>
-            <span className="px-2.5 py-1 rounded-full font-mono text-[10px] font-bold bg-[#ff4757]/20 text-[#ff4757] border border-[#ff4757]/40 animate-pulse">
-              READY TO ENGAGE
-            </span>
-          </div>
-
-          <div className="space-y-2 text-xs">
-            <div className="slot-dark-screen p-3 rounded-xl space-y-2">
-              <div className="flex items-center justify-between text-[11px] font-mono text-[#a8b2d1]">
-                <span>Target Mailbox: <strong className="text-white">{data.reply_to || data.from_address || 'Attacker Mailbox'}</strong></span>
-                <span className="text-[#ff4757] font-bold flex items-center gap-1">
-                  <span className="led-node led-node-red animate-pulse" /> Beacon Armed
-                </span>
-              </div>
-              <div className="text-[#e2e8f0] leading-relaxed font-mono text-[11px] bg-black/40 p-3 rounded border border-white/10">
-                "{((subj) => {
-                  const s = (subj || '').toLowerCase();
-                  if (s.includes('invoice') || s.includes('payment') || s.includes('wire') || s.includes('bank')) {
-                    return "Hi, I am trying to process this payment but our accounting portal indicates the routing number is invalid. Could you please provide an alternative SWIFT code or a revised invoice PDF with the updated banking details? - Sent from my iPhone";
-                  } else if (s.includes('password') || s.includes('account') || s.includes('login') || s.includes('verify')) {
-                    return "Hello, I clicked the verification link but the portal returned 'Session Token Expired'. I really need to get this resolved today before my flight. Is there a direct link you can send me? Thanks.";
-                  } else {
-                    return "I received this notice but the attachment appears corrupted on macOS. Could you please resend it in an alternative document format so I can review it?";
-                  }
-                })(data.subject)}"
-              </div>
-              <p className="text-[11px] text-[#a8b2d1] italic">
-                * When the attacker opens this simulated reply, the embedded tracking pixel resolves their real physical IP and browser fingerprint.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* SOC Recommended Remediation Checklist */}
       {socActions.length > 0 && (
-        <div className="slot-recessed p-5 space-y-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#2d3436] flex items-center gap-2 font-mono">
-            <CheckSquare className="w-4 h-4 text-[#059669]" />
-            Recommended SOC Incident Response Actions
+        <div className="bg-slate-50 border border-gray-200 rounded-xl p-5 space-y-4 mt-6">
+          <h3 className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+            <CheckSquare className="w-4 h-4 text-green-600" />
+            Recommended Actions
           </h3>
-          <ul className="space-y-2">
+          <ul className="space-y-3">
             {socActions.map((action, idx) => (
-              <li key={idx} className="flex items-start text-xs text-[#2d3436] bg-[#f0f2f5] p-2.5 rounded-xl border border-[#babecc]/50 shadow-sm">
-                <span className="w-5 h-5 flex items-center justify-center bg-[#10b981]/20 text-[#047857] font-bold rounded-full mr-2.5 flex-shrink-0 text-[10px] font-mono">
+              <li key={idx} className="flex items-start text-sm text-gray-700 bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+                <span className="w-6 h-6 flex items-center justify-center bg-green-100 text-green-700 font-bold rounded-full mr-3 flex-shrink-0 text-xs">
                   {idx + 1}
                 </span>
-                <span className="mt-0.5 font-medium">{action}</span>
+                <span className="mt-0.5">{action}</span>
               </li>
             ))}
           </ul>

@@ -18,7 +18,12 @@ import {
   Mail,
   ShieldCheck,
   Eye,
-  Radio
+  Radio,
+  LayoutGrid,
+  Columns2,
+  Layers,
+  CheckCircle2,
+  Info
 } from 'lucide-react';
 import { analyzeEmail } from './services/analysisService';
 
@@ -34,8 +39,8 @@ import CaseHistoryPanel from './components/CaseHistoryPanel';
 import PlaybookModal from './components/PlaybookModal';
 import IOCSearchModal from './components/IOCSearchModal';
 import CyberScanOverlay from './components/CyberScanOverlay';
-import ThreatWaveform from './components/ThreatWaveform';
 import EmailBodyDissector from './components/EmailBodyDissector';
+import DashboardView from './components/DashboardView';
 
 const DEMO_EMAILS = [
   {
@@ -162,7 +167,7 @@ function App() {
   const [showPlaybook, setShowPlaybook] = useState(false);
   const [showIOCSearch, setShowIOCSearch] = useState(false);
   const [iocQuery, setIocQuery] = useState('');
-  const [activeView, setActiveView] = useState('radar'); // 'radar' | 'ai' | 'dissector' | 'geo' | 'osint' | 'graph' | 'headers' | 'custody'
+  const [activeView, setActiveView] = useState('summary'); // 'summary' | 'content' | 'sender' | 'network' | 'report'
 
   const handleLookupIOC = (ioc) => {
     setIocQuery(ioc);
@@ -207,7 +212,7 @@ function App() {
     try {
       const data = await analyzeEmail(targetFile);
       setResults(data);
-      setActiveView('radar');
+      setActiveView('summary');
     } catch (err) {
       console.error("Analysis failed:", err);
       setError(err.message || "Failed to analyze email. Please ensure backend is running.");
@@ -230,122 +235,87 @@ function App() {
   return (
     <div className="min-h-screen chassis-bg p-4 sm:p-8 text-[#2d3436] font-sans selection:bg-[#ff4757] selection:text-white">
       <div className="max-w-7xl mx-auto space-y-7">
-        
-        {/* Tactical Industrial Telemetry Ribbon */}
-        <header className="panel-chassis px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+        {/* Header Ribbon */}
+        <header className="panel-chassis px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-sm">
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 font-mono font-bold text-[#2d3436] uppercase tracking-wider">
-              <span className="led-node led-node-green animate-pulse" />
-              <span>SOC SENTINEL: ARMED</span>
-            </div>
-            <span className="text-[#a3b1c6] font-mono hidden sm:inline">|</span>
-            <div className="hidden sm:flex items-center gap-2 text-[#4a5568] font-mono text-[11px] font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#10b981]" />
-              <span>BLOCKCHAIN NOTARY: SYNCED</span>
-            </div>
-            <span className="text-[#a3b1c6] font-mono hidden md:inline">|</span>
-            <div className="hidden md:flex items-center gap-2 text-[#4a5568] font-mono text-[11px] font-semibold">
-              <Cpu className="w-3.5 h-3.5 text-[#ff4757]" />
-              <span>NEURAL ENSEMBLE: ACTIVE</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <div className="slot-recessed-sm px-3 py-1 font-mono text-[10px] font-bold text-[#4a5568] uppercase tracking-wider flex items-center gap-1.5">
-              <Radio className="w-3 h-3 text-[#ff4757] animate-pulse" />
-              <span>NODE: FASTAPI:8000</span>
+            <div className="flex items-center gap-2 font-semibold text-[#1e293b]">
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
+              <span>System Online</span>
             </div>
           </div>
         </header>
 
-        {/* Hero Section & Machine Title */}
+        {/* Hero Section */}
         <section className="flex flex-col lg:flex-row items-center justify-between gap-6 py-2">
           <div className="space-y-2 text-center lg:text-left max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md slot-recessed-sm text-[#4a5568] text-xs font-mono font-bold tracking-widest uppercase">
-              <Zap className="w-3.5 h-3.5 text-[#ff4757]" />
-              <span>FORENSIC OPERATIONS // INCIDENT TRIAGE ENGINE v2.8</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-semibold tracking-wide uppercase">
+              <Zap className="w-3.5 h-3.5" />
+              <span>Email Analyzer</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#2d3436] drop-shadow-[0_1px_0_#ffffff]">
-              Email Threat <span className="text-[#ff4757]">Command Center</span>
+            <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-[#1e293b]">
+              Email <span className="text-blue-600">Analysis Tool</span>
             </h1>
-            <p className="text-xs sm:text-sm text-[#4a5568] max-w-2xl leading-relaxed font-sans font-medium">
-              RFC-822 header stream parsing, speed-of-light relay anomaly triangulation, computer vision OCR detonation, and neural campaign attribution.
+            <p className="text-sm text-gray-600 max-w-2xl leading-relaxed">
+              Upload an email file (.eml) to scan for potential threats, phishing attempts, and suspicious links.
             </p>
           </div>
           
-          <div className="flex items-center gap-3 flex-shrink-0 font-mono">
+          <div className="flex items-center gap-3 flex-shrink-0">
             <button
               onClick={() => setShowIOCSearch(true)}
-              className="btn-tactile-secondary px-4 py-2.5 text-xs font-bold"
+              className="btn-tactile-secondary"
             >
-              <Search className="w-4 h-4 text-[#ff4757]" />
-              <span>[LOOKUP IOC]</span>
+              <Search className="w-4 h-4 text-blue-600" />
+              <span>Search IOCs</span>
             </button>
 
             <button
               onClick={() => setShowPlaybook(true)}
-              className="btn-tactile-secondary px-4 py-2.5 text-xs font-bold"
+              className="btn-tactile-secondary"
             >
-              <BookOpen className="w-4 h-4 text-[#4a5568]" />
-              <span>[SOC PLAYBOOK]</span>
+              <BookOpen className="w-4 h-4 text-gray-600" />
+              <span>Help & Docs</span>
             </button>
           </div>
         </section>
 
-        {/* Upload & Demo Presets Chamber (Bolted Physical Module) */}
-        <section className="panel-chassis p-6 sm:p-8 space-y-6 relative overflow-hidden">
-          
-          {/* Corner Screw Heads & Vent Louvers */}
-          <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
-          <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
-          <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
-          <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
-
-          <div className="flex items-center justify-between border-b border-[#d1d9e6] pb-3 px-2">
+        {/* Upload Section */}
+        <section className="panel-chassis p-6 sm:p-8 space-y-6">
+          <div className="flex items-center justify-between border-b border-gray-200 pb-3">
             <div className="flex items-center gap-2">
-              <Terminal className="w-4 h-4 text-[#ff4757]" />
-              <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#2d3436]">
-                INGESTION BAY // RFC-822 STREAM
-              </span>
-            </div>
-            <div className="vent-louvers">
-              <div className="vent-slot" />
-              <div className="vent-slot" />
-              <div className="vent-slot" />
+              <Upload className="w-5 h-5 text-blue-600" />
+              <h2 className="font-semibold text-gray-800">
+                Upload Email for Analysis
+              </h2>
             </div>
           </div>
 
-          <div className="flex flex-col items-center justify-center space-y-6 relative z-10">
+          <div className="flex flex-col items-center justify-center space-y-6">
             
-            {/* Tactical Dropzone (Recessed Data Bay) */}
+            {/* Dropzone */}
             <label 
               onDrop={handleDrop}
               onDragOver={handleDragOver}
-              className="flex flex-col items-center justify-center w-full max-w-4xl h-44 border-2 border-dashed border-[#babecc] hover:border-[#ff4757] rounded-2xl cursor-pointer slot-recessed transition-all group relative overflow-hidden"
+              className="flex flex-col items-center justify-center w-full max-w-4xl h-44 border-2 border-dashed border-gray-300 hover:border-blue-500 rounded-xl cursor-pointer bg-slate-50 transition-colors group"
             >
-              <div className="flex flex-col items-center justify-center pt-3 pb-4 space-y-2">
-                <div className="p-3 bg-[#e0e5ec] text-[#ff4757] rounded-2xl shadow-[var(--shadow-card)] group-hover:shadow-[var(--shadow-floating)] group-hover:scale-105 transition-all border border-white/60">
+              <div className="flex flex-col items-center justify-center pt-3 pb-4 space-y-3">
+                <div className="p-3 bg-white text-blue-600 rounded-full shadow-sm group-hover:scale-105 transition-transform">
                   <Upload className="w-6 h-6" />
                 </div>
-                <p className="text-sm font-bold text-[#2d3436] group-hover:text-[#ff4757] transition-colors font-sans">
-                  Drop target <span className="text-[#ff4757] font-mono font-bold">.EML</span> file here or <span className="underline decoration-[#ff4757] underline-offset-4">browse filesystem</span>
-                </p>
-                <p className="text-xs text-[#4a5568] font-mono flex items-center gap-1.5 font-medium">
-                  <Sparkles className="w-3.5 h-3.5 text-[#f59e0b]" />
-                  Automatic SHA-256 Tamper-Evident Ledger & Ethereum Custody Seal
+                <p className="text-sm font-medium text-gray-700">
+                  Drop an <span className="font-semibold text-blue-600">.EML</span> file here or <span className="text-blue-600 hover:underline">browse</span>
                 </p>
               </div>
               <input type="file" className="hidden" accept=".eml" onChange={handleFileChange} />
             </label>
 
-            {/* Quick Demo Attack Presets */}
+            {/* Quick Demo Presets */}
             <div className="w-full max-w-4xl space-y-3">
-              <div className="flex items-center justify-between text-xs text-[#4a5568] border-b border-[#d1d9e6] pb-2 px-1">
-                <span className="font-bold text-[#2d3436] flex items-center gap-1.5 text-xs font-mono uppercase tracking-wider">
-                  <Radio className="w-3.5 h-3.5 text-[#ff4757]" />
-                  // Instant Sandbox Attack Presets:
+              <div className="flex items-center justify-between text-sm text-gray-500 border-b border-gray-200 pb-2">
+                <span className="font-medium text-gray-700 flex items-center gap-1.5">
+                  <Info className="w-4 h-4 text-blue-600" />
+                  Try a sample email:
                 </span>
-                <span className="text-[#ff4757] font-mono text-[11px] font-bold">[1-Click Live Ingestion]</span>
               </div>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -354,17 +324,13 @@ function App() {
                     key={demo.id}
                     onClick={() => handleLoadDemo(demo)}
                     disabled={loading}
-                    className="btn-tactile-secondary p-3.5 flex flex-col justify-between text-left cursor-pointer disabled:opacity-50"
+                    className="btn-tactile-secondary p-4 flex flex-col justify-between text-left disabled:opacity-50"
                   >
-                    <div className="flex items-center justify-between w-full mb-1">
-                      <span className="truncate font-bold text-[#2d3436] text-xs font-sans">{demo.label}</span>
-                      <span className={`led-node ${demo.led}`} />
+                    <div className="flex items-center justify-between w-full mb-2">
+                      <span className="truncate font-semibold text-gray-800 text-sm">{demo.label}</span>
                     </div>
-                    <div className="flex items-center justify-between w-full mt-2 pt-2 border-t border-[#d1d9e6]/80 font-mono">
-                      <span className="text-[10px] text-[#4a5568] truncate">{demo.filename}</span>
-                      <span className={`text-[9px] px-1.5 py-0.5 rounded border font-bold flex-shrink-0 ml-1 ${demo.badgeColor}`}>
-                        {demo.badge}
-                      </span>
+                    <div className="flex items-center justify-between w-full mt-1">
+                      <span className="text-xs text-gray-500 truncate">{demo.filename}</span>
                     </div>
                   </button>
                 ))}
@@ -373,33 +339,33 @@ function App() {
 
             {/* Selected File Action Bar */}
             {file && (
-              <div className="flex items-center space-x-3 slot-recessed p-3.5 rounded-xl w-full max-w-4xl border border-[#babecc]/60 animate-in fade-in">
-                <FileText className="w-5 h-5 text-[#ff4757] flex-shrink-0" />
+              <div className="flex items-center space-x-3 bg-slate-50 p-4 rounded-xl w-full max-w-4xl border border-gray-200 animate-in fade-in">
+                <FileText className="w-6 h-6 text-blue-600 flex-shrink-0" />
                 <div className="flex-1 truncate">
-                  <span className="text-xs font-bold text-[#2d3436] font-mono block truncate">{file.name}</span>
-                  <span className="text-[11px] text-[#4a5568] font-mono font-medium">{(file.size / 1024).toFixed(1)} KB &bull; Stream buffer loaded</span>
+                  <span className="text-sm font-medium text-gray-800 block truncate">{file.name}</span>
+                  <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
                 </div>
                 <button 
                   onClick={() => handleAnalyze()}
                   disabled={loading}
-                  className="btn-tactile-primary px-5 py-2 text-xs font-mono"
+                  className="btn-tactile-primary"
                 >
-                  {loading ? "[ANALYZING...]" : "[INITIATE THREAT SCAN]"}
+                  {loading ? "Analyzing..." : "Analyze File"}
                 </button>
               </div>
             )}
 
             {error && (
-              <div className="flex items-center space-x-2 text-[#d63031] slot-recessed p-3.5 rounded-xl w-full max-w-4xl text-xs font-mono border-l-4 border-l-[#d63031]">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>ERROR: {error}</span>
+              <div className="flex items-center space-x-2 text-red-600 bg-red-50 p-4 rounded-xl w-full max-w-4xl text-sm border border-red-200">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <span>{error}</span>
               </div>
             )}
             
           </div>
         </section>
 
-        {/* Results Section with Industrial Navigation Dock */}
+        {/* Results Section */}
         {results && (
           <section className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
             
@@ -423,7 +389,6 @@ function App() {
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
-                <ThreatWaveform score={threatScore} isHighRisk={isHighRisk} />
 
                 <div className="flex items-center gap-2 text-xs font-mono">
                   <div className="slot-recessed-sm px-3 py-1.5 text-[#4a5568]">
@@ -436,17 +401,14 @@ function App() {
               </div>
             </div>
 
-            {/* Industrial Navigation Dock (Key Switches) */}
-            <div className="flex items-center gap-2 overflow-x-auto p-2 slot-recessed rounded-2xl">
+            {/* Tab Navigation */}
+            <div className="flex items-center gap-2 overflow-x-auto p-2 bg-slate-50 rounded-xl border border-gray-200">
               {[
-                { id: 'radar', code: '01', label: 'Threat Radar', icon: Activity },
-                { id: 'ai', code: '02', label: 'Neural AI & Trap', icon: Brain },
-                { id: 'dissector', code: '03', label: 'Body Dissector & Sandbox', icon: Eye },
-                { id: 'geo', code: '04', label: 'Geo-Origin & Physics', icon: Compass },
-                { id: 'osint', code: '05', label: 'Vision & Deep OSINT', icon: Scan },
-                { id: 'graph', code: '06', label: 'Attribution Graph', icon: Network },
-                { id: 'headers', code: '07', label: 'Header Polygraph', icon: Mail },
-                { id: 'custody', code: '08', label: 'Evidence Vault', icon: ShieldCheck },
+                { id: 'summary', label: 'Summary & Verdict', icon: Activity },
+                { id: 'content', label: 'Email Content', icon: Eye },
+                { id: 'sender', label: 'Sender Details', icon: Mail },
+                { id: 'network', label: 'Network & Origin', icon: Compass },
+                { id: 'report', label: 'Analysis Report', icon: ShieldCheck },
               ].map((tab) => {
                 const Icon = tab.icon;
                 const isActive = activeView === tab.id;
@@ -454,67 +416,48 @@ function App() {
                   <button
                     key={tab.id}
                     onClick={() => setActiveView(tab.id)}
-                    className={`key-switch flex items-center gap-2 px-4 py-2.5 text-xs font-bold flex-shrink-0 ${isActive ? 'active' : ''}`}
+                    className={`key-switch flex items-center gap-2 px-4 py-2.5 text-sm font-medium flex-shrink-0 ${isActive ? 'active' : ''}`}
                   >
-                    <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-[#ff4757]' : 'text-[#8896aa]'}`}>
-                      [{tab.code}]
-                    </span>
-                    <Icon className={`w-4 h-4 ${isActive ? 'text-[#ff4757]' : 'text-[#4a5568]'}`} />
+                    <Icon className="w-4 h-4" />
                     <span>{tab.label}</span>
                   </button>
                 );
               })}
             </div>
 
-            {/* Dynamic View Display Container */}
+            {/* Tab Content */}
             <div className="space-y-6">
-              {activeView === 'radar' && (
+              {activeView === 'summary' && (
                 <div className="space-y-6 animate-in fade-in duration-250">
                   <FraudScorePanel data={results} />
-                </div>
-              )}
-
-              {activeView === 'ai' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
                   <AIMLThreatPanel data={results} />
                 </div>
               )}
 
-              {activeView === 'dissector' && (
+              {activeView === 'content' && (
                 <div className="space-y-6 animate-in fade-in duration-250">
                   <EmailBodyDissector data={results} onLookupIOC={handleLookupIOC} />
-                </div>
-              )}
-
-              {activeView === 'geo' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
-                  <MapPanel data={results} />
-                </div>
-              )}
-
-              {activeView === 'osint' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
                   <DeepOSINTPanel data={results} />
                 </div>
               )}
 
-              {activeView === 'graph' && (
-                <div className="space-y-6 animate-in fade-in duration-250">
-                  <GraphAttributionPanel data={results} onLookupIOC={handleLookupIOC} />
-                </div>
-              )}
-
-              {activeView === 'headers' && (
+              {activeView === 'sender' && (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-in fade-in duration-250">
                   <HeaderPanel data={results} />
                   <AuthPanel data={results} />
                 </div>
               )}
 
-              {activeView === 'custody' && (
+              {activeView === 'network' && (
+                <div className="space-y-6 animate-in fade-in duration-250">
+                  <GraphAttributionPanel data={results} onLookupIOC={handleLookupIOC} />
+                  <MapPanel data={results} />
+                </div>
+              )}
+
+              {activeView === 'report' && (
                 <div className="space-y-6 animate-in fade-in duration-250">
                   <CustodyReportPanel data={results} />
-                  <CaseHistoryPanel />
                 </div>
               )}
             </div>
@@ -522,9 +465,9 @@ function App() {
           </section>
         )}
 
-        {/* Persistent Case Management & Campaigns when no active email is loaded */}
+        {/* Persistent Tactical Dashboard when no active email is loaded */}
         {!results && (
-          <CaseHistoryPanel />
+          <DashboardView />
         )}
 
         {/* Master Investigation Playbook Modal */}

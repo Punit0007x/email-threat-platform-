@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { Network, Server, User, Mail, Link, Database, Search, X } from 'lucide-react';
 
 const NODE_COLORS = {
-  high: "bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/40",
-  critical: "bg-[#7048e8]/15 text-[#5f3dc4] border-[#7048e8]/40",
-  medium: "bg-[#f59e0b]/15 text-[#b45309] border-[#f59e0b]/40",
-  low: "bg-[#0ea5e9]/15 text-[#0369a1] border-[#0ea5e9]/40"
+  high: "bg-red-50 text-red-700 border-red-200",
+  critical: "bg-purple-50 text-purple-700 border-purple-200",
+  medium: "bg-amber-50 text-amber-700 border-amber-200",
+  low: "bg-blue-50 text-blue-700 border-blue-200"
 };
 
 export default function GraphAttributionPanel({ data, onLookupIOC }) {
@@ -22,19 +22,19 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
 
   // Define synthetic graph nodes
   const nodes = [
-    { id: 'actor', label: 'Threat Actor / Cluster', type: 'actor', color: '#ff4757', icon: User, x: 80, y: 150, risk: threat.is_threat ? 'Critical' : 'Low' },
-    { id: 'ip', label: `IP: ${origin.ip || '198.51.100.24'}`, type: 'infrastructure', color: '#0ea5e9', icon: Server, x: 260, y: 80, risk: origin.is_proxy ? 'High' : 'Low' },
-    { id: 'domain', label: `Domain: ${domain}`, type: 'domain', color: '#f59e0b', icon: Link, x: 260, y: 220, risk: whois.domain_age_days < 30 ? 'High' : 'Low' },
-    { id: 'sender', label: `Sender: ${sender}`, type: 'mailbox', color: '#7048e8', icon: Mail, x: 440, y: 150, risk: auth.spf === 'fail' ? 'High' : 'Clean' },
-    { id: 'campaign', label: 'Phishing Campaign Vector', type: 'campaign', color: '#ec4899', icon: Database, x: 620, y: 150, risk: 'Tracked' }
+    { id: 'actor', label: 'Attacker Group', type: 'actor', color: '#dc2626', icon: User, x: 80, y: 150, risk: threat.is_threat ? 'Critical' : 'Low' },
+    { id: 'ip', label: `Server IP`, type: 'infrastructure', color: '#2563eb', icon: Server, x: 260, y: 80, risk: origin.is_proxy ? 'High' : 'Low' },
+    { id: 'domain', label: `Website`, type: 'domain', color: '#d97706', icon: Link, x: 260, y: 220, risk: whois.domain_age_days < 30 ? 'High' : 'Low' },
+    { id: 'sender', label: `Email Account`, type: 'mailbox', color: '#7c3aed', icon: Mail, x: 440, y: 150, risk: auth.spf === 'fail' ? 'High' : 'Clean' },
+    { id: 'campaign', label: 'Known Attack', type: 'campaign', color: '#db2777', icon: Database, x: 620, y: 150, risk: 'Tracked' }
   ];
 
   const links = [
-    { source: 'actor', target: 'ip', label: 'Controls Host' },
-    { source: 'actor', target: 'domain', label: 'Registered Domain' },
-    { source: 'ip', target: 'sender', label: 'Relayed Message' },
-    { source: 'domain', target: 'sender', label: 'Sender Identity' },
-    { source: 'sender', target: 'campaign', label: 'Correlated Cluster' }
+    { source: 'actor', target: 'ip', label: 'Uses' },
+    { source: 'actor', target: 'domain', label: 'Owns' },
+    { source: 'ip', target: 'sender', label: 'Sent From' },
+    { source: 'domain', target: 'sender', label: 'Linked To' },
+    { source: 'sender', target: 'campaign', label: 'Part Of' }
   ];
 
   const getNodeDetails = (nodeId) => {
@@ -43,51 +43,51 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
 
     if (node.id === 'actor') {
       return {
-        title: "Threat Actor Cluster Attribution",
+        title: "Potential Threat Group",
         details: [
-          { label: "Cluster Name", val: threat.primary_threat ? threat.primary_threat.toUpperCase() : "UNC-THREAT-GROUP" },
+          { label: "Group Name", val: threat.primary_threat ? threat.primary_threat.replace(/_/g, ' ').toUpperCase() : "Unknown Attackers" },
           { label: "Confidence", val: `${Math.round((threat.confidence || 0.85) * 100)}% Match` },
-          { label: "Motivation", val: "Credential Harvesting / Financial Wire BEC" },
-          { label: "Target Sector", val: "Corporate Finance & Executive Accounts" }
+          { label: "Goal", val: "Stealing passwords or money" },
+          { label: "Target", val: "Employees and Executives" }
         ]
       };
     } else if (node.id === 'ip') {
       return {
-        title: "Origin Infrastructure Telemetry",
+        title: "Server Details",
         details: [
-          { label: "Origin IPv4", val: origin.ip || "198.51.100.24" },
+          { label: "IP Address", val: origin.ip || "198.51.100.24" },
           { label: "Location", val: `${origin.city || 'Unknown'}, ${origin.country || 'Global'}` },
-          { label: "ASN / ISP", val: origin.asn || origin.isp || "Cloud Hosting Network" },
-          { label: "Tor / VPN Node", val: origin.is_proxy ? "Yes (Detected)" : "Direct / Clean" }
+          { label: "Internet Provider", val: origin.asn || origin.isp || "Cloud Hosting Network" },
+          { label: "Hidden Connection", val: origin.is_proxy ? "Yes (Using VPN/Tor)" : "No (Direct)" }
         ]
       };
     } else if (node.id === 'domain') {
       return {
-        title: "Domain Intelligence & WHOIS",
+        title: "Website Information",
         details: [
-          { label: "Domain Name", val: domain },
-          { label: "Domain Age", val: whois.domain_age_days ? `${whois.domain_age_days} Days Old` : "Recently Created" },
-          { label: "Lookalike Status", val: data.domain_check?.is_lookalike ? "Typosquatting Detected" : "Standard Domain" },
-          { label: "Registrar", val: whois.registrar || "NameCheap / Cloudflare" }
+          { label: "Address", val: domain },
+          { label: "Age of Website", val: whois.domain_age_days ? `${whois.domain_age_days} days old` : "Just created" },
+          { label: "Fake Website Status", val: data.domain_check?.is_lookalike ? "Looks like a real company but is fake" : "Standard website" },
+          { label: "Registered Through", val: whois.registrar || "NameCheap / Cloudflare" }
         ]
       };
     } else if (node.id === 'sender') {
       return {
-        title: "Sender Identity & Protocol Status",
+        title: "Email Account Checks",
         details: [
-          { label: "From Header", val: sender },
-          { label: "SPF Status", val: (auth.spf || "pass").toUpperCase() },
-          { label: "DKIM Signature", val: (auth.dkim || "pass").toUpperCase() },
-          { label: "DMARC Alignment", val: (auth.dmarc || "pass").toUpperCase() }
+          { label: "From Address", val: sender },
+          { label: "SPF Check", val: (auth.spf || "pass").toUpperCase() },
+          { label: "DKIM Check", val: (auth.dkim || "pass").toUpperCase() },
+          { label: "DMARC Check", val: (auth.dmarc || "pass").toUpperCase() }
         ]
       };
     } else {
       return {
-        title: "ChromaDB Threat Cluster Correlation",
+        title: "Past Incident History",
         details: [
-          { label: "Campaign Name", val: data.threat_correlations?.linked_campaigns?.[0] || "GLOBAL-PHISH-09" },
-          { label: "Historical Hits", val: `${data.threat_correlations?.domain_case_count || 1} Linked Incidents` },
-          { label: "MITRE ATT&CK", val: data.ai_ml_analysis?.ai_forensics?.mitre_attack_ttps?.[0]?.id || "T1566.002" }
+          { label: "Incident Name", val: data.threat_correlations?.linked_campaigns?.[0] || "Past Attack Wave" },
+          { label: "Times Seen", val: `${data.threat_correlations?.domain_case_count || 1} related emails found` },
+          { label: "Attack Type", val: "Phishing Link" }
         ]
       };
     }
@@ -96,32 +96,26 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
   const activeDetails = selectedNode ? getNodeDetails(selectedNode) : getNodeDetails('actor');
 
   return (
-    <div className="panel-chassis p-6 sm:p-8 space-y-6 relative overflow-hidden">
-      
-      {/* Corner Screws */}
-      <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
-      <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
-      <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
-      <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
+    <div className="panel-chassis p-6 sm:p-8 space-y-6">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d1d9e6] pb-4 px-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4">
         <div className="flex items-center space-x-3.5">
-          <div className="p-3 bg-[#e0e5ec] text-[#7048e8] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
+          <div className="p-3 bg-purple-50 text-purple-600 rounded-2xl shadow-sm border border-purple-100">
             <Network className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#2d3436] flex items-center gap-2">
-              Threat Attribution Graph & Topology
+            <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+              Connection Graph
             </h2>
-            <p className="text-xs text-[#4a5568]">
-              Relational graph nodes connecting Threat Actor clusters, proxy relays, domain registrars, and mailbox identities
+            <p className="text-sm text-gray-500">
+              A visual map showing how this sender is connected to servers and known attacks.
             </p>
           </div>
         </div>
 
-        <span className="text-[11px] font-mono text-[#7048e8] bg-[#7048e8]/15 px-3 py-1 rounded-xl border border-[#7048e8]/30 font-bold">
-          Interactive Graph Explorer
+        <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-3 py-1.5 rounded-lg border border-purple-200">
+          Interactive Map
         </span>
       </div>
 
@@ -129,7 +123,7 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* SVG Interactive Topology Canvas */}
-        <div className="lg:col-span-2 slot-recessed p-4 relative overflow-hidden rounded-2xl flex items-center justify-center min-h-[360px]">
+        <div className="lg:col-span-2 bg-slate-50 border border-gray-200 p-4 relative overflow-hidden rounded-2xl flex items-center justify-center min-h-[360px] shadow-sm">
           
           <svg className="w-full h-full min-h-[340px]" viewBox="0 0 700 300">
             {/* Draw Links */}
@@ -147,19 +141,19 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
                     y1={srcNode.y} 
                     x2={tgtNode.x} 
                     y2={tgtNode.y} 
-                    stroke={isConnected ? "#ff4757" : "#babecc"} 
-                    strokeWidth={isConnected ? "2.5" : "1.5"} 
-                    strokeDasharray={isConnected ? "none" : "5,5"}
+                    stroke={isConnected ? "#dc2626" : "#cbd5e1"} 
+                    strokeWidth={isConnected ? "3" : "2"} 
+                    strokeDasharray={isConnected ? "none" : "6,6"}
                     className="transition-all duration-300"
                   />
                   {/* Link Label */}
                   <text 
                     x={(srcNode.x + tgtNode.x) / 2} 
                     y={(srcNode.y + tgtNode.y) / 2 - 8} 
-                    fill="#4a5568" 
-                    fontSize="9" 
-                    fontFamily="monospace"
-                    fontWeight="bold"
+                    fill="#64748b" 
+                    fontSize="11" 
+                    fontFamily="sans-serif"
+                    fontWeight="600"
                     textAnchor="middle"
                   >
                     {link.label}
@@ -198,11 +192,11 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
                   <circle 
                     cx={node.x} 
                     cy={node.y} 
-                    r={22} 
-                    fill="#f0f2f5" 
+                    r={24} 
+                    fill="#ffffff" 
                     stroke={node.color} 
                     strokeWidth={isSelected ? "3" : "2"} 
-                    filter="drop-shadow(0 4px 6px rgba(0,0,0,0.15))"
+                    filter="drop-shadow(0 4px 6px rgba(0,0,0,0.05))"
                   />
 
                   {/* Centered Node Icon */}
@@ -219,11 +213,11 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
                   {/* Node Label Text */}
                   <text 
                     x={node.x} 
-                    y={node.y + 36} 
-                    fill="#2d3436" 
-                    fontSize="10" 
+                    y={node.y + 40} 
+                    fill="#334155" 
+                    fontSize="12" 
                     fontFamily="sans-serif"
-                    fontWeight="bold" 
+                    fontWeight="600" 
                     textAnchor="middle"
                     className="select-none"
                   >
@@ -236,29 +230,29 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
         </div>
 
         {/* Node Telemetry Inspector Drawer */}
-        <div className="slot-recessed p-5 space-y-4 flex flex-col justify-between">
-          <div className="space-y-3">
-            <div className="border-b border-[#babecc]/50 pb-3">
-              <span className="text-[10px] font-mono font-bold text-[#4a5568] uppercase tracking-wider block">
-                Selected Entity Telemetry
+        <div className="bg-slate-50 border border-gray-200 rounded-2xl p-5 space-y-4 flex flex-col justify-between shadow-sm">
+          <div className="space-y-4">
+            <div className="border-b border-gray-200 pb-3">
+              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider block mb-1">
+                Details
               </span>
-              <h3 className="text-xs font-bold text-[#2d3436] font-mono mt-0.5">
+              <h3 className="text-sm font-bold text-gray-800">
                 {activeDetails.title}
               </h3>
             </div>
 
-            <div className="space-y-2.5 text-xs font-mono">
+            <div className="space-y-3 text-sm">
               {activeDetails.details.map((item, idx) => (
-                <div key={idx} className="bg-[#f0f2f5] p-2.5 rounded-xl border border-[#babecc]/50 shadow-sm space-y-0.5">
-                  <span className="text-[#4a5568] text-[10px] uppercase font-bold block">{item.label}:</span>
-                  <span className="text-[#2d3436] font-bold break-all block">{item.val}</span>
+                <div key={idx} className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm space-y-1">
+                  <span className="text-gray-500 text-xs uppercase font-semibold block">{item.label}:</span>
+                  <span className="text-gray-800 font-semibold break-all block">{item.val}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <p className="text-[11px] text-[#4a5568] italic font-sans pt-2 border-t border-[#babecc]/50">
-            Click any node on the topology diagram to inspect real-time attribution links and cryptographic evidence.
+          <p className="text-xs text-gray-500 italic pt-3 border-t border-gray-200 mt-4">
+            Click any circle on the graph to see detailed information about that part of the email's origin.
           </p>
         </div>
 
