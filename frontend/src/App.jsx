@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Upload, 
   AlertCircle, 
@@ -164,6 +164,32 @@ function App() {
   const [showIOCSearch, setShowIOCSearch] = useState(false);
   const [iocQuery, setIocQuery] = useState('');
   const [activeView, setActiveView] = useState('radar'); // 'radar' | 'ai' | 'dissector' | 'geo' | 'osint' | 'graph' | 'headers' | 'custody'
+
+  // Load shared data from Chrome extension (injected via scripting API)
+  useEffect(() => {
+    // 1. Check if data was set in localStorage before the app fully loaded
+    const shared = localStorage.getItem('shieldmail_shared_result');
+    if (shared) {
+      try {
+        const data = JSON.parse(shared);
+        setResults(data);
+        setActiveView('radar');
+        localStorage.removeItem('shieldmail_shared_result'); // Clean up
+      } catch (err) {
+        console.error("Failed to parse shared data from localStorage", err);
+      }
+    }
+
+    // 2. Listen for custom event if the extension injects data while the app is already open
+    const handleSharedData = (event) => {
+      if (event.detail && event.detail.data) {
+        setResults(event.detail.data);
+        setActiveView('radar');
+      }
+    };
+    window.addEventListener('shieldmail_inject', handleSharedData);
+    return () => window.removeEventListener('shieldmail_inject', handleSharedData);
+  }, []);
 
   const handleLookupIOC = (ioc) => {
     setIocQuery(ioc);
