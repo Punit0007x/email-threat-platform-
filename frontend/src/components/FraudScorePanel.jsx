@@ -5,7 +5,7 @@ import ThreatRadarGraphic from './ThreatRadarGraphic';
 const getReasonCategory = (reason) => {
   const r = reason.toLowerCase();
   if (r.includes('authentication') || r.includes('spf') || r.includes('dkim') || r.includes('dmarc')) {
-    return { label: 'AUTH', color: 'bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/30' };
+    return { label: 'AUTH', color: 'bg-[#ef4444]/15 text-[#d63031] border-[#ef4444]/30' };
   }
   if (r.includes('lookalike') || r.includes('return-path') || r.includes('domain') || r.includes('whois') || r.includes('registrar')) {
     return { label: 'DOMAIN/WHOIS', color: 'bg-[#f59e0b]/15 text-[#b45309] border-[#f59e0b]/30' };
@@ -20,9 +20,9 @@ const getReasonCategory = (reason) => {
     return { label: 'OSINT', color: 'bg-[#d97706]/15 text-[#92400e] border-[#d97706]/30' };
   }
   if (r.includes('attachment') || r.includes('link') || r.includes('shortener') || r.includes('payload')) {
-    return { label: 'PAYLOAD', color: 'bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/30' };
+    return { label: 'PAYLOAD', color: 'bg-[#ef4444]/15 text-[#d63031] border-[#ef4444]/30' };
   }
-  return { label: 'SIGNAL', color: 'bg-[#e0e5ec] text-[#4a5568] border-[#babecc]' };
+  return { label: 'SIGNAL', color: 'bg-[#ffffff] text-[#64748b] border-[#e2e8f0]' };
 };
 
 export default function FraudScorePanel({ data }) {
@@ -65,8 +65,8 @@ export default function FraudScorePanel({ data }) {
   let Icon = CheckCircle;
 
   if (score > 70) {
-    colorClass = "text-[#ff4757]";
-    gaugeColor = "#ff4757";
+    colorClass = "text-[#ef4444]";
+    gaugeColor = "#ef4444";
     Icon = AlertTriangle;
   } else if (score > 30) {
     colorClass = "text-[#d97706]";
@@ -89,7 +89,7 @@ export default function FraudScorePanel({ data }) {
     {
       name: "Authentication Integrity",
       score: (auth.spf === 'fail' ? 35 : 0) + (auth.dkim === 'none' || auth.dkim === 'fail' ? 35 : 0) + (auth.dmarc === 'fail' ? 30 : 0),
-      color: "from-[#ff4757] to-[#e84118]",
+      color: "from-[#ef4444] to-[#e84118]",
       desc: "SPF, DKIM & DMARC alignment"
     },
     {
@@ -138,10 +138,10 @@ export default function FraudScorePanel({ data }) {
       <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
       <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
 
-      <div className="flex items-center justify-between border-b border-[#d1d9e6] pb-3 px-2">
+      <div className="flex items-center justify-between border-b border-[#f8fafc] pb-3 px-2">
         <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4 text-[#ff4757]" />
-          <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-[#2d3436]">
+          <Zap className="w-4 h-4 text-[#ef4444]" />
+          <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-[#0f172a]">
             ANALYTIC MODULE // MULTI-VECTOR THREAT GAUGES
           </h2>
         </div>
@@ -165,7 +165,7 @@ export default function FraudScorePanel({ data }) {
                 cx="80"
                 cy="80"
                 r={radius}
-                className="stroke-[#d1d9e6]"
+                className="stroke-[#f8fafc]"
                 strokeWidth="11"
                 fill="transparent"
               />
@@ -191,7 +191,7 @@ export default function FraudScorePanel({ data }) {
               <span className={`text-5xl font-black font-mono tracking-tight drop-shadow-[0_1px_0_#ffffff] ${colorClass}`}>
                 {score}
               </span>
-              <span className="text-[10px] font-bold text-[#4a5568] uppercase tracking-widest font-mono mt-0.5">
+              <span className="text-[10px] font-bold text-[#64748b] uppercase tracking-widest font-mono mt-0.5">
                 Threat Score
               </span>
             </div>
@@ -205,12 +205,12 @@ export default function FraudScorePanel({ data }) {
 
         {/* Reasons & Triggered Signals List */}
         <div className="flex-1 w-full slot-recessed p-5 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#babecc]/50 pb-3">
-            <h3 className="text-xs font-bold text-[#2d3436] uppercase tracking-wider flex items-center gap-2 font-mono">
-              <Radio className="w-4 h-4 text-[#ff4757]" />
+          <div className="flex items-center justify-between border-b border-[#e2e8f0]/50 pb-3">
+            <h3 className="text-xs font-bold text-[#0f172a] uppercase tracking-wider flex items-center gap-2 font-mono">
+              <Radio className="w-4 h-4 text-[#ef4444]" />
               Forensic Detection Telemetry & Signals
             </h3>
-            <span className="text-[11px] font-mono text-[#2d3436] font-bold slot-recessed-sm px-3 py-0.5">
+            <span className="text-[11px] font-mono text-[#0f172a] font-bold slot-recessed-sm px-3 py-0.5">
               {reasons.length} Signal(s)
             </span>
           </div>
@@ -220,27 +220,27 @@ export default function FraudScorePanel({ data }) {
               reasons.map((reason, idx) => {
                 const cat = getReasonCategory(reason);
                 return (
-                  <li key={idx} className="flex items-start gap-2.5 text-xs bg-[#f0f2f5] p-3 rounded-xl border border-[#babecc]/50 shadow-sm transition-all">
+                  <li key={idx} className="flex items-start gap-2.5 text-xs bg-[#f8fafc] p-3 rounded-xl border border-[#e2e8f0]/50 shadow-sm transition-all">
                     <span className={`px-2 py-0.5 rounded font-mono text-[9px] font-bold uppercase border flex-shrink-0 mt-0.5 ${cat.color}`}>
                       {cat.label}
                     </span>
-                    <span className="text-[#2d3436] leading-relaxed font-sans font-medium">{reason}</span>
+                    <span className="text-[#0f172a] leading-relaxed font-sans font-medium">{reason}</span>
                   </li>
                 );
               })
             ) : (
-              <li className="text-[#4a5568] italic text-xs py-4 text-center">No threat indicators detected. Standard legitimate email baseline.</li>
+              <li className="text-[#64748b] italic text-xs py-4 text-center">No threat indicators detected. Standard legitimate email baseline.</li>
             )}
           </ul>
 
           {/* Quick Status Strip */}
-          <div className="pt-2 border-t border-[#babecc]/50 flex flex-wrap items-center justify-between text-[11px] font-mono text-[#4a5568] gap-2">
+          <div className="pt-2 border-t border-[#e2e8f0]/50 flex flex-wrap items-center justify-between text-[11px] font-mono text-[#64748b] gap-2">
             <div className="flex items-center gap-2">
               <span className={`led-node ${score >= 70 ? 'led-node-red animate-pulse' : (score > 30 ? 'led-node-amber' : 'led-node-green')}`} />
-              <span>SIEM ACTION: <strong className="text-[#2d3436] font-bold">{score >= 70 ? 'HIGH-PRIORITY INCIDENT' : (score > 30 ? 'MANUAL REVIEW' : 'AUTO-APPROVED')}</strong></span>
+              <span>SIEM ACTION: <strong className="text-[#0f172a] font-bold">{score >= 70 ? 'HIGH-PRIORITY INCIDENT' : (score > 30 ? 'MANUAL REVIEW' : 'AUTO-APPROVED')}</strong></span>
             </div>
             {score >= 70 && (
-              <span className="text-[#d63031] font-bold flex items-center gap-1 bg-[#ff4757]/15 px-2.5 py-0.5 rounded border border-[#ff4757]/30 text-[10px]">
+              <span className="text-[#d63031] font-bold flex items-center gap-1 bg-[#ef4444]/15 px-2.5 py-0.5 rounded border border-[#ef4444]/30 text-[10px]">
                 <ShieldAlert className="w-3.5 h-3.5" /> QUARANTINE ACTIVE
               </span>
             )}
@@ -255,27 +255,27 @@ export default function FraudScorePanel({ data }) {
       {/* Multi-Vector Sub-Score Breakdown Matrix */}
       <div className="slot-recessed p-5 space-y-4">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-[#2d3436] font-mono flex items-center gap-2">
-            <span className="w-1.5 h-3 bg-[#ff4757] rounded-sm"></span>
+          <h4 className="text-xs font-bold uppercase tracking-wider text-[#0f172a] font-mono flex items-center gap-2">
+            <span className="w-1.5 h-3 bg-[#ef4444] rounded-sm"></span>
             Multi-Vector Explainable Risk Breakdown
           </h4>
-          <span className="text-[10px] font-mono text-[#4a5568] font-semibold">6 Mathematical Defense Dimensions</span>
+          <span className="text-[10px] font-mono text-[#64748b] font-semibold">6 Mathematical Defense Dimensions</span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
           {vectors.map((vec, i) => (
-            <div key={i} className="bg-[#f0f2f5] p-3.5 rounded-xl border border-[#babecc]/60 space-y-2 shadow-sm">
+            <div key={i} className="bg-[#f8fafc] p-3.5 rounded-xl border border-[#e2e8f0]/60 space-y-2 shadow-sm">
               <div className="flex justify-between items-center">
-                <span className="font-bold text-[#2d3436] text-[11px] font-sans">{vec.name}</span>
-                <span className="font-mono font-bold text-[11px] text-[#ff4757]">{Math.min(100, Math.max(0, vec.score))}%</span>
+                <span className="font-bold text-[#0f172a] text-[11px] font-sans">{vec.name}</span>
+                <span className="font-mono font-bold text-[11px] text-[#ef4444]">{Math.min(100, Math.max(0, vec.score))}%</span>
               </div>
-              <div className="w-full bg-[#d1d9e6] h-2 rounded-full overflow-hidden shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]">
+              <div className="w-full bg-[#f8fafc] h-2 rounded-full overflow-hidden shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]">
                 <div 
                   className={`h-full rounded-full bg-gradient-to-r ${vec.color} transition-all duration-700`}
                   style={{ width: `${Math.min(100, Math.max(4, vec.score))}%` }}
                 />
               </div>
-              <span className="text-[10px] text-[#4a5568] block truncate font-mono font-medium">{vec.desc}</span>
+              <span className="text-[10px] text-[#64748b] block truncate font-mono font-medium">{vec.desc}</span>
             </div>
           ))}
         </div>

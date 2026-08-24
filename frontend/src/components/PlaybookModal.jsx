@@ -76,8 +76,8 @@ export default function PlaybookModal({ isOpen, onClose }) {
       title: "Active Defense",
       subtitle: "Autonomous ScamBaiter & Tracking Beacon",
       icon: ShieldAlert,
-      color: "bg-[#ff4757]/15 text-[#d63031] border border-[#ff4757]/30",
-      badgeColor: "bg-[#ff4757]/15 text-[#d63031] border-[#ff4757]/30",
+      color: "bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30",
+      badgeColor: "bg-[#ef4444]/15 text-[#d63031] border-[#ef4444]/30",
       what: "For high-confidence BEC attacks, the platform wakes up the autonomous ScamBaiter agent to auto-reply with realistic delay lures and an embedded 1x1 tracking beacon.",
       why: "Transitions security from passive defense to active attacker deanonymization and resource exhaustion.",
       example: "The AI replies: 'Accounting portal says routing number is invalid. Can you provide an updated PDF with SWIFT code?' When the attacker opens it on mobile, the tracking pixel fires, capturing their real physical IP and device fingerprint."
@@ -86,7 +86,7 @@ export default function PlaybookModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="panel-chassis w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#babecc] relative">
+      <div className="panel-chassis w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e8f0] relative">
         
         {/* Corner Screws */}
         <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
@@ -95,63 +95,63 @@ export default function PlaybookModal({ isOpen, onClose }) {
         <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
 
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#d1d9e6] bg-[#e0e5ec]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#f8fafc] bg-[#ffffff]">
           <div className="flex items-center space-x-3.5">
-            <div className="p-2.5 bg-[#e0e5ec] text-[#7048e8] rounded-xl shadow-[var(--shadow-card)] border border-white/70">
+            <div className="p-2.5 bg-[#ffffff] text-[#7048e8] rounded-xl shadow-[var(--shadow-card)] border border-white/70">
               <BookOpen className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-[#2d3436] flex items-center gap-2 font-mono">
+              <h2 className="text-base font-bold text-[#0f172a] flex items-center gap-2 font-mono">
                 Platform Forensic Playbook & Architecture
                 <span className="text-[10px] font-mono bg-[#7048e8]/15 text-[#5f3dc4] px-2 py-0.5 rounded border border-[#7048e8]/30 font-bold">
                   v1.0 Standard
                 </span>
               </h2>
-              <p className="text-xs text-[#4a5568]">Complete end-to-end investigation methodology & enterprise pipeline</p>
+              <p className="text-xs text-[#64748b]">Complete end-to-end investigation methodology & enterprise pipeline</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-1.5 text-[#4a5568] hover:text-[#2d3436] rounded-lg transition-colors cursor-pointer"
+            className="p-1.5 text-[#64748b] hover:text-[#0f172a] rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 text-[#2d3436]">
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 text-[#0f172a]">
           
           {/* Master Workflow Banner */}
-          <div className="slot-recessed p-5 space-y-3 bg-[#f0f2f5]">
+          <div className="slot-recessed p-5 space-y-3 bg-[#f8fafc]">
             <h3 className="text-xs font-bold uppercase tracking-wider text-[#7048e8] flex items-center gap-2 font-mono">
               <Layers className="w-4 h-4" />
               The Master Investigation Flow
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 text-center text-xs">
-              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+              <div className="bg-[#ffffff] p-2.5 rounded-xl border border-[#e2e8f0] shadow-sm">
                 <span className="text-[10px] font-mono text-[#047857] font-bold block mb-0.5">STEP 1</span>
-                <span className="font-bold text-[#2d3436] block text-[11px]">Blockchain Seal</span>
+                <span className="font-bold text-[#0f172a] block text-[11px]">Blockchain Seal</span>
               </div>
-              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+              <div className="bg-[#ffffff] p-2.5 rounded-xl border border-[#e2e8f0] shadow-sm">
                 <span className="text-[10px] font-mono text-[#0369a1] font-bold block mb-0.5">STEP 2</span>
-                <span className="font-bold text-[#2d3436] block text-[11px]">Vision & OCR</span>
+                <span className="font-bold text-[#0f172a] block text-[11px]">Vision & OCR</span>
               </div>
-              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+              <div className="bg-[#ffffff] p-2.5 rounded-xl border border-[#e2e8f0] shadow-sm">
                 <span className="text-[10px] font-mono text-[#b45309] font-bold block mb-0.5">STEP 3</span>
-                <span className="font-bold text-[#2d3436] block text-[11px]">Origin Physics</span>
+                <span className="font-bold text-[#0f172a] block text-[11px]">Origin Physics</span>
               </div>
-              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+              <div className="bg-[#ffffff] p-2.5 rounded-xl border border-[#e2e8f0] shadow-sm">
                 <span className="text-[10px] font-mono text-[#5f3dc4] font-bold block mb-0.5">STEP 4</span>
-                <span className="font-bold text-[#2d3436] block text-[11px]">NLP Polygraph</span>
+                <span className="font-bold text-[#0f172a] block text-[11px]">NLP Polygraph</span>
               </div>
-              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+              <div className="bg-[#ffffff] p-2.5 rounded-xl border border-[#e2e8f0] shadow-sm">
                 <span className="text-[10px] font-mono text-[#0369a1] font-bold block mb-0.5">STEP 5</span>
-                <span className="font-bold text-[#2d3436] block text-[11px]">String Board</span>
+                <span className="font-bold text-[#0f172a] block text-[11px]">String Board</span>
               </div>
-              <div className="bg-[#e0e5ec] p-2.5 rounded-xl border border-[#babecc] shadow-sm">
+              <div className="bg-[#ffffff] p-2.5 rounded-xl border border-[#e2e8f0] shadow-sm">
                 <span className="text-[10px] font-mono text-[#d63031] font-bold block mb-0.5">STEP 6</span>
-                <span className="font-bold text-[#2d3436] block text-[11px]">Active Defense</span>
+                <span className="font-bold text-[#0f172a] block text-[11px]">Active Defense</span>
               </div>
             </div>
           </div>
@@ -161,7 +161,7 @@ export default function PlaybookModal({ isOpen, onClose }) {
             {steps.map((s) => {
               const Icon = s.icon;
               return (
-                <div key={s.num} className="slot-recessed p-5 space-y-3 flex flex-col justify-between bg-[#f0f2f5]">
+                <div key={s.num} className="slot-recessed p-5 space-y-3 flex flex-col justify-between bg-[#f8fafc]">
                   <div>
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center space-x-2.5">
@@ -169,8 +169,8 @@ export default function PlaybookModal({ isOpen, onClose }) {
                           <Icon className="w-4 h-4" />
                         </div>
                         <div>
-                          <h4 className="text-sm font-bold text-[#2d3436] leading-tight font-mono">{s.title}</h4>
-                          <span className="text-[11px] text-[#4a5568]">{s.subtitle}</span>
+                          <h4 className="text-sm font-bold text-[#0f172a] leading-tight font-mono">{s.title}</h4>
+                          <span className="text-[11px] text-[#64748b]">{s.subtitle}</span>
                         </div>
                       </div>
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${s.badgeColor}`}>
@@ -178,15 +178,15 @@ export default function PlaybookModal({ isOpen, onClose }) {
                       </span>
                     </div>
 
-                    <div className="space-y-2 text-xs text-[#4a5568] pt-1">
-                      <p className="leading-relaxed"><strong className="text-[#2d3436]">How it works:</strong> {s.what}</p>
+                    <div className="space-y-2 text-xs text-[#64748b] pt-1">
+                      <p className="leading-relaxed"><strong className="text-[#0f172a]">How it works:</strong> {s.what}</p>
                       <p className="leading-relaxed"><strong className="text-[#7048e8]">Why it matters:</strong> {s.why}</p>
                     </div>
                   </div>
 
-                  <div className="bg-[#e0e5ec] p-3 rounded-xl border border-[#babecc]/60 text-[11px] font-mono text-[#4a5568] space-y-1">
-                    <span className="text-[#4a5568] font-bold block text-[10px] uppercase tracking-wider font-mono">Real-World Scenario:</span>
-                    <p className="text-[#2d3436] leading-relaxed font-sans italic font-medium">"{s.example}"</p>
+                  <div className="bg-[#ffffff] p-3 rounded-xl border border-[#e2e8f0]/60 text-[11px] font-mono text-[#64748b] space-y-1">
+                    <span className="text-[#64748b] font-bold block text-[10px] uppercase tracking-wider font-mono">Real-World Scenario:</span>
+                    <p className="text-[#0f172a] leading-relaxed font-sans italic font-medium">"{s.example}"</p>
                   </div>
                 </div>
               );
@@ -194,27 +194,27 @@ export default function PlaybookModal({ isOpen, onClose }) {
           </div>
 
           {/* Enterprise Infrastructure Summary */}
-          <div className="slot-recessed p-5 space-y-3 bg-[#f0f2f5]">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#2d3436] flex items-center gap-2 font-mono">
+          <div className="slot-recessed p-5 space-y-3 bg-[#f8fafc]">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-[#0f172a] flex items-center gap-2 font-mono">
               <Server className="w-4 h-4 text-[#059669]" />
               Decoupled Docker Enterprise Infrastructure
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
-              <div className="bg-[#e0e5ec] p-3 rounded-xl border border-[#babecc] space-y-1 shadow-sm">
-                <span className="text-[#2d3436] font-bold block font-mono">1. FastAPI Core</span>
-                <p className="text-[#4a5568] text-[11px]">Async orchestration server executing OCR, headers, and risk engines.</p>
+              <div className="bg-[#ffffff] p-3 rounded-xl border border-[#e2e8f0] space-y-1 shadow-sm">
+                <span className="text-[#0f172a] font-bold block font-mono">1. FastAPI Core</span>
+                <p className="text-[#64748b] text-[11px]">Async orchestration server executing OCR, headers, and risk engines.</p>
               </div>
-              <div className="bg-[#e0e5ec] p-3 rounded-xl border border-[#babecc] space-y-1 shadow-sm">
-                <span className="text-[#2d3436] font-bold block font-mono">2. React + Tailwind</span>
-                <p className="text-[#4a5568] text-[11px]">Tactile skeuomorphic SOC workstation dashboard with live telemetry.</p>
+              <div className="bg-[#ffffff] p-3 rounded-xl border border-[#e2e8f0] space-y-1 shadow-sm">
+                <span className="text-[#0f172a] font-bold block font-mono">2. React + Tailwind</span>
+                <p className="text-[#64748b] text-[11px]">Tactile skeuomorphic SOC workstation dashboard with live telemetry.</p>
               </div>
-              <div className="bg-[#e0e5ec] p-3 rounded-xl border border-[#babecc] space-y-1 shadow-sm">
-                <span className="text-[#2d3436] font-bold block font-mono">3. Apache Kafka</span>
-                <p className="text-[#4a5568] text-[11px]">Asynchronous event bus streaming high-velocity telemetry across microservices.</p>
+              <div className="bg-[#ffffff] p-3 rounded-xl border border-[#e2e8f0] space-y-1 shadow-sm">
+                <span className="text-[#0f172a] font-bold block font-mono">3. Apache Kafka</span>
+                <p className="text-[#64748b] text-[11px]">Asynchronous event bus streaming high-velocity telemetry across microservices.</p>
               </div>
-              <div className="bg-[#e0e5ec] p-3 rounded-xl border border-[#babecc] space-y-1 shadow-sm">
-                <span className="text-[#2d3436] font-bold block font-mono">4. Neo4j & ChromaDB</span>
-                <p className="text-[#4a5568] text-[11px]">Attribution graph topology and vector semantic memory for crime rings.</p>
+              <div className="bg-[#ffffff] p-3 rounded-xl border border-[#e2e8f0] space-y-1 shadow-sm">
+                <span className="text-[#0f172a] font-bold block font-mono">4. Neo4j & ChromaDB</span>
+                <p className="text-[#64748b] text-[11px]">Attribution graph topology and vector semantic memory for crime rings.</p>
               </div>
             </div>
           </div>

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Terminal, Camera, Shield, MessageSquare, Send, Globe, Database } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Camera, Shield, MessageSquare, Send, Globe, Database, Network, Crosshair } from 'lucide-react';
 import GlobeMap from 'react-globe.gl';
 import ForceGraph2D from 'react-force-graph-2d';
+import { motion } from 'framer-motion';
 import { API_BASE_URL } from '../config';
 
 const AdvancedSOC = ({ data }) => {
@@ -12,10 +13,21 @@ const AdvancedSOC = ({ data }) => {
   const [chatQuestion, setChatQuestion] = useState("");
   const [chatAnswer, setChatAnswer] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(600);
+  
+  const mapRef = useRef(null);
+  const graphRef = useRef(null);
+  const [mapDim, setMapDim] = useState({ w: 500, h: 350 });
+  const [graphDim, setGraphDim] = useState({ w: 500, h: 350 });
 
   useEffect(() => {
-      setWindowWidth(window.innerWidth > 1200 ? 500 : 800);
+    const updateDims = () => {
+      if (mapRef.current) setMapDim({ w: mapRef.current.offsetWidth, h: mapRef.current.offsetHeight });
+      if (graphRef.current) setGraphDim({ w: graphRef.current.offsetWidth, h: graphRef.current.offsetHeight });
+    };
+    
+    setTimeout(updateDims, 100);
+    window.addEventListener('resize', updateDims);
+    return () => window.removeEventListener('resize', updateDims);
   }, []);
 
   if (!data) return null;
@@ -68,78 +80,165 @@ const AdvancedSOC = ({ data }) => {
     setChatLoading(false);
   };
 
-  // Prepare graph data
   const graphData = {
-    nodes: data.attribution_graph?.nodes || [{ id: 'email', name: 'Malicious Email' }],
+    nodes: data.attribution_graph?.nodes || [],
     links: data.attribution_graph?.links || []
   };
   
-  // Prepare map data
   let arcData = [];
-  if (data.trace?.best_guess_geolocation?.lat && data.trace?.best_guess_geolocation?.long) {
-      // Draw an arc from attacker to victim (e.g. assuming victim is in India or USA)
-      arcData = [{
-          startLat: data.trace.best_guess_geolocation.lat,
-          startLng: data.trace.best_guess_geolocation.long,
-          endLat: 38.9072, // Target: Washington DC (Simulation)
-          endLng: -77.0369,
-          color: ['#ff0000', '#ff8800']
-      }];
+  let ringData = [];
+
+  if (data.trace?.hops && data.trace.hops.length > 0) {
+    const validHops = data.trace.hops.filter(h => h.geolocation && h.geolocation.lat && h.geolocation.long);
+    
+    for (let i = 0; i < validHops.length - 1; i++) {
+       arcData.push({
+           startLat: validHops[i].geolocation.lat,
+           startLng: validHops[i].geolocation.long,
+           endLat: validHops[i+1].geolocation.lat,
+           endLng: validHops[i+1].geolocation.long,
+           color: ['#0f172a', '#38bdf8']
+       });
+    }
+
+    ringData = validHops.map(h => ({
+       lat: h.geolocation.lat,
+       lng: h.geolocation.long,
+       color: '#ec4899',
+       maxR: 3,
+       propagationSpeed: 1,
+       repeatPeriod: 1000
+    }));
+
+    if (data.trace.best_guess_geolocation?.lat) {
+       ringData.push({
+           lat: data.trace.best_guess_geolocation.lat,
+           lng: data.trace.best_guess_geolocation.long,
+           color: '#ef4444',
+           maxR: 6,
+           propagationSpeed: 2,
+           repeatPeriod: 800
+       });
+    }
+  } else if (data.trace?.best_guess_geolocation?.lat && data.trace?.best_guess_geolocation?.long) {
+     ringData.push({
+         lat: data.trace.best_guess_geolocation.lat,
+         lng: data.trace.best_guess_geolocation.long,
+         color: '#ef4444',
+         maxR: 6,
+         propagationSpeed: 2,
+         repeatPeriod: 800
+     });
   }
 
+  const nodeCanvasObject = (node, ctx, globalScale) => {
+    const label = node.label || node.id;
+    const fontSize = Math.max(10 / globalScale, 4);
+    ctx.font = `600 ${fontSize}px Inter, sans-serif`;
+    const textWidth = ctx.measureText(label).width;
+    const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.4); 
+    
+    ctx.beginPath();
+    ctx.arc(node.x, node.y, 4, 0, 2 * Math.PI, false);
+    ctx.fillStyle = node.risk === 'critical' ? '#991b1b' : 
+                    node.risk === 'high' ? '#ef4444' : 
+                    node.risk === 'medium' ? '#f59e0b' : '#3b82f6';
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+    ctx.beginPath();
+    ctx.roundRect(node.x - bckgDimensions[0] / 2, node.y + 6, bckgDimensions[0], bckgDimensions[1], 4);
+    ctx.fill();
+    
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#1e293b';
+    ctx.fillText(label, node.x, node.y + 6 + (bckgDimensions[1]/2));
+  };
+
   return (
-    <div className="space-y-6 mt-8 border-t border-gray-800 pt-8">
-      <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-        <Database className="text-purple-400" />
-        Advanced SOC Capabilities (Hackathon Features)
-      </h2>
+    <div className="space-y-6">
+      
+      <div className="flex items-center gap-3 pb-2 border-b border-gray-200/60">
+        <div className="p-2 bg-slate-800/10 rounded-xl border border-slate-800/20">
+          <Database className="w-6 h-6 text-slate-900" />
+        </div>
+        <div>
+          <h2 className="text-2xl font-extrabold text-slate-800 tracking-tight">God-Level SOC</h2>
+          <p className="text-sm text-slate-500 font-medium">Advanced interactive capabilities & visualization</p>
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         
         {/* Threat Map */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 h-96 relative overflow-hidden xl:col-span-1 flex justify-center items-center">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2 absolute top-6 left-6 z-10 bg-gray-900/80 p-2 rounded">
-            <Globe className="text-cyan-400" /> 3D Global Threat Map
-          </h3>
-          <div className="absolute inset-0 flex justify-center items-center mt-10">
-            <GlobeMap
-              globeImageUrl="//unpkg.com/three-globe/example/img/earth-dark.jpg"
-              arcsData={arcData}
-              arcColor="color"
-              arcDashLength={0.4}
-              arcDashGap={0.2}
-              arcDashAnimateTime={1500}
-              width={windowWidth}
-              height={350}
-              backgroundColor="#111827"
-            />
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-6 flex flex-col h-[450px]"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Globe className="w-5 h-5 text-slate-800" />
+            <h3 className="text-lg font-bold text-slate-800">Global Threat Topography</h3>
           </div>
-        </div>
+          <div ref={mapRef} className="flex-1 w-full bg-[#f8fafc] rounded-xl overflow-hidden border border-slate-200/60 relative flex justify-center items-center shadow-inner">
+            {mapDim.w > 0 && (
+              <GlobeMap
+                globeImageUrl="//unpkg.com/three-globe/example/img/earth-day.jpg"
+                arcsData={arcData}
+                arcColor="color"
+                arcDashLength={0.4}
+                arcDashGap={0.2}
+                arcDashAnimateTime={1500}
+                ringsData={ringData}
+                ringColor="color"
+                ringMaxRadius="maxR"
+                ringPropagationSpeed="propagationSpeed"
+                ringRepeatPeriod="repeatPeriod"
+                width={mapDim.w}
+                height={mapDim.h}
+                backgroundColor="rgba(255,255,255,0)"
+              />
+            )}
+          </div>
+        </motion.div>
 
         {/* Threat Graph */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 h-96 relative overflow-hidden xl:col-span-1 flex justify-center items-center">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2 absolute top-6 left-6 z-10 bg-gray-900/80 p-2 rounded">
-            <Globe className="text-blue-400" /> Attribution Graph
-          </h3>
-          <div className="absolute inset-0 flex justify-center items-center">
-            <ForceGraph2D
-              graphData={graphData}
-              width={windowWidth}
-              height={400}
-              nodeLabel="id"
-              nodeAutoColorBy="group"
-              linkDirectionalArrowLength={3.5}
-              linkDirectionalArrowRelPos={1}
-              backgroundColor="#111827"
-            />
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
+          className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-6 flex flex-col h-[450px]"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Network className="w-5 h-5 text-slate-800" />
+            <h3 className="text-lg font-bold text-slate-800">Attribution Graph</h3>
           </div>
-        </div>
+          <div ref={graphRef} className="flex-1 w-full bg-[#f8fafc] rounded-xl overflow-hidden border border-slate-200/60 relative flex justify-center items-center shadow-inner">
+            {graphDim.w > 0 && graphData.nodes.length > 0 ? (
+              <ForceGraph2D
+                graphData={graphData}
+                width={graphDim.w}
+                height={graphDim.h}
+                nodeAutoColorBy="type"
+                linkColor={() => '#94a3b8'}
+                linkDirectionalArrowLength={3.5}
+                linkDirectionalArrowRelPos={1}
+                backgroundColor="rgba(255,255,255,0)"
+                nodeCanvasObject={nodeCanvasObject}
+              />
+            ) : (
+              <div className="text-slate-400 font-medium">Insufficient graph data to render attribution.</div>
+            )}
+          </div>
+        </motion.div>
 
         {/* Sandbox Detonation */}
-        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 xl:col-span-1">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-            <Camera className="text-pink-400" /> Sandbox Detonation
-          </h3>
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
+          className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-6 xl:col-span-1"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <Crosshair className="w-5 h-5 text-pink-500" />
+            <h3 className="text-lg font-bold text-slate-800">Sandbox Detonation</h3>
+          </div>
           <div className="space-y-4">
             {data.urls && data.urls.length > 0 ? (
               <div className="flex gap-2 flex-wrap">
@@ -147,78 +246,96 @@ const AdvancedSOC = ({ data }) => {
                   <button 
                     key={i} 
                     onClick={() => handleDetonate(url)}
-                    className="px-4 py-2 bg-pink-500/20 text-pink-400 border border-pink-500/50 rounded hover:bg-pink-500/40 transition truncate max-w-full"
+                    className="px-4 py-2 bg-pink-50 text-pink-600 border border-pink-200 rounded-xl hover:bg-pink-100 transition-all font-bold text-sm flex items-center gap-2 shadow-sm"
                   >
-                    Detonate: {url}
+                    <Camera className="w-4 h-4"/> Detonate: {url}
                   </button>
                 ))}
               </div>
             ) : (
-              <p className="text-gray-400 text-sm">No URLs extracted for detonation.</p>
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-sm font-medium">
+                No URLs extracted for detonation.
+              </div>
             )}
             
-            {screenshotLoading && <div className="text-cyan-400 animate-pulse">Running Headless Browser Sandbox...</div>}
+            {screenshotLoading && (
+              <div className="p-4 bg-slate-100 border border-slate-200 rounded-xl text-slate-900 text-sm font-bold flex items-center gap-3 animate-pulse">
+                <div className="w-4 h-4 border-2 border-slate-900 border-t-transparent rounded-full animate-spin"/>
+                Running Headless Browser Sandbox...
+              </div>
+            )}
             
             {screenshotUrl && (
-              <div className="mt-4 border border-gray-700 rounded overflow-hidden shadow-2xl">
-                <div className="bg-gray-800 p-2 text-xs text-gray-400 font-mono">SANDBOX_VIEW: ISOLATED DOMAIN EXECUTED</div>
+              <div className="mt-4 border border-slate-200 rounded-xl overflow-hidden shadow-xl">
+                <div className="bg-slate-100 p-2 text-xs text-slate-500 font-mono font-bold flex items-center gap-2 border-b border-slate-200">
+                  <span className="w-2 h-2 rounded-full bg-green-500"/> SANDBOX DETONATION RENDERED
+                </div>
                 <img src={screenshotUrl} alt="Sandbox Detonation" className="w-full object-cover" />
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* GenAI Chat & Takedown */}
         <div className="space-y-6 xl:col-span-1">
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-                <Shield className="text-green-400" /> 1-Click Takedown Generator
-            </h3>
-            <p className="text-sm text-gray-400 mb-4">Dynamically generates a legal Abuse notice.</p>
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+            className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-6"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Shield className="w-5 h-5 text-emerald-500" />
+              <h3 className="text-lg font-bold text-slate-800">1-Click Legal Takedown</h3>
+            </div>
+            <p className="text-sm text-slate-500 mb-4 font-medium">Dynamically generates a legal Abuse notice.</p>
             <button 
                 onClick={handleGenerateTakedown}
-                className="px-4 py-2 bg-green-500/20 text-green-400 border border-green-500/50 rounded hover:bg-green-500/40 transition w-full"
+                className="w-full px-4 py-3 bg-emerald-50 text-emerald-600 border border-emerald-200 rounded-xl hover:bg-emerald-100 transition-all font-bold text-sm flex justify-center items-center gap-2 shadow-sm"
             >
                 Generate Takedown Notice
             </button>
             
             {takedown && (
-                <div className="mt-4 p-4 bg-black border border-gray-800 rounded font-mono text-xs text-gray-300 whitespace-pre-wrap max-h-48 overflow-y-auto">
+                <div className="mt-4 p-4 bg-slate-800 rounded-xl shadow-inner font-mono text-xs text-slate-300 whitespace-pre-wrap max-h-48 overflow-y-auto border border-slate-700">
                 {takedown}
                 </div>
             )}
-            </div>
+          </motion.div>
 
-            <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 flex flex-col">
-            <h3 className="text-xl font-bold text-white flex items-center gap-2 mb-4">
-                <MessageSquare className="text-yellow-400" /> GenAI SOC Assistant
-            </h3>
-            <div className="flex-1 bg-black border border-gray-800 rounded p-4 mb-4 overflow-y-auto max-h-48 font-mono text-sm text-yellow-400">
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+            className="bg-white/60 backdrop-blur-xl border border-white/80 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl p-6 flex flex-col"
+          >
+            <div className="flex items-center gap-2 mb-4">
+                <MessageSquare className="w-5 h-5 text-slate-800" />
+                <h3 className="text-lg font-bold text-slate-800">GenAI SOC Assistant</h3>
+            </div>
+            
+            <div className="flex-1 bg-white border border-slate-200 rounded-xl p-4 mb-4 overflow-y-auto h-32 text-sm text-slate-700 shadow-inner">
                 {chatAnswer ? (
-                <div>{chatAnswer}</div>
+                  <div className="prose prose-sm prose-slate max-w-none">{chatAnswer}</div>
                 ) : (
-                <div className="text-gray-500">Ask the AI assistant a question about this incident...</div>
+                  <div className="text-slate-400 italic flex items-center h-full justify-center">Ask the AI assistant a question about this incident...</div>
                 )}
             </div>
             
             <div className="flex gap-2">
                 <input 
-                type="text" 
-                value={chatQuestion}
-                onChange={(e) => setChatQuestion(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleChat()}
-                placeholder="e.g., Why did the SPF check fail?"
-                className="flex-1 bg-gray-800 border border-gray-700 text-white rounded px-4 py-2 focus:outline-none focus:border-yellow-500"
+                  type="text" 
+                  value={chatQuestion}
+                  onChange={(e) => setChatQuestion(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleChat()}
+                  placeholder="e.g., Why did the SPF check fail?"
+                  className="flex-1 bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-slate-800 focus:border-transparent transition-all shadow-sm"
                 />
                 <button 
-                onClick={handleChat}
-                disabled={chatLoading}
-                className="bg-yellow-500 text-gray-900 px-4 py-2 rounded font-bold hover:bg-yellow-400 flex items-center gap-2 min-w-24 justify-center"
+                  onClick={handleChat}
+                  disabled={chatLoading}
+                  className="bg-slate-900 text-white px-5 py-2.5 rounded-xl font-bold hover:bg-slate-950 focus:ring-2 focus:ring-slate-800 focus:ring-offset-1 flex items-center gap-2 min-w-[100px] justify-center transition-all shadow-md disabled:opacity-70"
                 >
-                {chatLoading ? '...' : <><Send size={16} /> Ask</>}
+                  {chatLoading ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"/> : <><Send size={16} /> Ask</>}
                 </button>
             </div>
-            </div>
+          </motion.div>
         </div>
       </div>
     </div>

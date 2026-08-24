@@ -46,30 +46,24 @@ export default function CyberScanOverlay({ isOpen }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="panel-chassis w-full max-w-2xl p-8 shadow-2xl relative overflow-hidden space-y-6 border border-[#babecc]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="panel-chassis w-full max-w-2xl p-8 shadow-2xl relative overflow-hidden space-y-6 border border-[#e2e8f0]">
         
-        {/* Corner Screws */}
-        <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
-        <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
-        <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
-        <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
-
         {/* Top Header */}
-        <div className="flex items-center justify-between border-b border-[#d1d9e6] pb-4 px-1">
+        <div className="flex items-center justify-between border-b border-[#f8fafc] pb-4 px-1">
           <div className="flex items-center space-x-3.5">
-            <div className="p-3 bg-[#e0e5ec] text-[#ff4757] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
+            <div className="p-3 bg-slate-900 text-white rounded-2xl shadow-lg border border-slate-700">
               <Cpu className="w-6 h-6 animate-pulse" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#2d3436] tracking-wide flex items-center gap-2 font-mono">
+              <h3 className="text-base font-bold text-slate-900 tracking-wide flex items-center gap-2 font-mono">
                 ANALYZING EMAIL STREAM
               </h3>
-              <p className="text-xs text-[#4a5568] font-mono">Autonomous Forensics & Threat Extraction</p>
+              <p className="text-xs text-slate-500 font-mono">Autonomous Forensics & Threat Extraction</p>
             </div>
           </div>
 
-          <span className="font-mono text-2xl font-bold text-[#ff4757]">
+          <span className="font-mono text-2xl font-bold text-slate-900">
             {Math.min(100, progress)}%
           </span>
         </div>
@@ -78,25 +72,25 @@ export default function CyberScanOverlay({ isOpen }) {
         <div className="space-y-2 px-1">
           <div className="w-full slot-recessed h-4 rounded-full overflow-hidden p-0.5">
             <div 
-              className="h-full rounded-full bg-gradient-to-r from-[#ff4757] via-[#f59e0b] to-[#7048e8] transition-all duration-200 shadow-sm"
+              className="h-full rounded-full bg-slate-900 transition-all duration-200 shadow-sm"
               style={{ width: `${Math.min(100, progress)}%` }}
             />
           </div>
         </div>
 
         {/* Terminal Telemetry Log Box */}
-        <div className="panel-dark-tech rounded-2xl p-5 font-mono text-xs space-y-2.5 h-48 overflow-y-auto slot-dark-screen crt-scanlines">
-          <div className="text-slate-400 flex items-center gap-1.5 text-[11px] pb-1.5 border-b border-slate-800 font-bold">
-            <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+        <div className="bg-white rounded-2xl p-5 font-mono text-xs space-y-2.5 h-48 overflow-y-auto border border-slate-200 shadow-inner">
+          <div className="text-slate-500 flex items-center gap-1.5 text-[11px] pb-1.5 border-b border-slate-200 font-bold uppercase tracking-wider">
+            <Terminal className="w-3.5 h-3.5 text-slate-900" />
             LIVE TELEMETRY EXECUTION PIPELINE:
           </div>
 
           {SCAN_STEPS.slice(0, currentStep + 1).map((step, idx) => {
             const isLatest = idx === currentStep;
             return (
-              <div key={idx} className={`flex items-center gap-2 ${isLatest ? 'text-cyan-300 font-bold' : 'text-slate-400'}`}>
+              <div key={idx} className={`flex items-center gap-2 ${isLatest ? 'text-slate-900 font-bold' : 'text-slate-400'}`}>
                 {isLatest ? (
-                  <Zap className="w-3.5 h-3.5 text-[#ff4757] animate-spin flex-shrink-0" />
+                  <Zap className="w-3.5 h-3.5 text-slate-900 animate-spin flex-shrink-0" />
                 ) : (
                   <CheckCircle2 className="w-3.5 h-3.5 text-[#10b981] flex-shrink-0" />
                 )}
@@ -107,7 +101,7 @@ export default function CyberScanOverlay({ isOpen }) {
         </div>
 
         <div className="text-center">
-          <span className="text-[11px] text-[#4a5568] font-mono font-bold">
+          <span className="text-[11px] text-slate-500 font-mono font-bold">
             * Forensically sealed on local Ethereum blockchain notary ledger
           </span>
         </div>

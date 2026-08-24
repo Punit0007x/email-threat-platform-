@@ -1,43 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  /* Industrial Color Tokens */
-  --background: #e0e5ec;
-  --foreground: #f0f2f5;
-  --muted: #d1d9e6;
-  --muted-dark: #b8c4d6;
-  --text-primary: #2d3436;
-  --text-muted: #4a5568;
-  --accent: #ff4757;
-  --accent-hover: #ff3848;
+  /* Modern Glass & Clean UI Tokens */
+  --background: #F8FAFC;
+  --foreground: #ffffff;
+  --muted: #e2e8f0;
+  --muted-dark: #94a3b8;
+  --text-primary: #0f172a;
+  --text-muted: #64748b;
+  --accent: #0f172a;
+  --accent-hover: #334155;
   --accent-foreground: #ffffff;
-  --border-shadow: #babecc;
   --border-light: #ffffff;
-  --border-dark: #a3b1c6;
-
-  /* Dark Technical Accent Surface */
-  --dark-panel: #242933;
-  --dark-surface: #1e222a;
-  --dark-screen: #12151b;
-  --dark-border: rgba(255, 255, 255, 0.08);
+  --border-dark: #e2e8f0;
 
   /* Status Colors */
   --led-green: #10b981;
-  --led-red: #ff4757;
+  --led-red: #ef4444;
   --led-amber: #f59e0b;
   --led-cyan: #0ea5e9;
 
-  /* Neumorphic Dual Shadow System */
-  --shadow-card: 8px 8px 16px #babecc, -8px -8px 16px #ffffff;
-  --shadow-floating: 12px 12px 24px #babecc, -12px -12px 24px #ffffff, inset 1px 1px 0 rgba(255, 255, 255, 0.6);
-  --shadow-pressed: inset 6px 6px 12px #babecc, inset -6px -6px 12px #ffffff;
-  --shadow-recessed: inset 4px 4px 8px #babecc, inset -4px -4px 8px #ffffff;
-  --shadow-recessed-sm: inset 2px 2px 5px #babecc, inset -2px -2px 5px #ffffff;
-  --shadow-sharp: 4px 4px 8px rgba(0, 0, 0, 0.15), -1px -1px 1px rgba(255, 255, 255, 0.8);
-  --shadow-btn-primary: 4px 4px 10px rgba(220, 38, 38, 0.4), -3px -3px 8px rgba(255, 120, 130, 0.45);
-  --shadow-btn-primary-pressed: inset 3px 3px 6px rgba(180, 20, 30, 0.6), inset -2px -2px 6px rgba(255, 160, 170, 0.4);
+  /* Glass Shadows */
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 1);
+  --shadow-floating: 0 20px 40px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 1);
+  --shadow-recessed: inset 0 2px 5px rgba(0, 0, 0, 0.02);
+  --shadow-recessed-sm: inset 0 1px 3px rgba(0, 0, 0, 0.02);
+  --shadow-btn-primary: 0 4px 14px rgba(15, 23, 42, 0.3);
 
-  /* Easing curve for mechanical spring physics */
+  /* Easing */
   --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -49,106 +39,79 @@
     overflow-x: hidden;
     line-height: 1.6;
   }
-
   code, kbd, samp, pre {
-    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
-/* Base Chassis Background with Diffuse Lighting & Micro Noise Texture */
+/* Backgrounds */
 .chassis-bg {
-  background-color: #e0e5ec;
-  background-image: 
-    radial-gradient(circle at 15% 15%, rgba(255, 255, 255, 0.65) 0%, transparent 45%),
-    radial-gradient(circle at 85% 85%, rgba(186, 190, 204, 0.4) 0%, transparent 55%),
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.045'/%3E%3C/svg%3E");
-  background-attachment: fixed;
+  background-color: transparent;
 }
 
-/* Industrial Neumorphic Card / Bolted Panel (Level +1) */
+/* Modern Glass Card replacing Bolted Panel */
 .panel-chassis {
-  background-color: #e0e5ec;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 20px;
   box-shadow: var(--shadow-card);
-  border: 1px solid rgba(255, 255, 255, 0.7);
   transition: transform 300ms var(--ease-spring), box-shadow 300ms ease;
   position: relative;
 }
 
 .panel-chassis-elevated {
-  background-color: #e0e5ec;
-  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(24px);
+  border-radius: 20px;
   box-shadow: var(--shadow-floating);
   border: 1px solid rgba(255, 255, 255, 0.8);
   transition: transform 300ms var(--ease-spring), box-shadow 300ms ease;
   position: relative;
 }
 
-/* Recessed Machine Well / Data Slot (Level -1) */
+/* Clean Info Slots */
 .slot-recessed {
-  background-color: #e0e5ec;
-  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.6);
+  border-radius: 12px;
   box-shadow: var(--shadow-recessed);
-  border: 1px solid rgba(186, 190, 204, 0.4);
+  border: 1px solid rgba(226, 232, 240, 0.6);
 }
 
 .slot-recessed-sm {
-  background-color: #e0e5ec;
+  background: rgba(248, 250, 252, 0.6);
   border-radius: 8px;
   box-shadow: var(--shadow-recessed-sm);
-  border: 1px solid rgba(186, 190, 204, 0.35);
+  border: 1px solid rgba(226, 232, 240, 0.6);
 }
 
-/* Dark Technical Instrumentation Panel (For Radar / Terminals / CRT Screens) */
+/* Dark Technical Instrumentation Panel */
 .panel-dark-tech {
-  background: linear-gradient(145deg, #242933, #1a1e26);
+  background: linear-gradient(145deg, #1e293b, #0f172a);
   border-radius: 16px;
-  box-shadow: 6px 6px 14px rgba(0, 0, 0, 0.25), -4px -4px 10px rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #f1f5f9;
 }
 
 .slot-dark-screen {
-  background: #0e1117;
+  background: #020617;
   border-radius: 12px;
-  box-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.7), inset -1px -1px 3px rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.5);
   border: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
   overflow: hidden;
 }
 
-/* CRT Screen Scanline Overlay */
-.crt-scanlines::after {
-  content: " ";
-  display: block;
-  position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
-  background-size: 100% 4px;
-  z-index: 2;
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-/* Blueprint Grid Pattern */
-.blueprint-grid {
-  background-image: 
-    linear-gradient(rgba(74, 85, 104, 0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(74, 85, 104, 0.12) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-/* Tactile Buttons ("Physical Keys") */
+/* Primary Action Buttons */
 .btn-tactile-primary {
-  background-color: #ff4757;
+  background-color: var(--accent);
   color: #ffffff;
   font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  border-radius: 10px;
+  font-weight: 600;
+  border-radius: 12px;
   box-shadow: var(--shadow-btn-primary);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   transition: all 150ms var(--ease-spring);
   cursor: pointer;
   display: inline-flex;
@@ -158,26 +121,20 @@
 }
 
 .btn-tactile-primary:hover {
-  background-color: #ff3344;
+  background-color: var(--accent-hover);
   transform: translateY(-1px);
-  box-shadow: 5px 5px 14px rgba(220, 38, 38, 0.5), -3px -3px 10px rgba(255, 130, 140, 0.5);
+  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.4);
 }
 
-.btn-tactile-primary:active {
-  transform: translateY(2px);
-  box-shadow: var(--shadow-btn-primary-pressed);
-}
-
+/* Secondary Buttons */
 .btn-tactile-secondary {
-  background-color: #e0e5ec;
-  color: #2d3436;
+  background-color: #ffffff;
+  color: var(--text-primary);
   font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-radius: 10px;
-  box-shadow: 4px 4px 8px #babecc, -4px -4px 8px #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  font-weight: 600;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+  border: 1px solid var(--border-dark);
   transition: all 150ms var(--ease-spring);
   cursor: pointer;
   display: inline-flex;
@@ -187,78 +144,41 @@
 }
 
 .btn-tactile-secondary:hover {
-  color: #ff4757;
+  color: var(--accent);
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   transform: translateY(-1px);
-  box-shadow: 6px 6px 12px #babecc, -6px -6px 12px #ffffff;
 }
 
-.btn-tactile-secondary:active {
-  transform: translateY(2px);
-  box-shadow: var(--shadow-pressed);
-}
-
-/* Tactile Navigation Key Switch (Active vs Inactive state) */
+/* Navigation Key Switches */
 .key-switch {
-  background-color: #e0e5ec;
-  color: #4a5568;
-  font-weight: 700;
-  border-radius: 10px;
-  box-shadow: 4px 4px 8px #babecc, -4px -4px 8px #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  transition: all 180ms ease;
+  background-color: #ffffff;
+  color: var(--text-muted);
+  font-weight: 600;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+  border: 1px solid transparent;
+  transition: all 150ms ease;
   cursor: pointer;
 }
 
 .key-switch:hover {
-  color: #2d3436;
-  transform: translateY(-1px);
+  color: var(--text-primary);
+  background-color: #f8fafc;
 }
 
 .key-switch.active {
-  background-color: #d9dfe9;
-  color: #ff4757;
-  box-shadow: inset 4px 4px 8px #babecc, inset -4px -4px 8px #ffffff;
-  border: 1px solid rgba(186, 190, 204, 0.5);
-  transform: translateY(1px);
+  background-color: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(15,23,42,0.3);
 }
 
-/* Mechanical Corner Screw Simulation */
+/* Remove Mechanical Screws (Modern UI doesn't need them) */
 .screw-head {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #b8c4d6 35%, #8896aa 85%, #5a6475 100%);
-  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.8), 1px 1px 2px rgba(0, 0, 0, 0.25);
-  position: relative;
+  display: none;
 }
 
-.screw-head::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 15%;
-  width: 70%;
-  height: 1.5px;
-  background: #3e4856;
-  transform: translateY(-50%) rotate(45deg);
-  box-shadow: 0 0.5px 0.5px rgba(255, 255, 255, 0.4);
-}
-
-/* Recessed Louver Ventilation Slots (3 In A Row) */
-.vent-louvers {
-  display: flex;
-  gap: 4px;
-}
-
-.vent-slot {
-  height: 20px;
-  width: 3px;
-  border-radius: 9999px;
-  background-color: #d1d9e6;
-  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.25), 1px 1px 0px #ffffff;
-}
-
-/* LED Indicator with Radial Glow Bloom */
+/* Glowing LED Nodes */
 .led-node {
   width: 8px;
   height: 8px;
@@ -266,98 +186,46 @@
   display: inline-block;
   flex-shrink: 0;
 }
+.led-node-green { background-color: var(--led-green); box-shadow: 0 0 10px rgba(16,185,129,0.6); }
+.led-node-red { background-color: var(--led-red); box-shadow: 0 0 10px rgba(239,68,68,0.6); }
+.led-node-amber { background-color: var(--led-amber); box-shadow: 0 0 10px rgba(245,158,11,0.6); }
+.led-node-cyan { background-color: var(--led-cyan); box-shadow: 0 0 10px rgba(14,165,233,0.6); }
 
-.led-node-green {
-  background-color: #10b981;
-  box-shadow: 0 0 8px 2px rgba(16, 185, 129, 0.7);
-}
-
-.led-node-red {
-  background-color: #ff4757;
-  box-shadow: 0 0 8px 2px rgba(255, 71, 87, 0.75);
-}
-
-.led-node-amber {
-  background-color: #f59e0b;
-  box-shadow: 0 0 8px 2px rgba(245, 158, 11, 0.7);
-}
-
-.led-node-cyan {
-  background-color: #0ea5e9;
-  box-shadow: 0 0 8px 2px rgba(14, 165, 233, 0.7);
-}
-
-/* Stamped Industrial Technical Tag */
-.stamped-tag {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 2px 6px;
-  border-radius: 4px;
-  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.08), 1px 1px 1px #ffffff;
-}
-
-/* Skewed Yellow Warning / Inspection Sticker */
-.masking-tape {
-  background-color: rgba(254, 240, 138, 0.85);
-  color: #713f12;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  font-weight: 700;
-  transform: rotate(-1.5deg);
-  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  border: 1px dashed rgba(161, 98, 7, 0.4);
-  padding: 3px 8px;
-}
-
-/* Cylindrical Mechanical Pipeline Connecting Relay Nodes */
-.mechanical-pipe {
-  height: 8px;
-  background: linear-gradient(180deg, #ffffff 0%, #d1d9e6 50%, #9ba8bc 100%);
-  border-radius: 4px;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2), 0 1px 1px #ffffff;
-}
-
-/* Embossed Text Shadow */
-.embossed-text {
-  text-shadow: 0 1px 0 #ffffff;
-}
-
-.embossed-text-dark {
-  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6);
-}
-
-/* Precision Industrial Scrollbars */
+/* Minimalist Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #d8e0eb;
-  border-radius: 4px;
-  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #a8b4c7;
+  background: #cbd5e1;
   border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff4757;
+  background: #94a3b8;
 }
 
-/* Scanning Sweep Laser */
+/* Legacy items to hide/adjust */
+.vent-louvers {
+  display: none;
+}
+.stamped-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
 @keyframes laser-sweep {
   0% { top: 0%; opacity: 0.6; }
   50% { top: 96%; opacity: 1; }
   100% { top: 0%; opacity: 0.6; }
 }
-
 .animate-laser {
   animation: laser-sweep 1.8s infinite ease-in-out;
 }

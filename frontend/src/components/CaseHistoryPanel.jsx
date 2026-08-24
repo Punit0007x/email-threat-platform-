@@ -150,16 +150,16 @@ export default function CaseHistoryPanel() {
       <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d1d9e6] pb-4 px-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#f8fafc] pb-4 px-2">
         <div className="flex items-center space-x-3.5">
-          <div className="p-3 bg-[#e0e5ec] text-[#0ea5e9] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
+          <div className="p-3 bg-[#ffffff] text-[#0ea5e9] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
             <FolderArchive className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#2d3436] flex items-center gap-2">
+            <h2 className="text-lg font-bold text-[#0f172a] flex items-center gap-2">
               Case Management, Campaigns & SOC Alerts
             </h2>
-            <p className="text-xs text-[#4a5568]">Searchable historical investigations, threat clusters, SIEM alerts, and GDPR compliance</p>
+            <p className="text-xs text-[#64748b]">Searchable historical investigations, threat clusters, SIEM alerts, and GDPR compliance</p>
           </div>
         </div>
 
@@ -179,7 +179,7 @@ export default function CaseHistoryPanel() {
             </button>
             <button
               onClick={() => setSelectedTab('alerts')}
-              className={`key-switch px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 ${selectedTab === 'alerts' ? 'active text-[#ff4757]' : ''}`}
+              className={`key-switch px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 ${selectedTab === 'alerts' ? 'active text-[#ef4444]' : ''}`}
             >
               <Bell className="w-3.5 h-3.5" />
               SOC Alerts ({alerts.length})
@@ -199,7 +199,7 @@ export default function CaseHistoryPanel() {
             className="btn-tactile-secondary p-2 rounded-xl"
             title="Refresh"
           >
-            <RefreshCw className={`w-4 h-4 text-[#4a5568] ${loading ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-4 h-4 text-[#64748b] ${loading ? 'animate-spin' : ''}`} />
           </button>
         </div>
       </div>
@@ -208,7 +208,7 @@ export default function CaseHistoryPanel() {
       {selectedTab === 'campaigns' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {campaigns.length === 0 ? (
-            <div className="col-span-2 text-center py-8 text-[#8896aa] text-xs italic slot-recessed">
+            <div className="col-span-2 text-center py-8 text-[#94a3b8] text-xs italic slot-recessed">
               No investigated incident campaigns recorded yet. Upload and analyze an email above.
             </div>
           ) : (
@@ -219,26 +219,26 @@ export default function CaseHistoryPanel() {
                   setSearchQuery(camp.campaign_id);
                   setSelectedTab('cases');
                 }}
-                className="slot-recessed p-5 space-y-3 hover:scale-[1.01] transition-all cursor-pointer group shadow-sm bg-[#f0f2f5]"
+                className="slot-recessed p-5 space-y-3 hover:scale-[1.01] transition-all cursor-pointer group shadow-sm bg-[#f8fafc]"
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono font-bold text-[#7048e8] bg-[#7048e8]/15 px-2.5 py-0.5 rounded border border-[#7048e8]/30">
                     {camp.campaign_id}
                   </span>
-                  <span className="text-xs font-bold text-[#4a5568] flex items-center gap-1 group-hover:text-[#7048e8] transition-colors font-mono">
+                  <span className="text-xs font-bold text-[#64748b] flex items-center gap-1 group-hover:text-[#7048e8] transition-colors font-mono">
                     {camp.case_count} incident(s) &rarr;
                   </span>
                 </div>
-                <div className="text-sm font-bold text-[#2d3436] flex items-center gap-2">
+                <div className="text-sm font-bold text-[#0f172a] flex items-center gap-2">
                   Avg Fraud Score: 
                   <span className={camp.avg_score > 70 ? 'text-[#d63031] font-mono' : (camp.avg_score > 30 ? 'text-[#b45309] font-mono' : 'text-[#047857] font-mono')}>
                     {camp.avg_score} / 100
                   </span>
                 </div>
-                <div className="text-xs text-[#4a5568]">
-                  Targeted Domains: <span className="font-mono font-bold text-[#2d3436]">{camp.domains.join(', ') || 'N/A'}</span>
+                <div className="text-xs text-[#64748b]">
+                  Targeted Domains: <span className="font-mono font-bold text-[#0f172a]">{camp.domains.join(', ') || 'N/A'}</span>
                 </div>
-                <div className="flex justify-between items-center text-[11px] text-[#4a5568] pt-2 border-t border-[#babecc]/50">
+                <div className="flex justify-between items-center text-[11px] text-[#64748b] pt-2 border-t border-[#e2e8f0]/50">
                   <span className="font-mono">Last Seen: {camp.last_seen?.replace('T', ' ').substring(0, 19) || 'Just now'}</span>
                   <span className="text-[#7048e8] text-[10px] font-sans font-bold">Click to drill-down</span>
                 </div>
@@ -257,7 +257,7 @@ export default function CaseHistoryPanel() {
               placeholder="Search cases by sender, subject, or campaign ID..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full sm:flex-1 slot-recessed px-4 py-2.5 text-xs text-[#2d3436] focus:outline-none font-mono rounded-xl"
+              className="w-full sm:flex-1 slot-recessed px-4 py-2.5 text-xs text-[#0f172a] focus:outline-none font-mono rounded-xl"
             />
             
             <button
@@ -292,8 +292,8 @@ export default function CaseHistoryPanel() {
           </div>
 
           <div className="slot-recessed p-1 rounded-2xl overflow-x-auto">
-            <table className="min-w-full divide-y divide-[#babecc]/50 text-xs text-left">
-              <thead className="bg-[#e0e5ec] text-[#4a5568] font-bold font-mono text-[11px] uppercase tracking-wider">
+            <table className="min-w-full divide-y divide-[#e2e8f0]/50 text-xs text-left">
+              <thead className="bg-[#ffffff] text-[#64748b] font-bold font-mono text-[11px] uppercase tracking-wider">
                 <tr>
                   <th className="px-3.5 py-3">Evidence ID</th>
                   <th className="px-3.5 py-3">From</th>
@@ -304,10 +304,10 @@ export default function CaseHistoryPanel() {
                   <th className="px-3.5 py-3 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#babecc]/40 bg-[#f0f2f5] font-mono">
+              <tbody className="divide-y divide-[#e2e8f0]/40 bg-[#f8fafc] font-mono">
                 {filteredCases.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-6 text-[#8896aa] italic font-sans">
+                    <td colSpan={7} className="text-center py-6 text-[#94a3b8] italic font-sans">
                       No matching cases found.
                     </td>
                   </tr>
@@ -316,18 +316,18 @@ export default function CaseHistoryPanel() {
                     <tr 
                       key={c.case_id} 
                       onClick={() => setSelectedCase(c)}
-                      className="hover:bg-[#e0e5ec]/60 cursor-pointer transition-colors"
+                      className="hover:bg-[#ffffff]/60 cursor-pointer transition-colors"
                     >
                       <td className="px-3.5 py-2.5 text-[#7048e8] font-bold">{c.evidence_id}</td>
-                      <td className="px-3.5 py-2.5 text-[#2d3436] truncate max-w-[150px] font-medium">{c.from_address}</td>
-                      <td className="px-3.5 py-2.5 text-[#2d3436] truncate max-w-[200px] font-sans font-medium">{c.subject}</td>
-                      <td className="px-3.5 py-2.5 capitalize font-sans text-[#4a5568]">{c.primary_threat?.replace('_', ' ')}</td>
+                      <td className="px-3.5 py-2.5 text-[#0f172a] truncate max-w-[150px] font-medium">{c.from_address}</td>
+                      <td className="px-3.5 py-2.5 text-[#0f172a] truncate max-w-[200px] font-sans font-medium">{c.subject}</td>
+                      <td className="px-3.5 py-2.5 capitalize font-sans text-[#64748b]">{c.primary_threat?.replace('_', ' ')}</td>
                       <td className="px-3.5 py-2.5">
-                        <span className={`px-2 py-0.5 rounded font-bold ${c.fraud_score > 70 ? 'bg-[#ff4757]/15 text-[#d63031]' : 'bg-[#10b981]/15 text-[#047857]'}`}>
+                        <span className={`px-2 py-0.5 rounded font-bold ${c.fraud_score > 70 ? 'bg-[#ef4444]/15 text-[#d63031]' : 'bg-[#10b981]/15 text-[#047857]'}`}>
                           {c.fraud_score}
                         </span>
                       </td>
-                      <td className="px-3.5 py-2.5 text-[#4a5568] text-[10px]">{c.campaign_id}</td>
+                      <td className="px-3.5 py-2.5 text-[#64748b] text-[10px]">{c.campaign_id}</td>
                       <td className="px-3.5 py-2.5 text-right">
                         <span className="text-[#0ea5e9] text-[11px] font-bold hover:underline flex items-center justify-end gap-1 font-sans">
                           <Eye className="w-3.5 h-3.5" /> View
@@ -343,23 +343,23 @@ export default function CaseHistoryPanel() {
           {/* Historical Case Details Modal */}
           {selectedCase && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-              <div className="panel-chassis w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden text-xs border border-[#babecc]">
+              <div className="panel-chassis w-full max-w-2xl max-h-[85vh] flex flex-col shadow-2xl overflow-hidden text-xs border border-[#e2e8f0]">
                 
                 {/* Modal Header */}
-                <div className="flex items-center justify-between px-6 py-4 border-b border-[#d1d9e6] bg-[#e0e5ec]">
+                <div className="flex items-center justify-between px-6 py-4 border-b border-[#f8fafc] bg-[#ffffff]">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2.5 bg-[#e0e5ec] text-[#7048e8] rounded-xl shadow-[var(--shadow-card)] border border-white/70">
+                    <div className="p-2.5 bg-[#ffffff] text-[#7048e8] rounded-xl shadow-[var(--shadow-card)] border border-white/70">
                       <FolderArchive className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-[#2d3436] font-mono">{selectedCase.evidence_id}</h3>
-                      <p className="text-[10px] text-[#4a5568] font-mono">Case ID: {selectedCase.case_id}</p>
+                      <h3 className="text-sm font-bold text-[#0f172a] font-mono">{selectedCase.evidence_id}</h3>
+                      <p className="text-[10px] text-[#64748b] font-mono">Case ID: {selectedCase.case_id}</p>
                     </div>
                   </div>
 
                   <button
                     onClick={() => setSelectedCase(null)}
-                    className="p-1.5 text-[#4a5568] hover:text-[#2d3436] rounded-lg transition-colors cursor-pointer"
+                    className="p-1.5 text-[#64748b] hover:text-[#0f172a] rounded-lg transition-colors cursor-pointer"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -369,33 +369,33 @@ export default function CaseHistoryPanel() {
                 <div className="p-6 space-y-4 overflow-y-auto">
                   <div className="grid grid-cols-2 gap-3 font-mono">
                     <div className="slot-recessed p-3.5 rounded-xl space-y-1">
-                      <span className="text-[#4a5568] font-bold block text-[10px] uppercase">FRAUD SCORE</span>
+                      <span className="text-[#64748b] font-bold block text-[10px] uppercase">FRAUD SCORE</span>
                       <span className={`text-xl font-bold ${selectedCase.fraud_score > 70 ? 'text-[#d63031]' : 'text-[#047857]'}`}>
                         {selectedCase.fraud_score} / 100
                       </span>
                     </div>
                     <div className="slot-recessed p-3.5 rounded-xl space-y-1">
-                      <span className="text-[#4a5568] font-bold block text-[10px] uppercase">CAMPAIGN CLUSTER</span>
+                      <span className="text-[#64748b] font-bold block text-[10px] uppercase">CAMPAIGN CLUSTER</span>
                       <span className="text-[#7048e8] font-bold text-sm truncate block">{selectedCase.campaign_id || 'Isolated'}</span>
                     </div>
                   </div>
 
                   <div className="slot-recessed p-4 space-y-2.5 font-mono">
                     <div>
-                      <span className="text-[#4a5568] font-bold block text-[10px] uppercase">SENDER (FROM)</span>
-                      <span className="text-[#2d3436] font-bold break-all">{selectedCase.from_address}</span>
+                      <span className="text-[#64748b] font-bold block text-[10px] uppercase">SENDER (FROM)</span>
+                      <span className="text-[#0f172a] font-bold break-all">{selectedCase.from_address}</span>
                     </div>
-                    <div className="pt-2 border-t border-[#babecc]/50">
-                      <span className="text-[#4a5568] font-bold block text-[10px] uppercase">SUBJECT</span>
-                      <span className="text-[#2d3436] font-sans font-bold break-all">{selectedCase.subject}</span>
+                    <div className="pt-2 border-t border-[#e2e8f0]/50">
+                      <span className="text-[#64748b] font-bold block text-[10px] uppercase">SUBJECT</span>
+                      <span className="text-[#0f172a] font-sans font-bold break-all">{selectedCase.subject}</span>
                     </div>
-                    <div className="pt-2 border-t border-[#babecc]/50">
-                      <span className="text-[#4a5568] font-bold block text-[10px] uppercase">PRIMARY THREAT CLASSIFICATION</span>
+                    <div className="pt-2 border-t border-[#e2e8f0]/50">
+                      <span className="text-[#64748b] font-bold block text-[10px] uppercase">PRIMARY THREAT CLASSIFICATION</span>
                       <span className="text-[#b45309] font-bold capitalize font-sans">{selectedCase.primary_threat?.replace('_', ' ')}</span>
                     </div>
-                    <div className="pt-2 border-t border-[#babecc]/50">
-                      <span className="text-[#4a5568] font-bold block text-[10px] uppercase">INGESTION TIMESTAMP</span>
-                      <span className="text-[#4a5568] text-[11px] font-medium">{selectedCase.timestamp_utc?.replace('T', ' ')}</span>
+                    <div className="pt-2 border-t border-[#e2e8f0]/50">
+                      <span className="text-[#64748b] font-bold block text-[10px] uppercase">INGESTION TIMESTAMP</span>
+                      <span className="text-[#64748b] text-[11px] font-medium">{selectedCase.timestamp_utc?.replace('T', ' ')}</span>
                     </div>
                   </div>
                 </div>
@@ -413,12 +413,12 @@ export default function CaseHistoryPanel() {
           {/* Stats Header Row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
             <div className="slot-recessed p-3.5 flex items-center justify-between">
-              <span className="text-[#4a5568] font-bold font-mono uppercase text-[10px]">Total Logged Alerts</span>
-              <span className="text-base font-bold font-mono text-[#2d3436]">{alertStats.total_alerts || 0}</span>
+              <span className="text-[#64748b] font-bold font-mono uppercase text-[10px]">Total Logged Alerts</span>
+              <span className="text-base font-bold font-mono text-[#0f172a]">{alertStats.total_alerts || 0}</span>
             </div>
             <div className="slot-recessed p-3.5 flex items-center justify-between">
               <span className="text-[#d63031] font-bold font-mono uppercase text-[10px]">High-Risk Critical Alerts</span>
-              <span className="text-base font-bold font-mono text-[#ff4757]">{alertStats.high_risk_alerts || 0}</span>
+              <span className="text-base font-bold font-mono text-[#ef4444]">{alertStats.high_risk_alerts || 0}</span>
             </div>
             <div className="slot-recessed p-3.5 flex items-center justify-between">
               <span className="text-[#047857] font-bold font-mono uppercase text-[10px]">Webhooks Dispatched</span>
@@ -427,48 +427,48 @@ export default function CaseHistoryPanel() {
           </div>
 
           {/* Webhook Configuration Card */}
-          <div className="slot-recessed p-5 space-y-3 text-xs bg-[#f0f2f5]">
+          <div className="slot-recessed p-5 space-y-3 text-xs bg-[#f8fafc]">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-[#2d3436] uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-mono">
+              <span className="font-bold text-[#0f172a] uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-mono">
                 <Webhook className="w-4 h-4 text-[#7048e8]" />
                 Automated SIEM / Webhook Dispatcher
               </span>
-              <span className={`px-2.5 py-0.5 rounded font-mono text-[10px] font-bold ${webhookConfig.enabled ? 'bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30' : 'bg-[#e0e5ec] text-[#4a5568] border border-[#babecc]'}`}>
+              <span className={`px-2.5 py-0.5 rounded font-mono text-[10px] font-bold ${webhookConfig.enabled ? 'bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30' : 'bg-[#ffffff] text-[#64748b] border border-[#e2e8f0]'}`}>
                 {webhookConfig.enabled ? 'DISPATCH ACTIVE' : 'DISPATCH DISABLED'}
               </span>
             </div>
 
             <form onSubmit={handleSaveWebhook} className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
               <div className="sm:col-span-6 space-y-1">
-                <label className="text-[#4a5568] font-bold block text-[11px] font-mono">Webhook Endpoint URL (Slack / Teams / Splunk / SIEM):</label>
+                <label className="text-[#64748b] font-bold block text-[11px] font-mono">Webhook Endpoint URL (Slack / Teams / Splunk / SIEM):</label>
                 <input
                   type="url"
                   placeholder="https://hooks.slack.com/services/..."
                   value={webhookConfig.webhook_url || ''}
                   onChange={(e) => setWebhookConfig({ ...webhookConfig, webhook_url: e.target.value })}
-                  className="w-full bg-[#e0e5ec] border border-[#babecc] rounded-xl px-3.5 py-2 text-xs text-[#2d3436] focus:outline-none font-mono"
+                  className="w-full bg-[#ffffff] border border-[#e2e8f0] rounded-xl px-3.5 py-2 text-xs text-[#0f172a] focus:outline-none font-mono"
                 />
               </div>
 
               <div className="sm:col-span-3 space-y-1">
-                <label className="text-[#4a5568] font-bold block text-[11px] font-mono">Min Trigger Score (0-100):</label>
+                <label className="text-[#64748b] font-bold block text-[11px] font-mono">Min Trigger Score (0-100):</label>
                 <input
                   type="number"
                   min="0"
                   max="100"
                   value={webhookConfig.min_score_threshold || 70}
                   onChange={(e) => setWebhookConfig({ ...webhookConfig, min_score_threshold: parseInt(e.target.value) || 70 })}
-                  className="w-full bg-[#e0e5ec] border border-[#babecc] rounded-xl px-3.5 py-2 text-xs text-[#2d3436] focus:outline-none font-mono"
+                  className="w-full bg-[#ffffff] border border-[#e2e8f0] rounded-xl px-3.5 py-2 text-xs text-[#0f172a] focus:outline-none font-mono"
                 />
               </div>
 
               <div className="sm:col-span-3 flex items-center gap-2">
-                <label className="flex items-center gap-1.5 cursor-pointer text-[#2d3436] font-bold text-xs">
+                <label className="flex items-center gap-1.5 cursor-pointer text-[#0f172a] font-bold text-xs">
                   <input
                     type="checkbox"
                     checked={webhookConfig.enabled === 1 || webhookConfig.enabled === true}
                     onChange={(e) => setWebhookConfig({ ...webhookConfig, enabled: e.target.checked ? 1 : 0 })}
-                    className="rounded border-[#babecc] text-[#7048e8] focus:ring-0"
+                    className="rounded border-[#e2e8f0] text-[#7048e8] focus:ring-0"
                   />
                   <span>Enable</span>
                 </label>
@@ -499,12 +499,12 @@ export default function CaseHistoryPanel() {
               placeholder="Filter alerts by Alert ID, Evidence ID, or Threat..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full slot-recessed px-4 py-2.5 text-xs text-[#2d3436] focus:outline-none font-mono rounded-xl"
+              className="w-full slot-recessed px-4 py-2.5 text-xs text-[#0f172a] focus:outline-none font-mono rounded-xl"
             />
 
             <div className="slot-recessed p-1 rounded-2xl overflow-x-auto">
-              <table className="min-w-full divide-y divide-[#babecc]/50 text-xs text-left">
-                <thead className="bg-[#e0e5ec] text-[#4a5568] font-bold font-mono text-[11px] uppercase tracking-wider">
+              <table className="min-w-full divide-y divide-[#e2e8f0]/50 text-xs text-left">
+                <thead className="bg-[#ffffff] text-[#64748b] font-bold font-mono text-[11px] uppercase tracking-wider">
                   <tr>
                     <th className="px-3.5 py-3">Alert ID</th>
                     <th className="px-3.5 py-3">Evidence ID</th>
@@ -514,21 +514,21 @@ export default function CaseHistoryPanel() {
                     <th className="px-3.5 py-3">Timestamp</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#babecc]/40 bg-[#f0f2f5] font-mono">
+                <tbody className="divide-y divide-[#e2e8f0]/40 bg-[#f8fafc] font-mono">
                   {filteredAlerts.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="text-center py-6 text-[#8896aa] italic font-sans">
+                      <td colSpan={6} className="text-center py-6 text-[#94a3b8] italic font-sans">
                         No high-risk alerts recorded. Alerts trigger automatically when an email score exceeds {webhookConfig.min_score_threshold || 70}.
                       </td>
                     </tr>
                   ) : (
                     filteredAlerts.map((a) => (
-                      <tr key={a.alert_id} className="hover:bg-[#e0e5ec]/60">
+                      <tr key={a.alert_id} className="hover:bg-[#ffffff]/60">
                         <td className="px-3.5 py-2.5 text-[#d63031] font-bold">{a.alert_id}</td>
                         <td className="px-3.5 py-2.5 text-[#7048e8] font-medium">{a.evidence_id}</td>
-                        <td className="px-3.5 py-2.5 capitalize font-sans text-[#2d3436]">{a.primary_threat?.replace('_', ' ')}</td>
+                        <td className="px-3.5 py-2.5 capitalize font-sans text-[#0f172a]">{a.primary_threat?.replace('_', ' ')}</td>
                         <td className="px-3.5 py-2.5">
-                          <span className={`px-2 py-0.5 rounded font-bold ${a.fraud_score >= 70 ? 'bg-[#ff4757]/15 text-[#d63031]' : 'bg-[#f59e0b]/15 text-[#b45309]'}`}>
+                          <span className={`px-2 py-0.5 rounded font-bold ${a.fraud_score >= 70 ? 'bg-[#ef4444]/15 text-[#d63031]' : 'bg-[#f59e0b]/15 text-[#b45309]'}`}>
                             {a.fraud_score} / 100
                           </span>
                         </td>
@@ -538,10 +538,10 @@ export default function CaseHistoryPanel() {
                               <CheckCircle2 className="w-3 h-3 text-[#059669]" /> Sent
                             </span>
                           ) : (
-                            <span className="text-[#8896aa] text-[11px]">Unsent / Disabled</span>
+                            <span className="text-[#94a3b8] text-[11px]">Unsent / Disabled</span>
                           )}
                         </td>
-                        <td className="px-3.5 py-2.5 text-[#4a5568] text-[10px]">
+                        <td className="px-3.5 py-2.5 text-[#64748b] text-[10px]">
                           {a.timestamp_utc?.replace('T', ' ').substring(0, 19)}
                         </td>
                       </tr>
@@ -559,20 +559,20 @@ export default function CaseHistoryPanel() {
       {selectedTab === 'retention' && (
         <div className="space-y-4 text-xs">
           
-          <div className="slot-recessed p-5 space-y-4 bg-[#f0f2f5]">
+          <div className="slot-recessed p-5 space-y-4 bg-[#f8fafc]">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="p-2 bg-[#e0e5ec] text-[#047857] rounded-xl shadow-[var(--shadow-card)] border border-white/70">
+                <span className="p-2 bg-[#ffffff] text-[#047857] rounded-xl shadow-[var(--shadow-card)] border border-white/70">
                   <Shield className="w-4 h-4 text-[#059669]" />
                 </span>
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-[#2d3436] font-mono">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-[#0f172a] font-mono">
                     GDPR Data Retention & PII Redaction Policy
                   </h3>
-                  <p className="text-[11px] text-[#4a5568]">Automated case expiry and cryptographic masking of sensitive user identifiers</p>
+                  <p className="text-[11px] text-[#64748b]">Automated case expiry and cryptographic masking of sensitive user identifiers</p>
                 </div>
               </div>
-              <span className={`px-2.5 py-0.5 rounded font-mono text-[10px] font-bold ${retentionConfig.enabled ? 'bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30' : 'bg-[#e0e5ec] text-[#4a5568] border border-[#babecc]'}`}>
+              <span className={`px-2.5 py-0.5 rounded font-mono text-[10px] font-bold ${retentionConfig.enabled ? 'bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30' : 'bg-[#ffffff] text-[#64748b] border border-[#e2e8f0]'}`}>
                 {retentionConfig.enabled ? 'POLICY ACTIVE' : 'POLICY INACTIVE'}
               </span>
             </div>
@@ -581,8 +581,8 @@ export default function CaseHistoryPanel() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 
                 {/* Max Retention Days */}
-                <div className="space-y-1.5 bg-[#e0e5ec] p-3.5 rounded-xl border border-[#babecc]">
-                  <label className="text-[#2d3436] font-bold block font-mono">Maximum Case Retention Window:</label>
+                <div className="space-y-1.5 bg-[#ffffff] p-3.5 rounded-xl border border-[#e2e8f0]">
+                  <label className="text-[#0f172a] font-bold block font-mono">Maximum Case Retention Window:</label>
                   <div className="flex items-center gap-2">
                     <input
                       type="number"
@@ -590,52 +590,52 @@ export default function CaseHistoryPanel() {
                       max="3650"
                       value={retentionConfig.max_case_age_days}
                       onChange={(e) => setRetentionConfig({ ...retentionConfig, max_case_age_days: parseInt(e.target.value) || 90 })}
-                      className="bg-[#f0f2f5] border border-[#babecc] rounded-lg px-3 py-1 text-[#2d3436] w-24 font-mono font-bold focus:outline-none"
+                      className="bg-[#f8fafc] border border-[#e2e8f0] rounded-lg px-3 py-1 text-[#0f172a] w-24 font-mono font-bold focus:outline-none"
                     />
-                    <span className="text-[#4a5568] font-medium">Days (Purge cases older than this)</span>
+                    <span className="text-[#64748b] font-medium">Days (Purge cases older than this)</span>
                   </div>
                 </div>
 
                 {/* Policy Enabled Toggle */}
-                <div className="space-y-1.5 bg-[#e0e5ec] p-3.5 rounded-xl border border-[#babecc] flex flex-col justify-center">
-                  <label className="flex items-center gap-2 cursor-pointer text-[#2d3436] font-bold">
+                <div className="space-y-1.5 bg-[#ffffff] p-3.5 rounded-xl border border-[#e2e8f0] flex flex-col justify-center">
+                  <label className="flex items-center gap-2 cursor-pointer text-[#0f172a] font-bold">
                     <input
                       type="checkbox"
                       checked={Boolean(retentionConfig.enabled)}
                       onChange={(e) => setRetentionConfig({ ...retentionConfig, enabled: e.target.checked })}
-                      className="rounded border-[#babecc] text-[#10b981] focus:ring-0"
+                      className="rounded border-[#e2e8f0] text-[#10b981] focus:ring-0"
                     />
                     <span>Enforce Automated Retention Schedule</span>
                   </label>
-                  <p className="text-[11px] text-[#4a5568] ml-6 font-medium">Automatically cleans cases during daily system maintenance</p>
+                  <p className="text-[11px] text-[#64748b] ml-6 font-medium">Automatically cleans cases during daily system maintenance</p>
                 </div>
 
               </div>
 
               {/* PII Masking Toggles */}
-              <div className="bg-[#e0e5ec] p-3.5 rounded-xl border border-[#babecc] space-y-2">
-                <span className="text-[#2d3436] font-bold flex items-center gap-1.5 font-mono">
+              <div className="bg-[#ffffff] p-3.5 rounded-xl border border-[#e2e8f0] space-y-2">
+                <span className="text-[#0f172a] font-bold flex items-center gap-1.5 font-mono">
                   <Lock className="w-3.5 h-3.5 text-[#7048e8]" />
                   PII Data Redaction & Cryptographic Masking Rules:
                 </span>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                  <label className="flex items-center gap-2 cursor-pointer text-[#2d3436] bg-[#f0f2f5] p-2.5 rounded-lg border border-[#babecc] font-medium">
+                  <label className="flex items-center gap-2 cursor-pointer text-[#0f172a] bg-[#f8fafc] p-2.5 rounded-lg border border-[#e2e8f0] font-medium">
                     <input
                       type="checkbox"
                       checked={Boolean(retentionConfig.mask_pii_in_storage)}
                       onChange={(e) => setRetentionConfig({ ...retentionConfig, mask_pii_in_storage: e.target.checked })}
-                      className="rounded border-[#babecc] text-[#10b981] focus:ring-0"
+                      className="rounded border-[#e2e8f0] text-[#10b981] focus:ring-0"
                     />
                     <span>Mask PII in SQLite / Case Database (Storage)</span>
                   </label>
 
-                  <label className="flex items-center gap-2 cursor-pointer text-[#2d3436] bg-[#f0f2f5] p-2.5 rounded-lg border border-[#babecc] font-medium">
+                  <label className="flex items-center gap-2 cursor-pointer text-[#0f172a] bg-[#f8fafc] p-2.5 rounded-lg border border-[#e2e8f0] font-medium">
                     <input
                       type="checkbox"
                       checked={Boolean(retentionConfig.mask_pii_in_reports)}
                       onChange={(e) => setRetentionConfig({ ...retentionConfig, mask_pii_in_reports: e.target.checked })}
-                      className="rounded border-[#babecc] text-[#10b981] focus:ring-0"
+                      className="rounded border-[#e2e8f0] text-[#10b981] focus:ring-0"
                     />
                     <span>Mask PII in Legal & Exported Forensic Reports</span>
                   </label>
@@ -659,7 +659,7 @@ export default function CaseHistoryPanel() {
                   disabled={purging}
                   className="btn-tactile-secondary flex items-center gap-1.5 text-xs font-bold text-[#d63031]"
                 >
-                  <Trash2 className="w-3.5 h-3.5 text-[#ff4757]" />
+                  <Trash2 className="w-3.5 h-3.5 text-[#ef4444]" />
                   {purging ? "Purging Cases..." : "Run Retention Purge Now"}
                 </button>
               </div>
@@ -673,13 +673,13 @@ export default function CaseHistoryPanel() {
             )}
 
             {purgeResult && (
-              <div className="bg-[#e0e5ec] p-3.5 rounded-xl border border-[#babecc] text-[#2d3436] font-mono text-[11px] space-y-1">
+              <div className="bg-[#ffffff] p-3.5 rounded-xl border border-[#e2e8f0] text-[#0f172a] font-mono text-[11px] space-y-1">
                 <div className="text-[#047857] font-bold font-sans flex items-center gap-1">
                   <CheckCircle2 className="w-4 h-4 text-[#059669]" /> Purge Cycle Executed:
                 </div>
                 <div>Purged Expired Cases: <strong>{purgeResult.purged_cases}</strong></div>
                 <div>Masked Retained Cases: <strong>{purgeResult.masked_cases}</strong></div>
-                <div className="text-[#4a5568]">Cutoff Date: {purgeResult.cutoff_date}</div>
+                <div className="text-[#64748b]">Cutoff Date: {purgeResult.cutoff_date}</div>
               </div>
             )}
           </div>

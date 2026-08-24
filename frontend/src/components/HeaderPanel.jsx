@@ -5,7 +5,7 @@ const THREAT_PATTERNS = [
   { 
     type: 'urgency', 
     regex: /\b(urgent|urgently|immediately|suspended|suspend|act now|closed|close|verify now|action required|limited time|expire|expired|warning)\b/i, 
-    bg: 'bg-[#ff4757]/15 text-[#d63031] border border-[#ff4757]/30', 
+    bg: 'bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30', 
     label: 'Urgency' 
   },
   { 
@@ -31,7 +31,7 @@ const THREAT_PATTERNS = [
 const COMBINED_REGEX = /(https?:\/\/[^\s<>"']+|\b(?:urgent|urgently|immediately|suspended|suspend|act now|closed|close|verify now|action required|limited time|expire|expired|warning|wire transfer|direct deposit|payroll|routing number|routing|bank account|invoice|swift code|paycheck|payment|remittance|gift card|crypto|wallet|ceo|chief executive officer|board meeting|confidential|offsite|do not process|management|admin|security team|director|president)\b)/gi;
 
 function renderAnnotatedBody(text, highlightEnabled) {
-  if (!text) return <span className="text-[#4a5568] italic font-mono">No message body text found in payload.</span>;
+  if (!text) return <span className="text-[#64748b] italic font-mono">No message body text found in payload.</span>;
   if (!highlightEnabled) return text;
 
   const parts = text.split(COMBINED_REGEX);
@@ -86,16 +86,16 @@ export default function HeaderPanel({ data }) {
       <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
 
       {/* Header & Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d1d9e6] pb-4 px-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#f8fafc] pb-4 px-2">
         <div className="flex items-center space-x-3.5">
-          <div className="p-3 bg-[#e0e5ec] text-[#0ea5e9] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
+          <div className="p-3 bg-[#ffffff] text-[#0ea5e9] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
             <Mail className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#2d3436] flex items-center gap-2">
+            <h2 className="text-lg font-bold text-[#0f172a] flex items-center gap-2">
               Email Payload & RFC Header Matrix
             </h2>
-            <p className="text-xs text-[#4a5568]">
+            <p className="text-xs text-[#64748b]">
               Standard RFC-5322 header dissection, Return-Path divergence, and threat signal annotations
             </p>
           </div>
@@ -129,19 +129,19 @@ export default function HeaderPanel({ data }) {
       {viewTab === 'headers' && (
         <div className="space-y-4">
           <div className="slot-recessed p-1 rounded-2xl overflow-hidden">
-            <table className="min-w-full divide-y divide-[#babecc]/50 text-xs text-left">
-              <tbody className="divide-y divide-[#babecc]/40 bg-[#f0f2f5] font-mono">
+            <table className="min-w-full divide-y divide-[#e2e8f0]/50 text-xs text-left">
+              <tbody className="divide-y divide-[#e2e8f0]/40 bg-[#f8fafc] font-mono">
                 {rows.map((row, idx) => {
                   if (!row.value && row.label === "Reply-To") return null;
                   const isReplyTo = row.label === "Reply-To";
                   return (
-                    <tr key={idx} className="hover:bg-[#e0e5ec]/60 transition-colors">
-                      <th className="px-4 py-3 font-bold text-[#4a5568] w-1/4 bg-[#e0e5ec]/70 font-mono text-[11px] uppercase tracking-wider">
+                    <tr key={idx} className="hover:bg-[#ffffff]/60 transition-colors">
+                      <th className="px-4 py-3 font-bold text-[#64748b] w-1/4 bg-[#ffffff]/70 font-mono text-[11px] uppercase tracking-wider">
                         {row.label}
                       </th>
-                      <td className="px-4 py-3 text-[#2d3436] break-all text-[11px] font-medium">
+                      <td className="px-4 py-3 text-[#0f172a] break-all text-[11px] font-medium">
                         <div className="flex items-center justify-between gap-2">
-                          <span>{row.value || <span className="text-[#8896aa] italic font-sans font-normal">Not available</span>}</span>
+                          <span>{row.value || <span className="text-[#94a3b8] italic font-sans font-normal">Not available</span>}</span>
                           {isReplyTo && hasReplyToMismatch && (
                             <span className="flex items-center gap-1 text-[10px] text-[#b45309] bg-[#f59e0b]/15 px-2.5 py-0.5 rounded border border-[#f59e0b]/30 flex-shrink-0 font-bold font-sans">
                               <ShieldAlert className="w-3.5 h-3.5 text-[#d97706]" />
@@ -160,8 +160,8 @@ export default function HeaderPanel({ data }) {
           {/* Raw Auth Results Snippet */}
           {data.authentication_results && (
             <div className="slot-recessed p-3.5 rounded-xl text-[11px] font-mono">
-              <span className="text-[#4a5568] font-bold block mb-1 text-[10px] uppercase font-mono tracking-wider">Raw Authentication-Results:</span>
-              <span className="text-[#2d3436] break-all">{data.authentication_results}</span>
+              <span className="text-[#64748b] font-bold block mb-1 text-[10px] uppercase font-mono tracking-wider">Raw Authentication-Results:</span>
+              <span className="text-[#0f172a] break-all">{data.authentication_results}</span>
             </div>
           )}
         </div>
@@ -173,8 +173,8 @@ export default function HeaderPanel({ data }) {
           {/* Controls & Legend Bar */}
           <div className="flex flex-wrap items-center justify-between gap-2 slot-recessed p-3 rounded-xl text-[11px]">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[#4a5568] font-bold uppercase text-[10px] font-mono tracking-wider">Signal Legend:</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#ff4757]/15 text-[#d63031] border border-[#ff4757]/30 text-[10px] font-bold font-mono">
+              <span className="text-[#64748b] font-bold uppercase text-[10px] font-mono tracking-wider">Signal Legend:</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30 text-[10px] font-bold font-mono">
                 Urgency / Threat
               </span>
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#7048e8]/15 text-[#5f3dc4] border border-[#7048e8]/30 text-[10px] font-bold font-mono">
@@ -190,17 +190,17 @@ export default function HeaderPanel({ data }) {
 
             <button
               onClick={() => setHighlightThreats(!highlightThreats)}
-              className={`key-switch px-3 py-1 text-xs font-bold ${highlightThreats ? 'active text-[#ff4757]' : ''}`}
+              className={`key-switch px-3 py-1 text-xs font-bold ${highlightThreats ? 'active text-[#ef4444]' : ''}`}
             >
               {highlightThreats ? '✓ Highlighting Active' : 'Highlighting Disabled'}
             </button>
           </div>
 
-          <div className="slot-recessed p-5 rounded-xl text-xs text-[#2d3436] max-h-72 overflow-y-auto leading-relaxed whitespace-pre-wrap font-sans select-text font-medium bg-[#f0f2f5]">
+          <div className="slot-recessed p-5 rounded-xl text-xs text-[#0f172a] max-h-72 overflow-y-auto leading-relaxed whitespace-pre-wrap font-sans select-text font-medium bg-[#f8fafc]">
             {renderAnnotatedBody(data.body_plain || data.body_html, highlightThreats)}
           </div>
           
-          <div className="flex justify-between text-[10px] text-[#4a5568] font-mono px-1">
+          <div className="flex justify-between text-[10px] text-[#64748b] font-mono px-1">
             <span>Body Length: {(data.body_plain || data.body_html || '').length} characters</span>
             <span>Extracted URLs: {data.urls?.length || 0} link(s)</span>
           </div>
@@ -212,17 +212,17 @@ export default function HeaderPanel({ data }) {
         <div className="space-y-2.5 max-h-72 overflow-y-auto font-mono text-[11px] pr-1">
           {data.received_chain && data.received_chain.length > 0 ? (
             data.received_chain.map((hopHeader, idx) => (
-              <div key={idx} className="bg-[#f0f2f5] p-3 rounded-xl border border-[#babecc]/60 space-y-1 shadow-sm">
+              <div key={idx} className="bg-[#f8fafc] p-3 rounded-xl border border-[#e2e8f0]/60 space-y-1 shadow-sm">
                 <span className="text-[#0ea5e9] font-bold block text-[10px] uppercase">
                   HOP #{idx + 1} (Received Header)
                 </span>
-                <p className="text-[#2d3436] break-all leading-tight whitespace-pre-wrap">
+                <p className="text-[#0f172a] break-all leading-tight whitespace-pre-wrap">
                   {hopHeader}
                 </p>
               </div>
             ))
           ) : (
-            <p className="text-[#4a5568] italic text-xs py-4 text-center slot-recessed">No Received header chain available.</p>
+            <p className="text-[#64748b] italic text-xs py-4 text-center slot-recessed">No Received header chain available.</p>
           )}
         </div>
       )}
