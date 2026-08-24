@@ -2,9 +2,16 @@ import hashlib
 import json
 import logging
 from datetime import datetime, timezone
-from web3 import Web3
 
 logger = logging.getLogger(__name__)
+
+try:
+    from web3 import Web3
+    HAS_WEB3 = True
+except ImportError:
+    Web3 = None
+    HAS_WEB3 = False
+    logger.info("web3 not installed. BlockchainNotary running in standalone cryptographic mode.")
 
 # In a true production environment, this would connect to an Infura/Alchemy endpoint
 # and interact with a deployed smart contract. For this iteration, we simulate the
@@ -12,7 +19,10 @@ logger = logging.getLogger(__name__)
 
 class BlockchainNotary:
     def __init__(self, provider_url="http://127.0.0.1:8545"):
-        self.w3 = Web3(Web3.HTTPProvider(provider_url))
+        if HAS_WEB3 and Web3 is not None:
+            self.w3 = Web3(Web3.HTTPProvider(provider_url))
+        else:
+            self.w3 = None
         # This is a mock contract address for the local ledger
         self.contract_address = "0x" + "0" * 40
 
