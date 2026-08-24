@@ -22,6 +22,13 @@ const btnReset = document.getElementById('btnReset');
 const btnRetry = document.getElementById('btnRetry');
 const btnDashboard = document.getElementById('btnDashboard');
 
+function openDashboardWithData(data) {
+  chrome.storage.local.set({ lastScanResult: data }, () => {
+    chrome.runtime.sendMessage({ action: 'OPEN_DASHBOARD', data: data });
+    window.close();
+  });
+}
+
 let activeGmailTabId = null;
 
 // ─── Boot: health check ───
@@ -73,9 +80,7 @@ btnScanGmail.addEventListener('click', () => {
     } else if (response && response.data) {
       // The content script handled the scan and returned the result
       stopLoadingSteps();
-      chrome.storage.local.set({ lastScanResult: response.data });
-      renderResults(response.data);
-      showView('results');
+      openDashboardWithData(response.data);
     }
   });
 });
@@ -210,8 +215,7 @@ async function handleFile(file) {
         }
 
         const data = await res.json();
-        renderResults(data);
-        showView('results');
+        openDashboardWithData(data);
       } catch (fallbackErr) {
         stopLoadingSteps();
         showError(fallbackErr.message || 'Failed to analyze email. Is the backend running?');
@@ -225,21 +229,15 @@ async function handleFile(file) {
 chrome.runtime.onMessage.addListener((msg) => {
   if (msg.action === 'SCAN_COMPLETE') {
     stopLoadingSteps();
-    renderResults(msg.data);
-    showView('results');
+    openDashboardWithData(msg.data);
   } else if (msg.action === 'SCAN_ERROR') {
     stopLoadingSteps();
     showError(msg.error || 'Failed to analyze email. Is the backend running?');
   }
 });
 
-// Check if there is already a saved result when popup opens
-chrome.storage.local.get(['lastScanResult'], (result) => {
-  if (result.lastScanResult) {
-    renderResults(result.lastScanResult);
-    showView('results');
-  }
-});
+// Disabled auto-loading previous scan results into the popup.
+// chrome.storage.local.get(['lastScanResult'], (result) => { ... });
 
 function showError(msg) {
   errorText.textContent = msg;
