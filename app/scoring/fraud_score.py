@@ -175,6 +175,11 @@ def calculate_fraud_score(
             score += 10
             reasons.append(f"AI Language Analysis: High likelihood of synthetic/LLM-generated text (Score: {synthetic.get('synthetic_score')}%).")
             
+        spam = ai_ml_analysis.get("spam_analysis", {})
+        if spam.get("is_spam"):
+            score += 15
+            reasons.append(f"AI Spam Detection: Classified as spam using Naive Bayes model (Confidence: {round(spam.get('confidence', 0)*100)}%).")
+            
         features = ai_ml_analysis.get("features", {})
         suspicious_att = features.get("suspicious_attachments", [])
         if suspicious_att:

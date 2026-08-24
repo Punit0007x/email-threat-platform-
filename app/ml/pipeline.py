@@ -4,6 +4,7 @@ from app.ml.bec_engine import analyze_bec_threat
 from app.ml.synthetic_detector import detect_synthetic_content
 from app.ml.threat_classifier import classify_email_threat
 from app.ml.genai_analyzer import perform_ai_forensic_reasoning
+from app.ml.spam_model import predict_spam
 
 def analyze_email_ai_ml(
     from_address: str,
@@ -19,7 +20,7 @@ def analyze_email_ai_ml(
     """
     Main entry point for the AI/ML Threat Analysis & Forensic Reasoning Subsystem.
     Executes feature extraction, BEC detection, synthetic analysis, probabilistic threat
-    classification, and SOC remediation generation.
+    classification, spam detection, and SOC remediation generation.
     """
     # 1. Extract lexical, structural, and manipulation features
     features = extract_advanced_features(
@@ -42,7 +43,10 @@ def analyze_email_ai_ml(
     # 3. Synthetic / AI-Generated Language Detection
     synthetic_analysis = detect_synthetic_content(combined_body)
     
-    # 4. Multi-Class Probabilistic Threat Classification (Trained Scikit-Learn TF-IDF + Heuristic Ensemble)
+    # 4. Basic Spam Classification (from isolated ML model)
+    spam_analysis = predict_spam(combined_body)
+    
+    # 5. Multi-Class Probabilistic Threat Classification (Trained Scikit-Learn TF-IDF + Heuristic Ensemble)
     threat_classification = classify_email_threat(
         features=features,
         domain_check=domain_check or {},
@@ -51,7 +55,7 @@ def analyze_email_ai_ml(
         raw_text=f"{subject} {combined_body}"
     )
     
-    # 5. AI / LLM Forensic Reasoning & MITRE ATT&CK Mapping
+    # 6. AI / LLM Forensic Reasoning & MITRE ATT&CK Mapping
     email_summary_ctx = {
         "from_address": from_address,
         "subject": subject,
@@ -69,6 +73,7 @@ def analyze_email_ai_ml(
     
     return {
         "classification": threat_classification,
+        "spam_analysis": spam_analysis,
         "features": features,
         "bec_analysis": bec_analysis,
         "synthetic_analysis": synthetic_analysis,
