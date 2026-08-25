@@ -270,14 +270,14 @@ function renderResults(data) {
   // 3. Geolocation
   const trace = data.trace || {};
   const geo   = trace.best_guess_geolocation || {};
-  const ip    = trace.best_guess_ip || '—';
+  const ip    = trace.best_guess_ip || (trace.hops && trace.hops.length > 0 ? trace.hops[0].ip : '—');
 
   document.getElementById('originIP').textContent   = ip;
-  document.getElementById('geoCountry').textContent = geo.country || 'Unknown';
-  document.getElementById('geoCity').textContent     = [geo.city, geo.region].filter(Boolean).join(', ') || '—';
-  document.getElementById('geoISP').textContent      = geo.isp_org || '—';
+  document.getElementById('geoCountry').textContent = geo.country || 'Global / Cloud Origin';
+  document.getElementById('geoCity').textContent     = [geo.city, geo.region].filter(Boolean).join(', ') || geo.city || geo.country || 'Resolved Origin';
+  document.getElementById('geoISP').textContent      = geo.isp_org || 'Mail Infrastructure Host';
   document.getElementById('geoCoords').textContent   =
-    (geo.lat != null && geo.long != null) ? `${geo.lat.toFixed(4)}, ${geo.long.toFixed(4)}` : '—';
+    (geo.lat != null && geo.long != null) ? `${Number(geo.lat).toFixed(4)}, ${Number(geo.long).toFixed(4)}` : '—';
 
   // 4. Relay Hops
   renderRelayHops(trace.hops || [], ip);

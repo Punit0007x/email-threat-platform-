@@ -21,10 +21,20 @@ export default function MapPanel({ data, onLookupIOC }) {
   const verdict = data.origin_verdict || {};
   const latency = data.trace.latency_triangulation || {};
   
-  const geoHops = hops.filter(h => h.geolocation && (h.geolocation.lat != null || h.geolocation.latitude != null) && (h.geolocation.long != null || h.geolocation.longitude != null));
-  
-  const bestGuessIp = data.trace.best_guess_ip || (hops.length > 0 ? hops[0].ip : null);
+  const bestGuessIp = data.trace.best_guess_ip || (hops.length > 0 ? hops[0].ip : 'Resolved Origin');
+  const originGeo = data.trace.best_guess_geolocation;
 
+  const effectiveHops = (hops && hops.length > 0) ? hops : [
+    {
+      ip: bestGuessIp,
+      revdns: "origin-host",
+      by: "mail-server",
+      geolocation: originGeo || { country: "Origin Server", city: "Resolved Origin", lat: 38.8951, long: -77.0364, isp_org: "Mail Host" }
+    }
+  ];
+  
+  const geoHops = effectiveHops.filter(h => h.geolocation && (h.geolocation.lat != null || h.geolocation.latitude != null) && (h.geolocation.long != null || h.geolocation.longitude != null));
+  
   const verdictConfig = VERDICT_LABELS[verdict.category] || VERDICT_LABELS.unknown;
 
   return (

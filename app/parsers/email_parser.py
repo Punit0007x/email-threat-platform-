@@ -16,11 +16,24 @@ def parse_eml_file(file_path: str) -> ParsedEmail:
         # We use policy.default to automatically decode headers and handle complex structures
         msg = email.message_from_binary_file(f, policy=policy.default)
     
-    # We use .get_all() for 'Received' because it appears multiple times.
-    # NOTE: Keeping the FULL chain in order is critical for our geolocation
-    # tracing later, because we must walk backwards from the final hop to find
-    # the true origin IP of the sender.
+    # Extract all Received and X-Received headers
     received_chain = msg.get_all('Received', [])
+    x_received = msg.get_all('X-Received', [])
+    all_received = [str(r).strip() for r in (received_chain + x_received) if str(r).strip()]
+    
+    # Check for direct originating IP headers
+    x_originating_ip = None
+    for h in ['X-Originating-IP', 'X-OriginatingIP', 'X-Sender-IP', 'X-Real-IP', 'X-Client-IP', 'X-Forwarded-For']:
+        val = msg.get(h)
+        if val:
+            x_originating_ip = str(val).strip('[]<> ')
+            break
+            
+    # Capture all raw headers
+    raw_headers = {}
+    for k, v in msg.items():
+        if k not in raw_headers:
+            raw_headers[k] = str(v)
     
     parsed = ParsedEmail(
         from_address=str(msg.get('From', '')),
@@ -30,8 +43,10 @@ def parse_eml_file(file_path: str) -> ParsedEmail:
         message_id=str(msg.get('Message-ID', '')),
         reply_to=str(msg.get('Reply-To', '')),
         return_path=str(msg.get('Return-Path', '')),
-        received_chain=[str(r).strip() for r in received_chain],
-        authentication_results=str(msg.get('Authentication-Results', '')) if msg.get('Authentication-Results') else None
+        received_chain=all_received,
+        authentication_results=str(msg.get('Authentication-Results', '')) if msg.get('Authentication-Results') else None,
+        x_originating_ip=x_originating_ip,
+        raw_headers=raw_headers
     )
     
     body_plain = ""
