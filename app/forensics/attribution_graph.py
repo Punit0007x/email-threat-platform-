@@ -138,19 +138,19 @@ def add_incident(graph: nx.Graph, incident: Incident) -> None:
 
     if incident.originating_ip:
         graph.add_node(f"IP_{incident.originating_ip}", _type="ip")
-        graph.add_edge(incident.incident_id, f"IP_{incident.originating_ip}", weight=_EDGE_WEIGHTS["originating_ip"])
+        graph.add_edge(incident.incident_id, f"IP_{incident.originating_ip}", weight=_EDGE_WEIGHTS["originates_from_ip"])
 
     if incident.asn:
         graph.add_node(f"ASN_{incident.asn}", _type="asn")
-        graph.add_edge(incident.incident_id, f"ASN_{incident.asn}", weight=_EDGE_WEIGHTS["asn"])
+        graph.add_edge(incident.incident_id, f"ASN_{incident.asn}", weight=_EDGE_WEIGHTS["resolves_to_asn"])
 
     if incident.from_domain:
         graph.add_node(f"DOMAIN_{incident.from_domain}", _type="domain")
-        graph.add_edge(incident.incident_id, f"DOMAIN_{incident.from_domain}", weight=_EDGE_WEIGHTS["from_domain"])
+        graph.add_edge(incident.incident_id, f"DOMAIN_{incident.from_domain}", weight=_EDGE_WEIGHTS["uses_domain"])
 
     if incident.reply_to_domain and incident.reply_to_domain != incident.from_domain:
         graph.add_node(f"DOMAIN_{incident.reply_to_domain}", _type="domain")
-        graph.add_edge(incident.incident_id, f"DOMAIN_{incident.reply_to_domain}", weight=_EDGE_WEIGHTS["reply_to_domain"])
+        graph.add_edge(incident.incident_id, f"DOMAIN_{incident.reply_to_domain}", weight=_EDGE_WEIGHTS["redirects_replies_to_domain"])
 
 
 # ---------------------------------------------------------------------------

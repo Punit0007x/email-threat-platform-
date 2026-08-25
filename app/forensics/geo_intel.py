@@ -120,8 +120,6 @@ class StaticSeedProvider:
 
 # Seed set. Production: refresh hourly from
 # https://check.torproject.org/torbulkexitlist and cache in Redis/DB.
-_TOR_EXIT_SEED: set[str] = {
-    "185.220.101.45",
 _TOR_EXIT_NODES: set[str] = {
     "185.220.101.45", "185.220.101.46", "185.220.101.47",
     "192.42.116.16", "109.70.100.11",

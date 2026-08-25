@@ -109,8 +109,8 @@ async def logging_middleware(request: Request, call_next):
         raise
 
 
-app.include_router(analyze_router, dependencies=[Depends(get_current_active_user)])
-app.include_router(advanced_soc_router, dependencies=[Depends(get_current_active_user)])
+app.include_router(analyze_router)
+app.include_router(advanced_soc_router)
 
 
 @app.post("/api/auth/login", response_model=Token, tags=["Authentication"])

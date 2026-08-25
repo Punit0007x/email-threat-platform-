@@ -152,7 +152,7 @@ def init_default_user():
     if "admin" not in FAKE_USERS_DB:
         create_user(UserCreate(
             username="admin",
-            email="admin@localhost",
+            email="admin@localhost.com",
             full_name="Admin User",
             password="CHANGE_ME_IN_PRODUCTION",
             scopes=["read", "write", "admin"],

@@ -89,6 +89,7 @@ def classify_email_threat(
             logits["invoice_payment_fraud"] += 1.0
             logits["clean"] -= 2.0
 
+    crypto_count = len(entities.get("crypto_wallets", []))
     if crypto_count > 0:
         logits["extortion_blackmail"] += (crypto_count * 3.5) + (fear_score * 2.0) + 2.0
         logits["clean"] -= 4.0
