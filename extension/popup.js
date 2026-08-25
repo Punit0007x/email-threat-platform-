@@ -117,23 +117,12 @@ document.getElementById('btnRetry').addEventListener('click', resetToUpload);
 document.getElementById('btnDashboard').addEventListener('click', () => {
   chrome.storage.local.get(['lastScanResult'], (res) => {
     if (res.lastScanResult) {
-      chrome.tabs.create({ url: 'http://localhost:5174/' }, (tab) => {
-        // Wait briefly for the tab to initialize
-        setTimeout(() => {
-          chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: (data) => {
-              // 1. Set localStorage for immediate or next-reload pickup
-              localStorage.setItem('shieldmail_shared_result', JSON.stringify(data));
-              // 2. Dispatch event in case the app is already listening
-              window.dispatchEvent(new CustomEvent('shieldmail_inject', { detail: { data } }));
-            },
-            args: [res.lastScanResult]
-          });
-        }, 800); // 800ms delay to ensure DOM is ready
+      chrome.runtime.sendMessage({
+        action: 'OPEN_DASHBOARD',
+        data: res.lastScanResult
       });
     } else {
-      window.open('http://localhost:5174', '_blank');
+      chrome.tabs.create({ url: 'http://localhost:5173/' });
     }
   });
 });
@@ -254,8 +243,13 @@ function renderResults(data) {
 
   animateScore(score);
   setRiskBadge(riskLevel);
-  document.getElementById('verdictText').textContent =
-    reasons[0] || 'No obvious threat indicators detected.';
+  
+  const verdictEl = document.getElementById('verdictText');
+  if (reasons && reasons.length > 0) {
+    verdictEl.innerHTML = reasons.map(r => `• ${r}`).join('<br/>');
+  } else {
+    verdictEl.textContent = 'No obvious threat indicators detected.';
+  }
 
   // 2. Detection Type
   const classification = (data.ai_ml_analysis || {}).classification || {};
