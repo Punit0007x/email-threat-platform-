@@ -84,32 +84,47 @@ function App() {
   // Load shared data from Chrome extension (injected via scripting API)
   useEffect(() => {
     const handleExtensionData = (data) => {
+      if (!data) return;
       setResults(data);
       setActiveView('detection');
       setTimeout(() => {
         dashboardRef.current?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+      }, 150);
     };
 
-    // 1. Check if data was set in localStorage before the app fully loaded
-    const shared = localStorage.getItem('shieldmail_shared_result');
-    if (shared) {
-      try {
-        handleExtensionData(JSON.parse(shared));
-        localStorage.removeItem('shieldmail_shared_result'); // Clean up
-      } catch (err) {
-        console.error("Failed to parse shared data from localStorage", err);
+    const checkStorage = () => {
+      const shared = localStorage.getItem('shieldmail_shared_result');
+      if (shared) {
+        try {
+          const parsed = JSON.parse(shared);
+          handleExtensionData(parsed);
+          localStorage.removeItem('shieldmail_shared_result');
+        } catch (err) {
+          console.error("Failed to parse shared data from localStorage", err);
+        }
       }
-    }
+    };
 
-    // 2. Listen for custom events dispatched by the content script while app is open
+    // Check storage immediately
+    checkStorage();
+
+    // Check on tab focus or storage change
+    window.addEventListener('focus', checkStorage);
+    window.addEventListener('storage', checkStorage);
+
+    // Listen for custom events dispatched by the extension
     const handleSharedData = (event) => {
       if (event.detail && event.detail.data) {
         handleExtensionData(event.detail.data);
       }
     };
     window.addEventListener('shieldmail_inject', handleSharedData);
-    return () => window.removeEventListener('shieldmail_inject', handleSharedData);
+
+    return () => {
+      window.removeEventListener('focus', checkStorage);
+      window.removeEventListener('storage', checkStorage);
+      window.removeEventListener('shieldmail_inject', handleSharedData);
+    };
   }, []);
   const handleLookupIOC = (ioc) => {
     setIocQuery(ioc);
