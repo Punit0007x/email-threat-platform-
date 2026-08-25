@@ -25,6 +25,7 @@ from app.ml.graph_intel import build_forensic_attribution_graph
 from app.forensics.blockchain_notary import BlockchainNotary
 from app.ml.vector_db import SemanticThreatDB
 from app.core.events import event_bus
+from app.core.metrics import record_email_analysis, record_fraud_score, record_kafka_message, record_vector_db_operation
 from fastapi.responses import HTMLResponse
 
 # Initialize singletons for the API
@@ -139,6 +140,20 @@ async def parse_email(file: UploadFile = File(...)):
                 whois_intel=whois_intel
             )
             
+            # --- NEW FORENSIC TRACING (Phase 2 Task) ---
+            from app.forensics.trace_pipeline import run_forensic_trace
+            raw_email_str = contents.decode('utf-8', errors='replace')
+            from app.core.config import get_settings
+            tenant_id = get_settings().environment  # Use environment as tenant for demo
+            
+            forensic_report = run_forensic_trace(
+                incident_id=custody_manifest["evidence_id"],
+                raw_email=raw_email_str,
+                known_brand_domains=get_settings().protected_brands,
+                tenant_id=tenant_id
+            )
+            # ---------------------------------------------
+            
             # Step 9: AI/ML Threat Classification, BEC Engine & Forensic Reasoner
             ai_ml_results = analyze_email_ai_ml(
                 from_address=parsed_email.from_address,
@@ -149,7 +164,8 @@ async def parse_email(file: UploadFile = File(...)):
                 attachments=parsed_email.attachments,
                 urls=parsed_email.urls,
                 domain_check=domain_check,
-                auth_analysis=auth_results
+                auth_analysis=auth_results,
+                forensic_report=forensic_report
             )
             
             # Step 9.5: God Level - Semantic Vector Matching
@@ -186,6 +202,12 @@ async def parse_email(file: UploadFile = File(...)):
                 dns_intel=dns_intel
             )
             
+            # Record metrics
+            primary_threat = ai_ml_results.get("classification", {}).get("primary_threat", "clean")
+            risk_level = fraud_assessment.get("risk_level", "Low")
+            record_email_analysis(verdict=risk_level.lower(), threat_type=primary_threat)
+            record_fraud_score(fraud_assessment.get("score", 0))
+            
             # Step 12: Unified JSON Response
             response_data = parsed_email.model_dump()
             response_data["custody"] = custody_manifest
@@ -210,6 +232,15 @@ async def parse_email(file: UploadFile = File(...)):
             response_data["attribution_graph"] = attribution_graph
             response_data["fraud_assessment"] = fraud_assessment
             
+            # --- NEW FORENSIC TRACING EXPORT ---
+            import dataclasses
+            # Convert report to dict for JSON serialization, handling sets
+            # Convert sets to list to avoid JSON serialization errors
+            fr_dict = dataclasses.asdict(forensic_report)
+            fr_dict["related_incidents"] = list(fr_dict["related_incidents"])
+            response_data["advanced_forensics"] = fr_dict
+            # ---------------------------------------------
+            
             # Step 13: Persist Case & Assign Threat Campaign Cluster
             try:
                 campaign_id = save_incident_case(response_data)
@@ -217,15 +248,19 @@ async def parse_email(file: UploadFile = File(...)):
                 
                 # God Level - Store in Vector DB
                 vector_db.store_email(campaign_id, full_text, {"subject": parsed_email.subject, "from": parsed_email.from_address})
+                record_vector_db_operation("store", True)
                 
                 # God Level - Publish to Kafka for asynchronous microservices
                 event_bus.publish_email_ingested(campaign_id, response_data)
+                record_kafka_message("email-ingestion-events", True)
                 
                 # Step 13b: Generate Alert for High-Risk Cases
                 alert_id = create_alert(response_data, fraud_assessment)
                 if alert_id:
                     response_data["alert_id"] = alert_id
-            except Exception:
+            except Exception as e:
+                record_vector_db_operation("store", False)
+                record_kafka_message("email-ingestion-events", False)
                 response_data["campaign_id"] = "CAMP-AUTONOMOUS"
             
             return response_data

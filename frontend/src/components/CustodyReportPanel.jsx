@@ -150,28 +150,28 @@ export default function CustodyReportPanel({ data }) {
     const days = whois.domain_age_days;
     if (days < 30) {
       return (
-        <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30">
+        <span className="px-2 py-0.5 rounded text-xs font-bold font-mono bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30">
           {days} days old (High Risk)
         </span>
       );
     }
     if (days < 90) {
       return (
-        <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-[#f59e0b]/15 text-[#b45309] border border-[#f59e0b]/30">
+        <span className="px-2 py-0.5 rounded text-xs font-bold font-mono bg-[#f59e0b]/15 text-[#b45309] border border-[#f59e0b]/30">
           {days} days old (Recent)
         </span>
       );
     }
     const years = (days / 365.25).toFixed(1);
     return (
-      <span className="px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30">
+      <span className="px-2 py-0.5 rounded text-xs font-bold font-mono bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30">
         {years > 1 ? `${years} yrs (${days}d)` : `${days} days`} (Established)
       </span>
     );
   };
 
   return (
-    <div className="panel-chassis p-6 sm:p-8 space-y-6 relative overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
       
       {/* Corner Screws */}
       <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
@@ -188,11 +188,11 @@ export default function CustodyReportPanel({ data }) {
           <div>
             <h2 className="text-lg font-bold text-[#0f172a] flex items-center gap-2">
               Chain-of-Custody & Evidence Manifest
-              <span className="text-[10px] bg-[#10b981]/15 text-[#047857] font-mono px-2.5 py-0.5 rounded border border-[#10b981]/30 font-bold">
+              <span className="text-xs bg-[#10b981]/15 text-[#047857] font-mono px-2.5 py-0.5 rounded border border-[#10b981]/30 font-bold">
                 {custody.custody_seal}
               </span>
             </h2>
-            <p className="text-xs text-[#64748b] font-mono">Cryptographic evidence preservation & legal reporting</p>
+            <p className="text-sm text-[#64748b] font-mono">Cryptographic evidence preservation & legal reporting</p>
           </div>
         </div>
 
@@ -200,7 +200,7 @@ export default function CustodyReportPanel({ data }) {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={handleExportSTIX}
-            className="btn-tactile-secondary text-xs font-mono font-bold"
+            className="btn-tactile-secondary text-sm font-mono font-bold"
             title="Download OASIS STIX 2.1 Threat Intel Bundle"
           >
             STIX 2.1
@@ -208,7 +208,7 @@ export default function CustodyReportPanel({ data }) {
 
           <button
             onClick={handleExportMISP}
-            className="btn-tactile-secondary text-xs font-mono font-bold"
+            className="btn-tactile-secondary text-sm font-mono font-bold"
             title="Download MISP Event Threat Format"
           >
             MISP Event
@@ -217,7 +217,7 @@ export default function CustodyReportPanel({ data }) {
           <button
             onClick={handlePreviewReport}
             disabled={loadingReport}
-            className="btn-tactile-secondary flex items-center gap-1.5 text-xs font-bold"
+            className="btn-tactile-secondary flex items-center gap-1.5 text-sm font-bold"
           >
             <Eye className="w-3.5 h-3.5 text-[#0ea5e9]" />
             {loadingReport ? "Loading..." : "Preview Report"}
@@ -226,7 +226,7 @@ export default function CustodyReportPanel({ data }) {
           <button
             onClick={handlePrintReport}
             disabled={loadingReport}
-            className="btn-tactile-primary flex items-center gap-1.5 text-xs font-bold"
+            className="btn-tactile-primary flex items-center gap-1.5 text-sm font-bold"
           >
             <Printer className="w-3.5 h-3.5" />
             Print / PDF
@@ -235,31 +235,31 @@ export default function CustodyReportPanel({ data }) {
       </div>
 
       {/* Checksum & Metadata Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs font-mono">
-        <div className="slot-recessed p-3.5 rounded-xl">
-          <span className="text-[#64748b] font-bold block mb-1 text-[10px] uppercase">EVIDENCE ID</span>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm font-mono">
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 rounded-xl">
+          <span className="text-[#64748b] font-bold block mb-1 text-xs uppercase">EVIDENCE ID</span>
           <span className="text-[#0f172a] font-bold">{custody.evidence_id}</span>
         </div>
-        <div className="slot-recessed p-3.5 rounded-xl overflow-hidden">
-          <span className="text-[#64748b] font-bold block mb-1 text-[10px] uppercase">SHA-256 DIGEST</span>
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 rounded-xl overflow-hidden">
+          <span className="text-[#64748b] font-bold block mb-1 text-xs uppercase">SHA-256 DIGEST</span>
           <span className="text-[#7048e8] truncate block font-bold">{custody.sha256}</span>
         </div>
-        <div className="slot-recessed p-3.5 rounded-xl">
-          <span className="text-[#64748b] font-bold block mb-1 text-[10px] uppercase">INGESTION UTC</span>
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 rounded-xl">
+          <span className="text-[#64748b] font-bold block mb-1 text-xs uppercase">INGESTION UTC</span>
           <span className="text-[#0f172a] font-medium">{custody.ingestion_timestamp_utc?.replace('T', ' ').substring(0, 19)}</span>
         </div>
-        <div className="slot-recessed p-3.5 rounded-xl">
-          <span className="text-[#64748b] font-bold block mb-1 text-[10px] uppercase">FILE CHECKSUMS</span>
-          <span className="text-[#64748b] block truncate text-[10px] font-bold">MD5: {custody.md5 || 'N/A'}</span>
-          <span className="text-[#64748b] block truncate text-[10px]">Size: {custody.file_size_bytes ? `${custody.file_size_bytes} B` : 'N/A'}</span>
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 rounded-xl">
+          <span className="text-[#64748b] font-bold block mb-1 text-xs uppercase">FILE CHECKSUMS</span>
+          <span className="text-[#64748b] block truncate text-xs font-bold">MD5: {custody.md5 || 'N/A'}</span>
+          <span className="text-[#64748b] block truncate text-xs">Size: {custody.file_size_bytes ? `${custody.file_size_bytes} B` : 'N/A'}</span>
         </div>
       </div>
 
       {/* Blockchain Notarization Ledger Strip */}
       {data.blockchain_receipt && (
-        <div className="slot-recessed p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs">
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm">
           <div className="flex items-center space-x-2.5">
-            <span className="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30 flex items-center gap-1">
+            <span className="px-2 py-0.5 rounded font-mono font-bold text-xs bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30 flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3 text-[#059669]" />
               {data.blockchain_receipt.status || "NOTARIZED"}
             </span>
@@ -267,38 +267,38 @@ export default function CustodyReportPanel({ data }) {
               Immutable Ledger: <span className="text-[#7048e8] font-mono">{data.blockchain_receipt.blockchain_network || "Local-Ethereum-Notary"}</span>
             </span>
           </div>
-          <div className="font-mono text-[11px] text-[#64748b] truncate max-w-full sm:max-w-md">
+          <div className="font-mono text-sm text-[#64748b] truncate max-w-full sm:max-w-md">
             Txn: <span className="text-[#0f172a] font-bold">{data.blockchain_receipt.transaction_hash || "0x..."}</span>
           </div>
         </div>
       )}
 
       {/* Infrastructure, DNS & WHOIS Snapshot Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs pt-1">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm pt-1">
         
         {/* Card 1: Origin Infrastructure */}
-        <div className="slot-recessed p-4 space-y-2 flex flex-col justify-between">
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2 flex flex-col justify-between">
           <div>
-            <span className="text-[#64748b] font-bold block uppercase tracking-wider text-[11px] mb-1 font-mono">
+            <span className="text-[#64748b] font-bold block uppercase tracking-wider text-sm mb-1 font-mono">
               Origin Infrastructure Tier
             </span>
             <div className="text-sm font-bold text-[#0f172a] flex items-center gap-2">
               <span className={`w-2.5 h-2.5 rounded-full ${infra.is_vpn_proxy ? 'bg-[#ef4444]' : (infra.is_cloud ? 'bg-[#f59e0b]' : 'bg-[#0ea5e9]')}`} />
               {infra.infra_type || "Standard ISP"}
             </div>
-            <p className="text-[#64748b] text-[11px] mt-1 leading-relaxed font-sans">{infra.details}</p>
+            <p className="text-[#64748b] text-sm mt-1 leading-relaxed font-sans">{infra.details}</p>
           </div>
           {infra.ip && (
-            <div className="pt-2 border-t border-[#e2e8f0]/50 text-[11px] font-mono text-[#64748b]">
+            <div className="pt-2 border-t border-[#e2e8f0]/50 text-sm font-mono text-[#64748b]">
               Analyzed IP: <span className="text-[#0f172a] font-bold">{infra.ip}</span>
             </div>
           )}
         </div>
 
         {/* Card 2: DNS & MX Routing */}
-        <div className="slot-recessed p-4 space-y-2 flex flex-col justify-between">
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2 flex flex-col justify-between">
           <div>
-            <span className="text-[#64748b] font-bold block uppercase tracking-wider text-[11px] mb-1 font-mono">
+            <span className="text-[#64748b] font-bold block uppercase tracking-wider text-sm mb-1 font-mono">
               Sender DNS & MX Status
             </span>
             <div className="text-sm font-bold text-[#0f172a] flex items-center gap-1.5">
@@ -314,22 +314,22 @@ export default function CustodyReportPanel({ data }) {
                 </>
               )}
             </div>
-            <p className="text-[#64748b] text-[11px] mt-1 leading-relaxed font-sans">
+            <p className="text-[#64748b] text-sm mt-1 leading-relaxed font-sans">
               {dns.risk_indicators?.length > 0 ? dns.risk_indicators.join("; ") : "Valid DNS and MX routing records configured."}
             </p>
           </div>
           {dns.domain && (
-            <div className="pt-2 border-t border-[#e2e8f0]/50 text-[11px] font-mono text-[#64748b] truncate">
+            <div className="pt-2 border-t border-[#e2e8f0]/50 text-sm font-mono text-[#64748b] truncate">
               Domain: <span className="text-[#0f172a] font-bold">{dns.domain}</span>
             </div>
           )}
         </div>
 
         {/* Card 3: WHOIS & Registrar Intelligence */}
-        <div className="slot-recessed p-4 space-y-2 flex flex-col justify-between">
+        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-1">
-              <span className="text-[#64748b] font-bold block uppercase tracking-wider text-[11px] font-mono">
+              <span className="text-[#64748b] font-bold block uppercase tracking-wider text-sm font-mono">
                 WHOIS & Registrar Intel
               </span>
               {getDomainAgeBadge()}
@@ -339,7 +339,7 @@ export default function CustodyReportPanel({ data }) {
               {whois.registrar || <span className="text-[#94a3b8] italic font-normal">Registrar Unspecified</span>}
             </div>
 
-            <div className="space-y-1 mt-2 text-[11px] text-[#0f172a]">
+            <div className="space-y-1 mt-2 text-sm text-[#0f172a]">
               {whois.creation_date && (
                 <div className="flex items-center gap-1.5 text-[#64748b]">
                   <Calendar className="w-3.5 h-3.5 text-[#7048e8] flex-shrink-0" />
@@ -359,7 +359,7 @@ export default function CustodyReportPanel({ data }) {
             </div>
 
             {whois.risk_indicators?.length > 0 && (
-              <div className="mt-2 text-[11px] text-[#b45309] flex items-start gap-1">
+              <div className="mt-2 text-sm text-[#b45309] flex items-start gap-1">
                 <ShieldAlert className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-[#d97706]" />
                 <span className="line-clamp-2">{whois.risk_indicators[0]}</span>
               </div>
@@ -367,7 +367,7 @@ export default function CustodyReportPanel({ data }) {
           </div>
 
           {whois.registrant_org && (
-            <div className="pt-2 border-t border-[#e2e8f0]/50 text-[11px] font-mono text-[#64748b] truncate">
+            <div className="pt-2 border-t border-[#e2e8f0]/50 text-sm font-mono text-[#64748b] truncate">
               Org: <span className="text-[#0f172a] font-bold">{whois.registrant_org}</span>
             </div>
           )}
@@ -386,14 +386,14 @@ export default function CustodyReportPanel({ data }) {
                 <ShieldCheck className="w-5 h-5 text-[#059669]" />
                 <div>
                   <h3 className="text-sm font-bold text-[#0f172a] font-mono">FORENSIC INVESTIGATION REPORT PREVIEW</h3>
-                  <p className="text-[10px] text-[#64748b] font-mono">Evidence ID: {custody.evidence_id}</p>
+                  <p className="text-xs text-[#64748b] font-mono">Evidence ID: {custody.evidence_id}</p>
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyHtml}
-                  className="btn-tactile-secondary text-xs font-bold"
+                  className="btn-tactile-secondary text-sm font-bold"
                   title="Copy Report HTML"
                 >
                   <Copy className="w-3.5 h-3.5 inline mr-1" />
@@ -402,7 +402,7 @@ export default function CustodyReportPanel({ data }) {
 
                 <button
                   onClick={handlePrintReport}
-                  className="btn-tactile-primary text-xs font-bold"
+                  className="btn-tactile-primary text-sm font-bold"
                 >
                   <Printer className="w-3.5 h-3.5 inline mr-1" />
                   Print / Export
@@ -418,9 +418,9 @@ export default function CustodyReportPanel({ data }) {
             </div>
 
             {/* Report Configuration & Metadata Toolbar */}
-            <div className="px-6 py-3 bg-[#f8fafc] border-b border-[#f8fafc] flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="px-6 py-3 bg-[#f8fafc] border-b border-[#f8fafc] flex flex-wrap items-center justify-between gap-3 text-sm">
               <div className="flex items-center gap-2">
-                <span className="text-[#64748b] font-bold text-[11px] font-mono">Classification:</span>
+                <span className="text-[#64748b] font-bold text-sm font-mono">Classification:</span>
                 <select
                   value={classification}
                   onChange={(e) => {
@@ -428,7 +428,7 @@ export default function CustodyReportPanel({ data }) {
                     setClassification(val);
                     fetchReportHtml({ classification: val, investigator, agency });
                   }}
-                  className="bg-[#ffffff] border border-[#e2e8f0] text-[#0f172a] text-[11px] rounded-lg px-2.5 py-1 focus:outline-none cursor-pointer font-mono font-bold"
+                  className="bg-[#ffffff] border border-[#e2e8f0] text-[#0f172a] text-sm rounded-lg px-2.5 py-1 focus:outline-none cursor-pointer font-mono font-bold"
                 >
                   <option value="CONFIDENTIAL // TLP:AMBER">CONFIDENTIAL // TLP:AMBER</option>
                   <option value="TOP SECRET // TLP:RED">TOP SECRET // TLP:RED</option>
@@ -438,32 +438,32 @@ export default function CustodyReportPanel({ data }) {
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-[#64748b] font-bold text-[11px] font-mono">Investigator:</span>
+                <span className="text-[#64748b] font-bold text-sm font-mono">Investigator:</span>
                 <input
                   type="text"
                   value={investigator}
                   onChange={(e) => setInvestigator(e.target.value)}
                   onBlur={() => fetchReportHtml({ classification, investigator, agency })}
-                  className="bg-[#ffffff] border border-[#e2e8f0] text-[#0f172a] text-[11px] rounded-lg px-2.5 py-1 w-44 focus:outline-none font-mono font-bold"
+                  className="bg-[#ffffff] border border-[#e2e8f0] text-[#0f172a] text-sm rounded-lg px-2.5 py-1 w-44 focus:outline-none font-mono font-bold"
                   placeholder="Analyst Name / Badge"
                 />
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-[#64748b] font-bold text-[11px] font-mono">Agency / Unit:</span>
+                <span className="text-[#64748b] font-bold text-sm font-mono">Agency / Unit:</span>
                 <input
                   type="text"
                   value={agency}
                   onChange={(e) => setAgency(e.target.value)}
                   onBlur={() => fetchReportHtml({ classification, investigator, agency })}
-                  className="bg-[#ffffff] border border-[#e2e8f0] text-[#0f172a] text-[11px] rounded-lg px-2.5 py-1 w-44 focus:outline-none font-mono font-bold"
+                  className="bg-[#ffffff] border border-[#e2e8f0] text-[#0f172a] text-sm rounded-lg px-2.5 py-1 w-44 focus:outline-none font-mono font-bold"
                   placeholder="SOC Team / Unit"
                 />
               </div>
             </div>
 
             {/* Modal Body / Report Frame */}
-            <div className="flex-1 overflow-y-auto p-4 slot-recessed bg-[#f8fafc]">
+            <div className="flex-1 overflow-y-auto p-4 bg-gray-50 border border-gray-100 rounded-xl bg-[#f8fafc]">
               <iframe
                 title="Forensic Report Preview"
                 srcDoc={reportHtml}

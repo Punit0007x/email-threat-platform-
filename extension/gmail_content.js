@@ -34,13 +34,25 @@ function extractEmailFromDOM() {
   const bodyText = bodyEl ? bodyEl.innerText : '';
   const bodyHtml = bodyEl ? bodyEl.innerHTML : '';
 
-  // Try to get "Show original" link to find the message ID
-  const showOrigLink = document.querySelector('a[href*="view=om"]');
+  // Try to reliably extract the message ID
   let rawMsgId = '';
-  if (showOrigLink) {
-    const href = showOrigLink.getAttribute('href');
-    const thMatch = href.match(/th=([a-zA-Z0-9]+)/);
-    if (thMatch) rawMsgId = thMatch[1];
+  const msgContainer = document.querySelector('[data-legacy-message-id]');
+  if (msgContainer) {
+    rawMsgId = msgContainer.getAttribute('data-legacy-message-id');
+  } 
+  
+  if (!rawMsgId) {
+    const showOrigLink = document.querySelector('a[href*="view=om"]');
+    if (showOrigLink) {
+      const href = showOrigLink.getAttribute('href');
+      const thMatch = href.match(/th=([a-zA-Z0-9]+)/);
+      if (thMatch) rawMsgId = thMatch[1];
+    }
+  }
+  
+  if (!rawMsgId) {
+    const match = window.location.hash.match(/[#\/]([0-9a-fA-F]{15,})/);
+    if (match) rawMsgId = match[1];
   }
 
   // Build a minimal RFC-822 style header string for the backend parser
@@ -65,15 +77,34 @@ function extractEmailFromDOM() {
   };
 }
 
+let globalIkToken = null;
+
+// Listen for the ik token from the injected script
+window.addEventListener('message', (event) => {
+  if (event.source !== window || !event.data) return;
+  if (event.data.type === 'SHIELDMAIL_IK' && event.data.ik) {
+    globalIkToken = event.data.ik;
+  }
+});
+
+// Inject extract_ik.js to bypass isolated world restrictions
+const ikScript = document.createElement('script');
+ikScript.src = chrome.runtime.getURL('extract_ik.js');
+ikScript.onload = function() { this.remove(); };
+(document.head || document.documentElement).appendChild(ikScript);
+
 // ─── TRY FETCHING RAW EMAIL (if ik is available) ───
 function tryFetchRawEmail(messageId) {
   return new Promise((resolve) => {
-    // Try to find ik from any link on the page
-    const links = document.querySelectorAll('a[href*="ik="]');
-    let ik = null;
-    for (const link of links) {
-      const match = link.href.match(/[?&]ik=([a-zA-Z0-9]+)/);
-      if (match) { ik = match[1]; break; }
+    let ik = globalIkToken;
+    
+    // Fallback: Try to find ik from any link on the page
+    if (!ik) {
+      const links = document.querySelectorAll('a[href*="ik="]');
+      for (const link of links) {
+        const match = link.href.match(/[?&]ik=([a-zA-Z0-9]+)/);
+        if (match) { ik = match[1]; break; }
+      }
     }
 
     // Also try from the page source view link
@@ -154,6 +185,8 @@ async function scanCurrentEmail(sendResponse) {
       }
 
       const data = await res.json();
+      
+      // Just return the response to the popup so it can render the results
       if (sendResponse) sendResponse({ data: data });
     }
   } catch (err) {

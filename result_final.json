@@ -1,0 +1,489 @@
+{
+  "from_address": "Security <security@paypa1.com>",
+  "to_address": "victim@company.com",
+  "subject": "URGENT: Your account has been suspended!",
+  "date": "Sat, 22 Aug 2026 09:00:00 +0000",
+  "message_id": "<1234567890@example.com>",
+  "reply_to": "sender-reply@example.com",
+  "return_path": "<bounce@attacker-vps.com>",
+  "received_chain": [
+    "from mail.example.com (mail.example.com [192.168.1.100])\tby mx.company.com with ESMTP id 12345;\tWed, 22 Aug 2026 09:00:10 +0000"
+  ],
+  "authentication_results": "mx.company.com;\tspf=fail smtp.mailfrom=bounce@attacker-vps.com;\tdkim=none header.i=@paypa1.com;\tdmarc=fail (p=reject sp=reject dis=none) header.from=paypa1.com",
+  "body_plain": "Your account will be closed. Act now.\nPlease verify immediately at http://bit.ly/fake-link",
+  "body_html": "<html>\n<body>\n<p>Your account will be closed. Act now.</p>\n<p>Please <a href=\"http://bit.ly/fake-link\">verify immediately</a></p>\n<p>Visit <a href=\"http://attacker.com/login\">https://paypal.com/login</a></p>\n</body>\n</html>",
+  "ocr_text": "",
+  "qr_urls": [],
+  "attachments": [],
+  "urls": [
+    "http://attacker.com/login",
+    "http://bit.ly/fake-link",
+    "https://paypal.com/login"
+  ],
+  "custody": {
+    "evidence_id": "EV-1EE2F039B607",
+    "filename": "sample.eml",
+    "file_size_bytes": 1080,
+    "sha256": "17d4ce2970651a6dbf62dd45bebb81200ccc3114f961db7fe8a37c4002295bb0",
+    "sha1": "f1d86b7beacdef545db2ff0658f3c2547cc39ca6",
+    "md5": "90e0120d7a0e822fc8d4ef95ff561d0c",
+    "ingestion_timestamp_utc": "2026-08-24T18:12:09.410760+00:00",
+    "custody_seal": "SEAL-4AA947459D99A5A2",
+    "integrity_verified": true
+  },
+  "blockchain_receipt": {
+    "evidence_hash_sha256": "af4c7f9d6db2ffffcf46d84c1c13cc8cfa732dfd1092553fe7461fca2671797b",
+    "blockchain_network": "Local-Ethereum-Notary",
+    "transaction_hash": "0x2a0e9ac2fbdbcc11c555197cd0ef39715125a0feacb72fe013336cd03da6061c",
+    "timestamp_utc": "2026-08-24T18:12:09.422650+00:00",
+    "status": "NOTARIZED_ON_LEDGER"
+  },
+  "semantic_matches": [
+    {
+      "email_id": "GRAPH-CAMP-1",
+      "confidence": 100.0,
+      "metadata": {
+        "from": "Security <security@paypa1.com>",
+        "subject": "URGENT: Your account has been suspended!"
+      }
+    },
+    {
+      "email_id": "CAMP-DOM-HKBK-EDU-IN",
+      "confidence": 0.0,
+      "metadata": {
+        "from": "HKBK Group of Institutions <admissions@hkbk.edu.in>",
+        "subject": "Verify Email & Qualify for Scholarship"
+      }
+    },
+    {
+      "email_id": "CAMP-DOM-ACCOUNT-NETFLIX-COM",
+      "confidence": 0.0,
+      "metadata": {
+        "from": "Netflix <info@account.netflix.com>",
+        "subject": "Your payment was unsuccessful"
+      }
+    }
+  ],
+  "dns_intel": {
+    "domain": "paypa1.com",
+    "is_resolvable": true,
+    "has_mx_records": true,
+    "mx_records": [
+      "1 bh.markmonitor.com"
+    ],
+    "a_records": [
+      "3.33.139.32"
+    ],
+    "spf_record": "v=spf1 -all",
+    "dmarc_record": "v=DMARC1; p=reject; rua=mailto:d@rua.agari.com; ruf=mailto:d@ruf.agari.com",
+    "risk_indicators": []
+  },
+  "whois_intel": {
+    "domain": "paypa1.com",
+    "queried": true,
+    "registrar": "MarkMonitor Inc.",
+    "creation_date": "2000-10-20T23:17:07Z",
+    "expiry_date": "2026-10-20T23:17:07Z",
+    "domain_age_days": 9438,
+    "registrant_org": null,
+    "name_servers": [
+      "NS1.MARKMONITOR.COM",
+      "NS2.MARKMONITOR.COM",
+      "NS3.MARKMONITOR.COM",
+      "NS4.MARKMONITOR.COM",
+      "NS5.MARKMONITOR.COM",
+      "NS6.MARKMONITOR.COM",
+      "NS7.MARKMONITOR.COM"
+    ],
+    "is_privacy_protected": false,
+    "risk_indicators": []
+  },
+  "ip_reputation": {
+    "ip": "192.168.1.100",
+    "reverse_dns": null,
+    "dnsbl_results": [],
+    "listed_count": 0,
+    "is_tor_exit": false,
+    "is_listed": false,
+    "risk_level": "Private/Reserved",
+    "risk_indicators": [
+      "IP 192.168.1.100 is private/reserved — reputation checks skipped"
+    ]
+  },
+  "ip_network_context": {
+    "ip": "192.168.1.100",
+    "asn_info": {},
+    "cidr": null,
+    "cidr_neighbors_sample": [],
+    "network_risk_indicators": [
+      "Private/reserved IP — network context not applicable"
+    ]
+  },
+  "domain_recon": {
+    "domain": "paypa1.com",
+    "subdomains": [
+      "mail.paypa1.com",
+      "www.paypa1.com"
+    ],
+    "subdomain_count": 2,
+    "sources": {
+      "crt_sh": [],
+      "hackertarget": [
+        "mail.paypa1.com",
+        "www.paypa1.com"
+      ]
+    },
+    "risk_indicators": []
+  },
+  "history_intel": {
+    "domain": "paypa1.com",
+    "snapshots": [],
+    "snapshot_count": 0,
+    "first_seen": null,
+    "last_seen": null,
+    "unique_urls": 0,
+    "status_codes": {},
+    "mime_types": {},
+    "content_changes": 0,
+    "risk_indicators": [
+      "No Wayback snapshots found — domain may be new or never publicly indexed"
+    ]
+  },
+  "tech_fingerprint": {
+    "domain": "paypa1.com",
+    "checked_urls": [],
+    "technologies": {},
+    "categories": {},
+    "phishing_kit_detected": false,
+    "phishing_kit_details": [],
+    "risk_indicators": [
+      "No WAF/CDN security headers detected — direct origin exposure",
+      "Failed to fetch domain — may be offline, blocked, or non-web domain"
+    ]
+  },
+  "dork_intel": {
+    "domain": "paypa1.com",
+    "categories": {
+      "phishing_pages": [],
+      "threat_intel": []
+    },
+    "total_findings": 0,
+    "risk_indicators": [
+      "No significant dork findings"
+    ]
+  },
+  "threat_correlations": {
+    "domain_seen_before": true,
+    "domain_case_count": 6,
+    "ip_seen_before": true,
+    "ip_case_count": 6,
+    "sender_seen_before": true,
+    "sender_case_count": 6,
+    "linked_campaigns": [
+      "GRAPH-CAMP-1",
+      "CAMP-FINANCIAL-SPOOF-PAYPAL"
+    ],
+    "repeat_offender_score": 80
+  },
+  "origin_verdict": {
+    "verdict": "spoofed_domain",
+    "confidence": 85,
+    "reasons": [
+      "Domain spoofing detected: lookalike=True, subdomain_spoof=False",
+      "Domain alignment failed (Return-Path != From domain)"
+    ]
+  },
+  "infra_intel": {
+    "infra_type": "Unknown",
+    "is_cloud": false,
+    "is_vpn_proxy": false,
+    "risk_level": "Low",
+    "details": "Insufficient ISP/ASN metadata for infrastructure classification."
+  },
+  "auth_analysis": {
+    "spf": "fail",
+    "dkim": "none",
+    "dmarc": "fail",
+    "domain_alignment_pass": false,
+    "from_domain": "paypa1.com",
+    "return_path_domain": "attacker-vps.com",
+    "live_dns": {
+      "spf_record": "v=spf1 -all",
+      "dmarc_record": "v=DMARC1; p=reject; rua=mailto:d@rua.agari.com; ruf=mailto:d@ruf.agari.com",
+      "dns_error": null
+    }
+  },
+  "trace": {
+    "hops": [
+      {
+        "ip": "192.168.1.100",
+        "revdns": "mail.example.com",
+        "by": "mx.company.com",
+        "timestamp": "2026-08-22T09:00:10+00:00",
+        "hop_index": 0,
+        "raw_header_snippet": "from mail.example.com (mail.example.com [192.168.1.100]) by mx.company.com with ESMTP id 12345; Wed,...",
+        "geolocation": {
+          "ip": "192.168.1.100",
+          "country": null,
+          "region": null,
+          "city": null,
+          "lat": null,
+          "long": null,
+          "isp_org": null,
+          "error": "Private range — cannot geolocate"
+        }
+      }
+    ],
+    "best_guess_ip": "192.168.1.100",
+    "reason": "All IPs were private or trusted. Picked the last valid IP as fallback.",
+    "anomalies": [],
+    "latency_triangulation": {
+      "status": "insufficient_hops"
+    },
+    "best_guess_geolocation": {
+      "ip": "192.168.1.100",
+      "country": null,
+      "region": null,
+      "city": null,
+      "lat": null,
+      "long": null,
+      "isp_org": null,
+      "error": "Private range — cannot geolocate"
+    }
+  },
+  "text_signals": {
+    "urgency_count": 3,
+    "authority_count": 1,
+    "link_mismatch_count": 1,
+    "has_shortener": true,
+    "all_caps_ratio": 0.1,
+    "exclamation_count": 1
+  },
+  "domain_check": {
+    "is_lookalike": true,
+    "is_subdomain_spoof": false,
+    "spoofed_brand": "paypal.com",
+    "details": "Lookalike domain: 'paypa1.com' is visually similar to 'paypal.com'"
+  },
+  "ai_ml_analysis": {
+    "classification": {
+      "primary_threat": "brand_impersonation",
+      "confidence": 0.986,
+      "is_threat": true,
+      "probabilities": {
+        "clean": 0.0001,
+        "phishing_credential_harvesting": 0.0067,
+        "bec_executive_impersonation": 0.0024,
+        "invoice_payment_fraud": 0.0018,
+        "extortion_blackmail": 0.0015,
+        "malware_delivery": 0.0015,
+        "brand_impersonation": 0.986
+      },
+      "raw_ml_probabilities": {
+        "bec_executive_impersonation": 0.1392,
+        "brand_impersonation": 0.2309,
+        "clean": 0.1217,
+        "extortion_blackmail": 0.0846,
+        "invoice_payment_fraud": 0.1016,
+        "malware_delivery": 0.0879,
+        "phishing_credential_harvesting": 0.2341
+      },
+      "explainable_tokens": [
+        "com",
+        "suspended",
+        "verify",
+        "account"
+      ],
+      "is_multi_vector_attack": false,
+      "detected_attack_vectors": [
+        "brand_impersonation"
+      ]
+    },
+    "features": {
+      "metrics": {
+        "char_count": 131,
+        "word_count": 18,
+        "shannon_entropy": 4.718,
+        "uppercase_ratio": 0.096,
+        "punctuation_bursts": 0,
+        "has_cloaking_risk": false
+      },
+      "manipulation_vectors": {
+        "scores": {
+          "urgency": 3,
+          "fear_intimidation": 0,
+          "authority": 0,
+          "financial_greed": 0,
+          "trust_secrecy": 0
+        },
+        "detected": {
+          "urgency": [
+            "urgen(t|cy)",
+            "immediate(ly)",
+            "act now"
+          ],
+          "fear_intimidation": [],
+          "authority": [],
+          "financial_greed": [],
+          "trust_secrecy": []
+        },
+        "composite_manipulation_score": 45
+      },
+      "intent_analysis": {
+        "cta_scores": {
+          "credential_harvesting": 0,
+          "financial_redirection": 0,
+          "quishing_qr": 0,
+          "malware_macro": 0,
+          "remote_access": 0
+        },
+        "cta_detected": {
+          "credential_harvesting": [],
+          "financial_redirection": [],
+          "quishing_qr": [],
+          "malware_macro": [],
+          "remote_access": []
+        },
+        "primary_intent": "informational_or_benign"
+      },
+      "entities": {
+        "crypto_wallets": [],
+        "financial_amounts": [],
+        "phone_numbers": [],
+        "qr_mentions": []
+      },
+      "suspicious_attachments": [],
+      "attachment_risk_count": 0,
+      "url_count": 3
+    },
+    "bec_analysis": {
+      "bec_confidence_score": 30,
+      "bec_risk_level": "Low",
+      "is_vip_impersonation": false,
+      "has_display_name_mismatch": false,
+      "reply_to_mismatch": true,
+      "matched_scenarios": [],
+      "bec_indicators": [
+        "Reply-To address mismatch: Replies directed to 'sender-reply@example.com', differing from sender domain 'paypa1.com'"
+      ]
+    },
+    "synthetic_analysis": {
+      "synthetic_score": 0,
+      "is_likely_synthetic": false,
+      "confidence": "Low",
+      "detected_llm_phrases": [],
+      "burstiness_index": 0.521,
+      "details": "Content displays 0 synthetic language marker(s) with burstiness index 0.521."
+    },
+    "ai_forensics": {
+      "forensic_summary": "Email evaluated as 'Brand Impersonation' with confidence 99%. Sender domain alignment failed between From and Return-Path headers.",
+      "mitre_attack_ttps": [
+        {
+          "id": "T1566.002",
+          "name": "Phishing: Spearphishing Link",
+          "tactic": "Initial Access",
+          "description": "Adversary sent an email containing a malicious link to harvest credentials or manipulate user."
+        },
+        {
+          "id": "T1598.003",
+          "name": "Phishing for Information: Spearphishing Link",
+          "tactic": "Reconnaissance",
+          "description": "Targeted link designed to solicit credentials or sensitive organizational intelligence."
+        }
+      ],
+      "recommended_soc_actions": [
+        "Quarantine or purge email matching sender/Message-ID across all organizational mailboxes.",
+        "Add domain 'paypa1.com' to Mail Transfer Agent (MTA) perimeter blocklist.",
+        "Submit 3 extracted URL(s) to Web Proxy / Secure Web Gateway (SWG) blocklist."
+      ],
+      "evidential_severity": "Critical"
+    }
+  },
+  "attribution_graph": {
+    "nodes": [
+      {
+        "id": "node_email_root",
+        "label": "URGENT: Your account has ...",
+        "type": "email",
+        "risk": "high"
+      },
+      {
+        "id": "domain_paypa1.com",
+        "label": "paypa1.com",
+        "type": "domain",
+        "risk": "medium"
+      },
+      {
+        "id": "ip_192.168.1.100",
+        "label": "Origin: 192.168.1.100",
+        "type": "origin_ip",
+        "risk": "high"
+      },
+      {
+        "id": "url_0",
+        "label": "http://attacker.com/login",
+        "type": "url",
+        "risk": "high"
+      },
+      {
+        "id": "url_1",
+        "label": "http://bit.ly/fake-link",
+        "type": "url",
+        "risk": "high"
+      },
+      {
+        "id": "url_2",
+        "label": "https://paypal.com/login",
+        "type": "url",
+        "risk": "high"
+      }
+    ],
+    "links": [
+      {
+        "source": "node_email_root",
+        "target": "domain_paypa1.com",
+        "label": "CLAIMED_FROM"
+      },
+      {
+        "source": "domain_paypa1.com",
+        "target": "ip_192.168.1.100",
+        "label": "TRANSMITTED_FROM"
+      },
+      {
+        "source": "node_email_root",
+        "target": "url_0",
+        "label": "CONTAINS_URL"
+      },
+      {
+        "source": "node_email_root",
+        "target": "url_1",
+        "label": "CONTAINS_URL"
+      },
+      {
+        "source": "node_email_root",
+        "target": "url_2",
+        "label": "CONTAINS_URL"
+      }
+    ],
+    "total_nodes": 6,
+    "total_links": 5
+  },
+  "fraud_assessment": {
+    "score": 100,
+    "risk_level": "High",
+    "reasons": [
+      "Email authentication issues detected: SPF, DKIM, DMARC check(s) were missing or failed.",
+      "Sender identity mismatch: The Return-Path domain does not match the 'From' domain.",
+      "Lookalike domain: 'paypa1.com' is visually similar to 'paypal.com'",
+      "High-pressure language: 3 urgency phrase(s) detected.",
+      "Authority impersonation: 1 reference(s) to banks/organizations detected.",
+      "Deceptive links: 1 link(s) display a different destination than where they actually go.",
+      "URL shortener used: Email contains shortened links often used to hide malicious destinations.",
+      "Repeat offender intelligence: Indicators seen in 12 prior malicious case(s).",
+      "No WAF/CDN detected — direct origin exposure.",
+      "AI Multi-Class Model: Identified as 'Brand Impersonation' (Confidence: 99%)."
+    ]
+  },
+  "campaign_id": "GRAPH-CAMP-1",
+  "alert_id": "ALT-A023D6FE"
+}

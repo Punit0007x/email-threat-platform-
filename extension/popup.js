@@ -24,8 +24,8 @@ const btnDashboard = document.getElementById('btnDashboard');
 
 function openDashboardWithData(data) {
   chrome.storage.local.set({ lastScanResult: data }, () => {
-    chrome.runtime.sendMessage({ action: 'OPEN_DASHBOARD', data: data });
-    window.close();
+    renderResults(data);
+    showView('results');
   });
 }
 
@@ -117,7 +117,7 @@ document.getElementById('btnRetry').addEventListener('click', resetToUpload);
 document.getElementById('btnDashboard').addEventListener('click', () => {
   chrome.storage.local.get(['lastScanResult'], (res) => {
     if (res.lastScanResult) {
-      chrome.tabs.create({ url: 'http://localhost:5173/' }, (tab) => {
+      chrome.tabs.create({ url: 'http://localhost:5174/' }, (tab) => {
         // Wait briefly for the tab to initialize
         setTimeout(() => {
           chrome.scripting.executeScript({
@@ -133,7 +133,7 @@ document.getElementById('btnDashboard').addEventListener('click', () => {
         }, 800); // 800ms delay to ensure DOM is ready
       });
     } else {
-      window.open('http://localhost:5173', '_blank');
+      window.open('http://localhost:5174', '_blank');
     }
   });
 });

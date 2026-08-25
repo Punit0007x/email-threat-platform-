@@ -1,13 +1,6 @@
 import React, { useState } from 'react';
 import { Network, Server, User, Mail, Link, Database, Search, X } from 'lucide-react';
 
-const NODE_COLORS = {
-  high: "bg-[#ef4444]/15 text-[#d63031] border-[#ef4444]/40",
-  critical: "bg-[#7048e8]/15 text-[#5f3dc4] border-[#7048e8]/40",
-  medium: "bg-[#f59e0b]/15 text-[#b45309] border-[#f59e0b]/40",
-  low: "bg-[#0ea5e9]/15 text-[#0369a1] border-[#0ea5e9]/40"
-};
-
 export default function GraphAttributionPanel({ data, onLookupIOC }) {
   const [selectedNode, setSelectedNode] = useState(null);
 
@@ -20,118 +13,118 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
   const domain = data.from_domain || data.domain || 'Target Domain';
   const sender = data.from_address || 'Sender Mailbox';
 
-  // Define synthetic graph nodes
-  const nodes = [
-    { id: 'actor', label: 'Threat Actor / Cluster', type: 'actor', color: '#ef4444', icon: User, x: 80, y: 150, risk: threat.is_threat ? 'Critical' : 'Low' },
-    { id: 'ip', label: `IP: ${origin.ip || '198.51.100.24'}`, type: 'infrastructure', color: '#0ea5e9', icon: Server, x: 260, y: 80, risk: origin.is_proxy ? 'High' : 'Low' },
-    { id: 'domain', label: `Domain: ${domain}`, type: 'domain', color: '#f59e0b', icon: Link, x: 260, y: 220, risk: whois.domain_age_days < 30 ? 'High' : 'Low' },
-    { id: 'sender', label: `Sender: ${sender}`, type: 'mailbox', color: '#7048e8', icon: Mail, x: 440, y: 150, risk: auth.spf === 'fail' ? 'High' : 'Clean' },
-    { id: 'campaign', label: 'Phishing Campaign Vector', type: 'campaign', color: '#ec4899', icon: Database, x: 620, y: 150, risk: 'Tracked' }
-  ];
+  const generateDynamicGraph = () => {
+    const gNodes = [];
+    const gLinks = [];
 
-  const links = [
-    { source: 'actor', target: 'ip', label: 'Controls Host' },
-    { source: 'actor', target: 'domain', label: 'Registered Domain' },
-    { source: 'ip', target: 'sender', label: 'Relayed Message' },
-    { source: 'domain', target: 'sender', label: 'Sender Identity' },
-    { source: 'sender', target: 'campaign', label: 'Correlated Cluster' }
-  ];
+    // 1. Sender Mailbox Node
+    gNodes.push({ id: 'sender', label: sender.substring(0,25), type: 'mailbox', color: '#6366f1', icon: Mail, x: 350, y: 150, details: [
+      { label: "From Header", val: sender },
+      { label: "SPF Status", val: (auth.spf || "pass").toUpperCase() },
+      { label: "DKIM Signature", val: (auth.dkim || "pass").toUpperCase() },
+      { label: "DMARC Alignment", val: (auth.dmarc || "pass").toUpperCase() }
+    ]});
+
+    // 2. Domain Node
+    gNodes.push({ id: 'domain', label: domain, type: 'domain', color: '#f59e0b', icon: Link, x: 200, y: 80, details: [
+      { label: "Domain Age", val: whois.domain_age_days ? `${whois.domain_age_days} days` : "Unknown" },
+      { label: "Registrar", val: whois.registrar || "Unknown" },
+      { label: "Subdomains Detected", val: data.domain_recon?.subdomain_count || 0 }
+    ]});
+    gLinks.push({ source: 'domain', target: 'sender', label: 'Registered Email' });
+
+    // 3. Infrastructure Node
+    if (data.trace?.best_guess_ip) {
+      gNodes.push({ id: 'infra', label: data.trace.best_guess_ip, type: 'infrastructure', color: '#0ea5e9', icon: Server, x: 200, y: 220, details: [
+        { label: "Origin IP", val: data.trace.best_guess_ip },
+        { label: "ISP / Host", val: data.ip_network_context?.asn_info?.as_name || "Unknown" },
+        { label: "Reputation", val: data.ip_reputation?.risk_level || "Clean" }
+      ]});
+      gLinks.push({ source: 'infra', target: 'sender', label: 'Origin Server' });
+    }
+
+    // 4. Threat Actor Node
+    if (threat.threat_actor || (threat.confidence > 0.4 && threat.primary_threat !== 'clean')) {
+      gNodes.push({ id: 'actor', label: threat.threat_actor || 'Unknown Threat Actor', type: 'actor', color: '#ef4444', icon: User, x: 500, y: 150, details: [
+        { label: "Actor Group", val: threat.threat_actor || "Unknown (Behavioral Match)" },
+        { label: "Target Sector", val: "Broad Opportunistic" },
+        { label: "Confidence", val: `${Math.round(threat.confidence * 100)}%` }
+      ]});
+      gLinks.push({ source: 'sender', target: 'actor', label: 'Attributed Identity' });
+    }
+
+    // 5. MITRE ATT&CK Node
+    const mitre = data.ai_ml_analysis?.features?.mitre_attack_ttps;
+    if (mitre && mitre.length > 0) {
+      gNodes.push({ id: 'mitre', label: mitre[0].id || 'MITRE TTP', type: 'mitre', color: '#8b5cf6', icon: Database, x: 600, y: 80, details: [
+        { label: "Tactic", val: mitre[0].tactic },
+        { label: "Technique", val: mitre[0].name },
+        { label: "Description", val: mitre[0].description }
+      ]});
+      gLinks.push({ source: 'sender', target: 'mitre', label: 'Observed Tactic' });
+    }
+
+    // Adjust coordinates based on node count to keep them centered
+    const numNodes = gNodes.length;
+    gNodes.forEach((n, idx) => {
+      if (numNodes <= 3) {
+        n.x = 100 + (idx * 200);
+        n.y = 150;
+      }
+    });
+
+    return { nodes: gNodes, links: gLinks };
+  };
+
+  const { nodes, links } = generateDynamicGraph();
 
   const getNodeDetails = (nodeId) => {
     const node = nodes.find(n => n.id === nodeId);
-    if (!node) return null;
+    if (!node) return { title: "Unknown Node", details: [] };
+    
+    const titles = {
+      mailbox: "Sender Identity Details",
+      domain: "Domain Registration Info",
+      infrastructure: "Network Origin Info",
+      actor: "Threat Actor Profile",
+      mitre: "MITRE ATT&CK Technique"
+    };
 
-    if (node.id === 'actor') {
-      return {
-        title: "Threat Actor Cluster Attribution",
-        details: [
-          { label: "Cluster Name", val: threat.primary_threat ? threat.primary_threat.toUpperCase() : "UNC-THREAT-GROUP" },
-          { label: "Confidence", val: `${Math.round((threat.confidence || 0.85) * 100)}% Match` },
-          { label: "Motivation", val: "Credential Harvesting / Financial Wire BEC" },
-          { label: "Target Sector", val: "Corporate Finance & Executive Accounts" }
-        ]
-      };
-    } else if (node.id === 'ip') {
-      return {
-        title: "Origin Infrastructure Telemetry",
-        details: [
-          { label: "Origin IPv4", val: origin.ip || "198.51.100.24" },
-          { label: "Location", val: `${origin.city || 'Unknown'}, ${origin.country || 'Global'}` },
-          { label: "ASN / ISP", val: origin.asn || origin.isp || "Cloud Hosting Network" },
-          { label: "Tor / VPN Node", val: origin.is_proxy ? "Yes (Detected)" : "Direct / Clean" }
-        ]
-      };
-    } else if (node.id === 'domain') {
-      return {
-        title: "Domain Intelligence & WHOIS",
-        details: [
-          { label: "Domain Name", val: domain },
-          { label: "Domain Age", val: whois.domain_age_days ? `${whois.domain_age_days} Days Old` : "Recently Created" },
-          { label: "Lookalike Status", val: data.domain_check?.is_lookalike ? "Typosquatting Detected" : "Standard Domain" },
-          { label: "Registrar", val: whois.registrar || "NameCheap / Cloudflare" }
-        ]
-      };
-    } else if (node.id === 'sender') {
-      return {
-        title: "Sender Identity & Protocol Status",
-        details: [
-          { label: "From Header", val: sender },
-          { label: "SPF Status", val: (auth.spf || "pass").toUpperCase() },
-          { label: "DKIM Signature", val: (auth.dkim || "pass").toUpperCase() },
-          { label: "DMARC Alignment", val: (auth.dmarc || "pass").toUpperCase() }
-        ]
-      };
-    } else {
-      return {
-        title: "ChromaDB Threat Cluster Correlation",
-        details: [
-          { label: "Campaign Name", val: data.threat_correlations?.linked_campaigns?.[0] || "GLOBAL-PHISH-09" },
-          { label: "Historical Hits", val: `${data.threat_correlations?.domain_case_count || 1} Linked Incidents` },
-          { label: "MITRE ATT&CK", val: data.ai_ml_analysis?.ai_forensics?.mitre_attack_ttps?.[0]?.id || "T1566.002" }
-        ]
-      };
-    }
+    return {
+      title: titles[node.type] || node.label,
+      details: node.details || []
+    };
   };
 
   const activeDetails = selectedNode ? getNodeDetails(selectedNode) : getNodeDetails('actor');
 
   return (
-    <div className="panel-chassis p-6 sm:p-8 space-y-6 relative overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
       
-      {/* Corner Screws */}
-      <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
-      <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
-      <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
-      <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
-
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#f8fafc] pb-4 px-2">
-        <div className="flex items-center space-x-3.5">
-          <div className="p-3 bg-[#ffffff] text-[#7048e8] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4">
+        <div className="flex items-center space-x-3">
+          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
             <Network className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-lg font-bold text-[#0f172a] flex items-center gap-2">
-              Threat Attribution Graph & Topology
+            <h2 className="text-xl font-bold text-gray-900">
+              Identity & Attribution Graph
             </h2>
-            <p className="text-xs text-[#64748b]">
-              Relational graph nodes connecting Threat Actor clusters, proxy relays, domain registrars, and mailbox identities
+            <p className="text-sm text-gray-500 font-medium">
+              Mapping relationships between domains, servers, sender identities, and threat actors.
             </p>
           </div>
         </div>
-
-        <span className="text-[11px] font-mono text-[#7048e8] bg-[#7048e8]/15 px-3 py-1 rounded-xl border border-[#7048e8]/30 font-bold">
-          Interactive Graph Explorer
-        </span>
       </div>
 
       {/* Graph Visual Canvas & Node Inspector Drawer */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* SVG Interactive Topology Canvas */}
-        <div className="lg:col-span-2 slot-recessed p-4 relative overflow-hidden rounded-2xl flex items-center justify-center min-h-[360px]">
+        <div className="lg:col-span-2 bg-gray-50 border border-gray-100 p-4 relative overflow-hidden rounded-2xl flex items-center justify-center min-h-[400px]">
           
-          <svg className="w-full h-full min-h-[340px]" viewBox="0 0 700 300">
+          <svg className="w-full h-full min-h-[360px]" viewBox="0 0 700 300">
             {/* Draw Links */}
             {links.map((link, i) => {
               const srcNode = nodes.find(n => n.id === link.source);
@@ -147,18 +140,17 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
                     y1={srcNode.y} 
                     x2={tgtNode.x} 
                     y2={tgtNode.y} 
-                    stroke={isConnected ? "#ef4444" : "#e2e8f0"} 
-                    strokeWidth={isConnected ? "2.5" : "1.5"} 
-                    strokeDasharray={isConnected ? "none" : "5,5"}
+                    stroke={isConnected ? "#ef4444" : "#cbd5e1"} 
+                    strokeWidth={isConnected ? "3" : "2"} 
+                    strokeDasharray={isConnected ? "none" : "6,6"}
                     className="transition-all duration-300"
                   />
                   {/* Link Label */}
                   <text 
                     x={(srcNode.x + tgtNode.x) / 2} 
-                    y={(srcNode.y + tgtNode.y) / 2 - 8} 
+                    y={(srcNode.y + tgtNode.y) / 2 - 10} 
                     fill="#64748b" 
-                    fontSize="9" 
-                    fontFamily="monospace"
+                    fontSize="11" 
                     fontWeight="bold"
                     textAnchor="middle"
                   >
@@ -184,11 +176,11 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
                     <circle 
                       cx={node.x} 
                       cy={node.y} 
-                      r={30} 
+                      r={34} 
                       fill="none" 
                       stroke={node.color} 
-                      strokeWidth="2" 
-                      strokeDasharray="4,4"
+                      strokeWidth="3" 
+                      strokeDasharray="6,6"
                       className="animate-spin"
                       style={{ animationDuration: '8s' }}
                     />
@@ -198,31 +190,30 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
                   <circle 
                     cx={node.x} 
                     cy={node.y} 
-                    r={22} 
-                    fill="#f8fafc" 
+                    r={26} 
+                    fill="#ffffff" 
                     stroke={node.color} 
-                    strokeWidth={isSelected ? "3" : "2"} 
-                    filter="drop-shadow(0 4px 6px rgba(0,0,0,0.15))"
+                    strokeWidth={isSelected ? "4" : "3"} 
+                    filter="drop-shadow(0 4px 6px rgba(0,0,0,0.1))"
                   />
 
                   {/* Centered Node Icon */}
                   <foreignObject 
-                    x={node.x - 10} 
-                    y={node.y - 10} 
-                    width={20} 
-                    height={20}
+                    x={node.x - 12} 
+                    y={node.y - 12} 
+                    width={24} 
+                    height={24}
                     className="pointer-events-none"
                   >
-                    <Icon className="w-5 h-5" style={{ color: node.color }} />
+                    <Icon className="w-6 h-6" style={{ color: node.color }} />
                   </foreignObject>
 
                   {/* Node Label Text */}
                   <text 
                     x={node.x} 
-                    y={node.y + 36} 
-                    fill="#0f172a" 
-                    fontSize="10" 
-                    fontFamily="sans-serif"
+                    y={node.y + 45} 
+                    fill="#1e293b" 
+                    fontSize="12" 
                     fontWeight="bold" 
                     textAnchor="middle"
                     className="select-none"
@@ -236,29 +227,29 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
         </div>
 
         {/* Node Telemetry Inspector Drawer */}
-        <div className="slot-recessed p-5 space-y-4 flex flex-col justify-between">
-          <div className="space-y-3">
-            <div className="border-b border-[#e2e8f0]/50 pb-3">
-              <span className="text-[10px] font-mono font-bold text-[#64748b] uppercase tracking-wider block">
-                Selected Entity Telemetry
+        <div className="bg-gray-50 border border-gray-100 p-6 space-y-4 rounded-2xl flex flex-col justify-between">
+          <div className="space-y-4">
+            <div className="border-b border-gray-200 pb-3">
+              <span className="text-xs font-bold text-gray-500 uppercase tracking-wider block mb-1">
+                Selected Entity Info
               </span>
-              <h3 className="text-xs font-bold text-[#0f172a] font-mono mt-0.5">
+              <h3 className="text-base font-bold text-gray-900">
                 {activeDetails.title}
               </h3>
             </div>
 
-            <div className="space-y-2.5 text-xs font-mono">
+            <div className="space-y-3">
               {activeDetails.details.map((item, idx) => (
-                <div key={idx} className="bg-[#f8fafc] p-2.5 rounded-xl border border-[#e2e8f0]/50 shadow-sm space-y-0.5">
-                  <span className="text-[#64748b] text-[10px] uppercase font-bold block">{item.label}:</span>
-                  <span className="text-[#0f172a] font-bold break-all block">{item.val}</span>
+                <div key={idx} className="bg-white p-3 rounded-xl border border-gray-100 space-y-1 shadow-sm">
+                  <span className="text-gray-500 text-xs font-bold uppercase tracking-wide block">{item.label}:</span>
+                  <span className="text-gray-900 font-bold break-all block text-sm">{item.val}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <p className="text-[11px] text-[#64748b] italic font-sans pt-2 border-t border-[#e2e8f0]/50">
-            Click any node on the topology diagram to inspect real-time attribution links and cryptographic evidence.
+          <p className="text-sm text-gray-500 italic pt-4 border-t border-gray-200 font-medium">
+            Click any node on the graph to view its detailed relationship info.
           </p>
         </div>
 

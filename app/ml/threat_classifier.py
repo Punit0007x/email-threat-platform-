@@ -65,11 +65,30 @@ def classify_email_threat(
     fin_cta = intent.get("financial_redirection", 0)
     fin_greed = manip.get("financial_greed", 0)
     if fin_cta > 0 or (fin_greed > 0 and len(entities.get("financial_amounts", [])) > 0):
-        logits["invoice_payment_fraud"] += (fin_cta * 2.5) + (fin_greed * 1.0)
+        logits["invoice_payment_fraud"] += (fin_cta * 2.0) + (fin_greed * 1.5)
         logits["clean"] -= 2.0
 
-    # Extortion & Blackmail
-    crypto_count = len(entities.get("crypto_wallets", []))
+    # Forensic Adjustments (from trace_pipeline.py)
+    if features.get("forensic_report"):
+        report = features["forensic_report"]
+        if report.geo and (report.geo.is_tor_exit or report.geo.is_known_vpn):
+            logits["phishing_credential_harvesting"] += 1.5
+            logits["clean"] -= 1.5
+        
+        if report.domain and report.domain.domain_age_days is not None and report.domain.domain_age_days < 30:
+            logits["brand_impersonation"] += 1.5
+            logits["invoice_payment_fraud"] += 1.0
+            logits["clean"] -= 1.5
+        
+        if report.domain and report.domain.lookalike_of:
+            logits["brand_impersonation"] += 2.5
+            logits["clean"] -= 2.5
+            
+        if report.related_incidents:
+            logits["bec_executive_impersonation"] += 1.0
+            logits["invoice_payment_fraud"] += 1.0
+            logits["clean"] -= 2.0
+
     if crypto_count > 0:
         logits["extortion_blackmail"] += (crypto_count * 3.5) + (fear_score * 2.0) + 2.0
         logits["clean"] -= 4.0
@@ -112,7 +131,7 @@ def classify_email_threat(
     return {
         "primary_threat": top_category,
         "confidence": top_confidence,
-        "is_threat": top_category != "clean" and top_confidence >= 0.40,
+        "is_threat": top_category != "clean" and top_confidence >= 0.75,
         "probabilities": prob_dict,
         "raw_ml_probabilities": ml_probs,
         "explainable_tokens": explainable_tokens,

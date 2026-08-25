@@ -34,7 +34,7 @@ export default function DeepOSINTPanel({ data }) {
   if (!hasVisionOrLinks && !hasOsint) return null;
 
   return (
-    <div className="panel-chassis p-6 sm:p-8 space-y-6 relative overflow-hidden">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
       
       {/* Corner Screws */}
       <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
@@ -52,23 +52,23 @@ export default function DeepOSINTPanel({ data }) {
             <h2 className="text-lg font-bold text-[#0f172a] flex items-center gap-2">
               Multi-Modal Vision, Deceptive Links & Deep OSINT
             </h2>
-            <p className="text-xs text-[#64748b]">
+            <p className="text-sm text-[#64748b]">
               OCR attachment extraction, QR detonation, typosquatting, Wayback volatility, and passive reconnaissance
             </p>
           </div>
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex items-center gap-1.5 p-1.5 slot-recessed rounded-xl font-mono text-xs">
+        <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 border border-gray-100 rounded-xl rounded-xl font-mono text-sm">
           <button
             onClick={() => setActiveTab('vision_links')}
-            className={`key-switch px-3 py-1.5 text-xs font-bold ${activeTab === 'vision_links' ? 'active' : ''}`}
+            className={`key-switch px-3 py-1.5 text-sm font-bold ${activeTab === 'vision_links' ? 'active' : ''}`}
           >
             Vision & Deceptive Links
           </button>
           <button
             onClick={() => setActiveTab('osint_recon')}
-            className={`key-switch px-3 py-1.5 text-xs font-bold ${activeTab === 'osint_recon' ? 'active' : ''}`}
+            className={`key-switch px-3 py-1.5 text-sm font-bold ${activeTab === 'osint_recon' ? 'active' : ''}`}
           >
             Passive OSINT & Web Intel
           </button>
@@ -81,14 +81,14 @@ export default function DeepOSINTPanel({ data }) {
           
           {/* Domain Lookalike / Brand Spoofing Banner */}
           {(domainCheck.is_lookalike || domainCheck.is_subdomain_spoof) && (
-            <div className="slot-recessed p-4 flex items-start gap-3 border-l-4 border-l-[#ef4444]">
+            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 flex items-start gap-3 border-l-4 border-l-[#ef4444]">
               <ShieldAlert className="w-5 h-5 text-[#ef4444] flex-shrink-0 mt-0.5" />
-              <div className="space-y-1 text-xs">
+              <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-2">
                   <h4 className="font-bold text-[#d63031] uppercase tracking-wider font-mono">
                     {domainCheck.is_lookalike ? "Brand Typosquatting / Lookalike Domain Detected" : "Subdomain Brand Spoofing Detected"}
                   </h4>
-                  <span className="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30">
+                  <span className="px-2 py-0.5 rounded font-mono font-bold text-xs bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30">
                     Target: {domainCheck.target_brand || "Recognized Brand"}
                   </span>
                 </div>
@@ -100,13 +100,13 @@ export default function DeepOSINTPanel({ data }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             {/* Left Card: Deceptive Links & URL Shorteners */}
-            <div className="slot-recessed p-4 space-y-3 text-xs">
+            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-3 text-sm">
               <div className="flex items-center justify-between border-b border-[#e2e8f0]/50 pb-2">
-                <span className="font-bold text-[#0f172a] uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-mono">
+                <span className="font-bold text-[#0f172a] uppercase tracking-wider text-sm flex items-center gap-1.5 font-mono">
                   <Link2 className="w-4 h-4 text-[#0ea5e9]" />
                   Deceptive Link Mismatch Inspector
                 </span>
-                <span className={`font-mono text-[10px] px-2 py-0.5 rounded font-bold ${linkMismatches.length > 0 ? 'bg-[#ef4444]/15 text-[#d63031]' : 'bg-[#10b981]/15 text-[#047857]'}`}>
+                <span className={`font-mono text-xs px-2 py-0.5 rounded font-bold ${linkMismatches.length > 0 ? 'bg-[#ef4444]/15 text-[#d63031]' : 'bg-[#10b981]/15 text-[#047857]'}`}>
                   {linkMismatches.length} Mismatch(es)
                 </span>
               </div>
@@ -114,7 +114,7 @@ export default function DeepOSINTPanel({ data }) {
               {linkMismatches.length > 0 ? (
                 <div className="space-y-2">
                   {linkMismatches.map((m, i) => (
-                    <div key={i} className="bg-[#f8fafc] p-2.5 rounded-xl border border-[#e2e8f0]/60 space-y-1 font-mono text-[11px] shadow-sm">
+                    <div key={i} className="bg-[#f8fafc] p-2.5 rounded-xl border border-[#e2e8f0]/60 space-y-1 font-mono text-sm shadow-sm">
                       <div className="flex items-center gap-1 text-[#64748b]">
                         <span className="font-bold">Visible Text:</span>
                         <span className="text-[#d97706] font-bold truncate">{m.display_text}</span>
@@ -127,18 +127,18 @@ export default function DeepOSINTPanel({ data }) {
                   ))}
                 </div>
               ) : (
-                <p className="text-[#64748b] italic text-[11px] py-1">No deceptive href mismatches detected in body text.</p>
+                <p className="text-[#64748b] italic text-sm py-1">No deceptive href mismatches detected in body text.</p>
               )}
 
               {/* URL Shorteners */}
               {shorteners.length > 0 && (
                 <div className="pt-2 border-t border-[#e2e8f0]/50 space-y-1">
-                  <span className="text-[#64748b] font-bold block text-[10px] uppercase tracking-wider font-mono">
+                  <span className="text-[#64748b] font-bold block text-xs uppercase tracking-wider font-mono">
                     Obfuscated / Shortened URLs ({shorteners.length}):
                   </span>
                   <div className="flex flex-wrap gap-1">
                     {shorteners.map((s, i) => (
-                      <span key={i} className="font-mono text-[10px] font-bold bg-[#f59e0b]/15 text-[#b45309] px-2 py-0.5 rounded border border-[#f59e0b]/30">
+                      <span key={i} className="font-mono text-xs font-bold bg-[#f59e0b]/15 text-[#b45309] px-2 py-0.5 rounded border border-[#f59e0b]/30">
                         {s}
                       </span>
                     ))}
@@ -148,14 +148,14 @@ export default function DeepOSINTPanel({ data }) {
             </div>
 
             {/* Right Card: Multi-Modal OCR & QR Detonation */}
-            <div className="slot-recessed p-4 space-y-3 text-xs">
+            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-3 text-sm">
               <div className="flex items-center justify-between border-b border-[#e2e8f0]/50 pb-2">
-                <span className="font-bold text-[#0f172a] uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-mono">
+                <span className="font-bold text-[#0f172a] uppercase tracking-wider text-sm flex items-center gap-1.5 font-mono">
                   <QrCode className="w-4 h-4 text-[#7048e8]" />
                   Attachment OCR & Detonated QR Codes
                 </span>
                 {qrUrls.length > 0 && (
-                  <span className="font-mono text-[10px] px-2 py-0.5 rounded font-bold bg-[#7048e8]/15 text-[#5f3dc4] border border-[#7048e8]/30">
+                  <span className="font-mono text-xs px-2 py-0.5 rounded font-bold bg-[#7048e8]/15 text-[#5f3dc4] border border-[#7048e8]/30">
                     {qrUrls.length} QR Link(s)
                   </span>
                 )}
@@ -164,41 +164,41 @@ export default function DeepOSINTPanel({ data }) {
               {/* QR Code Detonation Results */}
               {qrUrls.length > 0 ? (
                 <div className="space-y-1.5">
-                  <span className="text-[#64748b] font-bold text-[10px] uppercase tracking-wider block font-mono">Decoded QR Code Destinations:</span>
+                  <span className="text-[#64748b] font-bold text-xs uppercase tracking-wider block font-mono">Decoded QR Code Destinations:</span>
                   {qrUrls.map((qr, i) => (
-                    <div key={i} className="bg-[#f8fafc] p-2 rounded-xl border border-[#7048e8]/30 font-mono text-[11px] text-[#5f3dc4] font-bold truncate flex items-center gap-1.5 shadow-sm">
+                    <div key={i} className="bg-[#f8fafc] p-2 rounded-xl border border-[#7048e8]/30 font-mono text-sm text-[#5f3dc4] font-bold truncate flex items-center gap-1.5 shadow-sm">
                       <ExternalLink className="w-3.5 h-3.5 flex-shrink-0 text-[#7048e8]" />
                       <span className="truncate">{qr}</span>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-[#64748b] italic text-[11px] py-1">No malicious QR codes found in image attachments.</p>
+                <p className="text-[#64748b] italic text-sm py-1">No malicious QR codes found in image attachments.</p>
               )}
 
               {/* OCR Extracted Text Preview */}
               {ocrText ? (
                 <div className="pt-2 border-t border-[#e2e8f0]/50 space-y-1">
-                  <span className="text-[#64748b] font-bold block text-[10px] uppercase tracking-wider font-mono">
+                  <span className="text-[#64748b] font-bold block text-xs uppercase tracking-wider font-mono">
                     Extracted Attachment Text (OCR):
                   </span>
-                  <div className="slot-recessed p-2.5 max-h-24 overflow-y-auto text-[11px] font-mono text-[#0f172a] leading-relaxed whitespace-pre-wrap">
+                  <div className="bg-gray-50 border border-gray-100 rounded-xl p-2.5 max-h-24 overflow-y-auto text-sm font-mono text-[#0f172a] leading-relaxed whitespace-pre-wrap">
                     {ocrText}
                   </div>
                 </div>
               ) : (
-                <p className="text-[#64748b] italic text-[11px] py-1">No embedded text detected via Tesseract OCR.</p>
+                <p className="text-[#64748b] italic text-sm py-1">No embedded text detected via Tesseract OCR.</p>
               )}
 
               {/* Attachments List */}
               {attachments.length > 0 && (
                 <div className="pt-2 border-t border-[#e2e8f0]/50 space-y-1">
-                  <span className="text-[#64748b] font-bold block text-[10px] uppercase tracking-wider font-mono">
+                  <span className="text-[#64748b] font-bold block text-xs uppercase tracking-wider font-mono">
                     Attached Files ({attachments.length}):
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {attachments.map((att, i) => (
-                      <span key={i} className="inline-flex items-center gap-1 font-mono text-[10px] font-bold bg-[#f8fafc] px-2 py-0.5 rounded border border-[#e2e8f0]/60 text-[#0f172a] shadow-sm">
+                      <span key={i} className="inline-flex items-center gap-1 font-mono text-xs font-bold bg-[#f8fafc] px-2 py-0.5 rounded border border-[#e2e8f0]/60 text-[#0f172a] shadow-sm">
                         <FileText className="w-3 h-3 text-[#0ea5e9]" />
                         {att.filename} ({att.content_type})
                       </span>
@@ -214,35 +214,35 @@ export default function DeepOSINTPanel({ data }) {
 
       {/* TAB 2: Passive OSINT, Wayback & Web Tech */}
       {activeTab === 'osint_recon' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           
           {/* Subcard 1: Web Tech & Phishing Kit Fingerprint */}
-          <div className="slot-recessed p-4 space-y-3 flex flex-col justify-between">
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2 border-b border-[#e2e8f0]/50 pb-2">
-                <span className="font-bold text-[#0f172a] uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-mono">
+                <span className="font-bold text-[#0f172a] uppercase tracking-wider text-sm flex items-center gap-1.5 font-mono">
                   <Cpu className="w-4 h-4 text-[#7048e8]" />
                   Web Technology Fingerprint
                 </span>
                 {tech.phishing_kit_detected && (
-                  <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30">
                     PHISHING KIT DETECTED
                   </span>
                 )}
               </div>
 
               <div className="space-y-2">
-                <div className="bg-[#f8fafc] p-2 rounded-xl border border-[#e2e8f0]/60 flex justify-between font-mono text-[11px] shadow-sm">
+                <div className="bg-[#f8fafc] p-2 rounded-xl border border-[#e2e8f0]/60 flex justify-between font-mono text-sm shadow-sm">
                   <span className="text-[#64748b]">Web Server Software:</span>
                   <span className="text-[#0f172a] font-bold">{tech.web_server || "Hidden / Unspecified"}</span>
                 </div>
 
                 {tech.technologies?.length > 0 && (
                   <div className="space-y-1">
-                    <span className="text-[#64748b] font-bold block text-[10px] uppercase tracking-wider font-mono">Identified Frameworks & Stacks:</span>
+                    <span className="text-[#64748b] font-bold block text-xs uppercase tracking-wider font-mono">Identified Frameworks & Stacks:</span>
                     <div className="flex flex-wrap gap-1">
                       {tech.technologies.map((t, i) => (
-                        <span key={i} className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[#f8fafc] text-[#7048e8] border border-[#7048e8]/30 shadow-sm">
+                        <span key={i} className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-[#f8fafc] text-[#7048e8] border border-[#7048e8]/30 shadow-sm">
                           {t}
                         </span>
                       ))}
@@ -251,7 +251,7 @@ export default function DeepOSINTPanel({ data }) {
                 )}
 
                 {tech.risk_indicators?.length > 0 && (
-                  <div className="text-[11px] text-[#b45309] bg-[#f59e0b]/10 p-2 rounded-xl border border-[#f59e0b]/20 font-medium">
+                  <div className="text-sm text-[#b45309] bg-[#f59e0b]/10 p-2 rounded-xl border border-[#f59e0b]/20 font-medium">
                     {tech.risk_indicators.join("; ")}
                   </div>
                 )}
@@ -259,7 +259,7 @@ export default function DeepOSINTPanel({ data }) {
             </div>
 
             {domainRecon.subdomain_count > 0 && (
-              <div className="pt-2 border-t border-[#e2e8f0]/50 flex justify-between font-mono text-[10px] text-[#64748b]">
+              <div className="pt-2 border-t border-[#e2e8f0]/50 flex justify-between font-mono text-xs text-[#64748b]">
                 <span>Discovered Subdomains:</span>
                 <span className="text-[#7048e8] font-bold">{domainRecon.subdomain_count} host(s)</span>
               </div>
@@ -267,31 +267,31 @@ export default function DeepOSINTPanel({ data }) {
           </div>
 
           {/* Subcard 2: Wayback Machine History & Dork Intel */}
-          <div className="slot-recessed p-4 space-y-3 flex flex-col justify-between">
+          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2 border-b border-[#e2e8f0]/50 pb-2">
-                <span className="font-bold text-[#0f172a] uppercase tracking-wider text-[11px] flex items-center gap-1.5 font-mono">
+                <span className="font-bold text-[#0f172a] uppercase tracking-wider text-sm flex items-center gap-1.5 font-mono">
                   <History className="w-4 h-4 text-[#059669]" />
                   Wayback History & OSINT Dorks
                 </span>
                 {history.total_snapshots > 0 && (
-                  <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30">
+                  <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30">
                     {history.total_snapshots} Snapshot(s)
                   </span>
                 )}
               </div>
 
               <div className="space-y-2">
-                <div className="bg-[#f8fafc] p-2.5 rounded-xl border border-[#e2e8f0]/60 space-y-1 font-mono text-[11px] shadow-sm">
+                <div className="bg-[#f8fafc] p-2.5 rounded-xl border border-[#e2e8f0]/60 space-y-1 font-mono text-sm shadow-sm">
                   <div className="flex justify-between">
                     <span className="text-[#64748b]">First Archived Date:</span>
                     <span className="text-[#0f172a] font-bold">{history.first_seen_date ? history.first_seen_date.substring(0, 10) : 'Not Archived'}</span>
                   </div>
-                  <div className="flex justify-between text-[10px] text-[#64748b]">
+                  <div className="flex justify-between text-xs text-[#64748b]">
                     <span>Web Archive Age:</span>
                     <span className="text-[#059669] font-bold">{history.domain_age_wayback_days != null ? `${history.domain_age_wayback_days} days` : 'N/A'}</span>
                   </div>
-                  <div className="flex justify-between text-[10px] text-[#64748b]">
+                  <div className="flex justify-between text-xs text-[#64748b]">
                     <span>Content Volatility:</span>
                     <span className="text-[#0f172a]">{history.content_changes ? `${history.content_changes} hash rotations` : 'Stable'}</span>
                   </div>
@@ -300,22 +300,22 @@ export default function DeepOSINTPanel({ data }) {
                 {/* Dork Findings */}
                 {dork.positive_hits > 0 && (
                   <div className="bg-[#f8fafc] p-2.5 rounded-xl border border-[#e2e8f0]/60 space-y-1 shadow-sm">
-                    <span className="text-[#64748b] font-bold block text-[10px] uppercase tracking-wider font-mono">
+                    <span className="text-[#64748b] font-bold block text-xs uppercase tracking-wider font-mono">
                       OSINT Dork Scanner ({dork.positive_hits} Hit(s)):
                     </span>
                     <div className="flex flex-wrap gap-1">
                       {dork.categories?.phishing_pages?.length > 0 && (
-                        <span className="text-[10px] bg-[#ef4444]/15 text-[#d63031] px-1.5 py-0.5 rounded font-mono font-bold">
+                        <span className="text-xs bg-[#ef4444]/15 text-[#d63031] px-1.5 py-0.5 rounded font-mono font-bold">
                           Phishing Pages ({dork.categories.phishing_pages.length})
                         </span>
                       )}
                       {dork.categories?.leaked_credentials?.length > 0 && (
-                        <span className="text-[10px] bg-[#f59e0b]/15 text-[#b45309] px-1.5 py-0.5 rounded font-mono font-bold">
+                        <span className="text-xs bg-[#f59e0b]/15 text-[#b45309] px-1.5 py-0.5 rounded font-mono font-bold">
                           Leaked Creds ({dork.categories.leaked_credentials.length})
                         </span>
                       )}
                       {dork.categories?.sensitive_files?.length > 0 && (
-                        <span className="text-[10px] bg-[#eab308]/15 text-[#854d0e] px-1.5 py-0.5 rounded font-mono font-bold">
+                        <span className="text-xs bg-[#eab308]/15 text-[#854d0e] px-1.5 py-0.5 rounded font-mono font-bold">
                           Exposed Files ({dork.categories.sensitive_files.length})
                         </span>
                       )}
@@ -324,7 +324,7 @@ export default function DeepOSINTPanel({ data }) {
                 )}
 
                 {history.risk_indicators?.length > 0 && (
-                  <div className="text-[11px] text-[#b45309] bg-[#f59e0b]/10 p-2 rounded-xl border border-[#f59e0b]/20 font-medium">
+                  <div className="text-sm text-[#b45309] bg-[#f59e0b]/10 p-2 rounded-xl border border-[#f59e0b]/20 font-medium">
                     {history.risk_indicators.join("; ")}
                   </div>
                 )}
@@ -332,7 +332,7 @@ export default function DeepOSINTPanel({ data }) {
             </div>
 
             {dork.domain && (
-              <div className="pt-2 border-t border-[#e2e8f0]/50 text-[10px] font-mono text-[#64748b] truncate">
+              <div className="pt-2 border-t border-[#e2e8f0]/50 text-xs font-mono text-[#64748b] truncate">
                 Target Domain: <span className="text-[#0f172a] font-bold">{dork.domain}</span>
               </div>
             )}

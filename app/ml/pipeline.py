@@ -15,7 +15,8 @@ def analyze_email_ai_ml(
     attachments: List[Any],
     urls: List[str],
     domain_check: Dict[str, Any],
-    auth_analysis: Dict[str, Any]
+    auth_analysis: Dict[str, Any],
+    forensic_report: Any = None
 ) -> Dict[str, Any]:
     """
     Main entry point for the AI/ML Threat Analysis & Forensic Reasoning Subsystem.
@@ -30,6 +31,7 @@ def analyze_email_ai_ml(
         attachments=attachments or [],
         urls=urls or []
     )
+    features["forensic_report"] = forensic_report
     
     # 2. Dedicated BEC & Executive Impersonation Analysis
     combined_body = f"{body_plain} {body_html}".strip()

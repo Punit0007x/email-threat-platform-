@@ -19,6 +19,36 @@ function dataUrlToBlob(dataUrl) {
   return new Blob([u8arr], {type:mime});
 }
 
+function openDashboard(data) {
+  chrome.tabs.query({ url: 'http://localhost:5174/*' }, (tabs) => {
+    if (tabs.length > 0) {
+      const tab = tabs[0];
+      chrome.tabs.update(tab.id, { active: true });
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id },
+        func: (dataPayload) => {
+          localStorage.setItem('shieldmail_shared_result', JSON.stringify(dataPayload));
+          window.dispatchEvent(new CustomEvent('shieldmail_inject', { detail: { data: dataPayload } }));
+        },
+        args: [data]
+      });
+    } else {
+      chrome.tabs.create({ url: 'http://localhost:5174/' }, (tab) => {
+        setTimeout(() => {
+          chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: (dataPayload) => {
+              localStorage.setItem('shieldmail_shared_result', JSON.stringify(dataPayload));
+              window.dispatchEvent(new CustomEvent('shieldmail_inject', { detail: { data: dataPayload } }));
+            },
+            args: [data]
+          });
+        }, 800);
+      });
+    }
+  });
+}
+
 // Listen for messages from popup and content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'SCAN_EMAIL') {
@@ -27,34 +57,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     processGmailRaw(message.messageId, message.rawEmail, sendResponse);
     return true; // Keep the message channel open for async sendResponse
   } else if (message.action === 'OPEN_DASHBOARD') {
-    const data = message.data;
-    chrome.tabs.query({ url: 'http://localhost:5173/*' }, (tabs) => {
-      if (tabs.length > 0) {
-        const tab = tabs[0];
-        chrome.tabs.update(tab.id, { active: true });
-        chrome.scripting.executeScript({
-          target: { tabId: tab.id },
-          func: (dataPayload) => {
-            localStorage.setItem('shieldmail_shared_result', JSON.stringify(dataPayload));
-            window.dispatchEvent(new CustomEvent('shieldmail_inject', { detail: { data: dataPayload } }));
-          },
-          args: [data]
-        });
-      } else {
-        chrome.tabs.create({ url: 'http://localhost:5173/' }, (tab) => {
-          setTimeout(() => {
-            chrome.scripting.executeScript({
-              target: { tabId: tab.id },
-              func: (dataPayload) => {
-                localStorage.setItem('shieldmail_shared_result', JSON.stringify(dataPayload));
-                window.dispatchEvent(new CustomEvent('shieldmail_inject', { detail: { data: dataPayload } }));
-              },
-              args: [data]
-            });
-          }, 800);
-        });
-      }
-    });
+    openDashboard(message.data);
   }
 });
 async function processGmailRaw(messageId, rawEmail, sendResponse) {
@@ -70,6 +73,8 @@ async function processGmailRaw(messageId, rawEmail, sendResponse) {
 
     if (!res.ok) throw new Error(`Server error ${res.status}`);
     const data = await res.json();
+    
+    // Send response back so the content script/popup can display it inline.
     sendResponse({ data });
   } catch (err) {
     console.error("ShieldMail Gmail Scan Error:", err);
@@ -112,6 +117,8 @@ async function processEmailScan(filename, fileDataUrl) {
       message: `Finished scanning ${filename}. Threat type: ${threatType.replace(/_/g, ' ')}.`,
       priority: 2
     });
+
+    // (Removed auto-open dashboard to let popup show results instead)
 
   } catch (err) {
     console.error("ShieldMail Background Scan Error:", err);

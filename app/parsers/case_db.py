@@ -3,76 +3,94 @@ import json
 import os
 from typing import List, Dict, Any, Optional
 
+import networkx as nx
+from app.forensics.attribution_graph import (
+    Incident, add_incident, build_attribution_graph, cluster_campaigns,
+    find_related_incidents, campaign_confidence, shared_infrastructure
+)
+
+GLOBAL_GRAPH = build_attribution_graph()
+GRAPH_SYNCED = False
+
+def sync_graph_from_db():
+    global GRAPH_SYNCED
+    if GRAPH_SYNCED:
+        return
+    if not os.path.exists(DB_PATH):
+        return
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cursor = conn.cursor()
+        cursor.execute("SELECT case_id, from_address, sender_domain, origin_ip, subject, fraud_score FROM incident_cases")
+        rows = cursor.fetchall()
+        for row in rows:
+            inc = Incident(
+                incident_id=row[0],
+                from_address=row[1],
+                from_domain=row[2],
+                originating_ip=row[3],
+                subject=row[4],
+                fraud_score=row[5] or 0.0
+            )
+            add_incident(GLOBAL_GRAPH, inc)
+        conn.close()
+        GRAPH_SYNCED = True
+    except Exception as e:
+        print("Error syncing graph:", e)
+
+
 DB_PATH = "data/cases.db"
 
 def _check_historical_correlations(domain: str, origin_ip: str, from_addr: str) -> Dict[str, Any]:
-    """Check if indicators have been seen in previous cases."""
+    """Check if indicators have been seen in previous cases using Graph Network."""
     init_case_database()
+    sync_graph_from_db()
+    
+    # Create a temporary incident to see what it connects to
+    temp_id = "TEMP_INCIDENT"
+    inc = Incident(
+        incident_id=temp_id,
+        from_address=from_addr,
+        from_domain=domain,
+        originating_ip=origin_ip,
+        fraud_score=0.0
+    )
+    add_incident(GLOBAL_GRAPH, inc)
+    
+    related = find_related_incidents(GLOBAL_GRAPH, temp_id)
+    
+    # Analyze the shared infrastructure to recreate the return dict
+    domain_case_count = 0
+    ip_case_count = 0
+    sender_case_count = 0
+    
+    for r_id in related:
+        shared = shared_infrastructure(GLOBAL_GRAPH, temp_id, r_id)
+        for kind, val in shared:
+            if kind == "domain": domain_case_count += 1
+            elif kind == "ip": ip_case_count += 1
+            elif kind == "incident": sender_case_count += 1 # Rough proxy
+            
+    # Calculate confidence based on sum of edge weights to all related incidents
+    total_conf = sum(campaign_confidence(GLOBAL_GRAPH, temp_id, r_id) for r_id in related)
+    
+    # Remove temp incident safely
+    try:
+        GLOBAL_GRAPH.remove_node(f"incident:{temp_id}")
+    except:
+        pass
+    
+    # Map to legacy format
     correlations = {
-        "domain_seen_before": False,
-        "domain_case_count": 0,
-        "ip_seen_before": False,
-        "ip_case_count": 0,
-        "sender_seen_before": False,
-        "sender_case_count": 0,
-        "linked_campaigns": [],
-        "repeat_offender_score": 0
+        "domain_seen_before": domain_case_count > 0,
+        "domain_case_count": domain_case_count,
+        "ip_seen_before": ip_case_count > 0,
+        "ip_case_count": ip_case_count,
+        "sender_seen_before": sender_case_count > 0,
+        "sender_case_count": sender_case_count,
+        "linked_campaigns": list(related)[:5], # Return first 5 related incidents as campaigns
+        "repeat_offender_score": min(total_conf * 100, 45) # Max 45 points from correlations
     }
-    
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    
-    # Check domain history (only match previous high-risk/malicious incidents)
-    if domain:
-        cursor.execute("""
-            SELECT COUNT(*) as cnt, GROUP_CONCAT(DISTINCT campaign_id) as camps
-            FROM incident_cases WHERE sender_domain = ? AND fraud_score >= 60
-        """, (domain,))
-        row = cursor.fetchone()
-        if row and row[0] > 0:
-            correlations["domain_seen_before"] = True
-            correlations["domain_case_count"] = row[0]
-            if row[1]:
-                correlations["linked_campaigns"].extend([c.strip() for c in row[1].split(",")])
-    
-    # Check IP history (only match previous high-risk/malicious incidents)
-    if origin_ip:
-        cursor.execute("""
-            SELECT COUNT(*) as cnt, GROUP_CONCAT(DISTINCT campaign_id) as camps
-            FROM incident_cases WHERE origin_ip = ? AND fraud_score >= 60
-        """, (origin_ip,))
-        row = cursor.fetchone()
-        if row and row[0] > 0:
-            correlations["ip_seen_before"] = True
-            correlations["ip_case_count"] = row[0]
-            if row[1]:
-                correlations["linked_campaigns"].extend([c.strip() for c in row[1].split(",")])
-    
-    # Check sender address history (only match previous high-risk/malicious incidents)
-    if from_addr:
-        cursor.execute("""
-            SELECT COUNT(*) as cnt, GROUP_CONCAT(DISTINCT campaign_id) as camps
-            FROM incident_cases WHERE from_address = ? AND fraud_score >= 60
-        """, (from_addr,))
-        row = cursor.fetchone()
-        if row and row[0] > 0:
-            correlations["sender_seen_before"] = True
-            correlations["sender_case_count"] = row[0]
-            if row[1]:
-                correlations["linked_campaigns"].extend([c.strip() for c in row[1].split(",")])
-    
-    # Deduplicate campaigns
-    correlations["linked_campaigns"] = list(set(correlations["linked_campaigns"]))
-    
-    # Calculate repeat offender score
-    if correlations["domain_seen_before"]:
-        correlations["repeat_offender_score"] += min(correlations["domain_case_count"] * 5, 25)
-    if correlations["ip_seen_before"]:
-        correlations["repeat_offender_score"] += min(correlations["ip_case_count"] * 5, 25)
-    if correlations["sender_seen_before"]:
-        correlations["repeat_offender_score"] += min(correlations["sender_case_count"] * 10, 30)
-    
-    conn.close()
     return correlations
 
 def init_case_database():
@@ -93,31 +111,65 @@ def init_case_database():
             risk_level TEXT,
             primary_threat TEXT,
             campaign_id TEXT,
+            forensic_originating_ip TEXT,
+            forensic_geo TEXT,
+            forensic_is_tor INTEGER,
+            forensic_is_vpn INTEGER,
+            forensic_is_hosting INTEGER,
+            forensic_domain_age INTEGER,
+            forensic_lookalike_match TEXT,
+            forensic_linked_incidents TEXT,
+            forensic_origin_risk_score REAL,
             payload_json TEXT
         )
     """)
     conn.commit()
+    
+    # Add new forensic columns if they don't exist
+    try:
+        cursor.execute("ALTER TABLE incident_cases ADD COLUMN forensic_originating_ip TEXT")
+        cursor.execute("ALTER TABLE incident_cases ADD COLUMN forensic_geo TEXT")
+        cursor.execute("ALTER TABLE incident_cases ADD COLUMN forensic_is_tor INTEGER")
+        cursor.execute("ALTER TABLE incident_cases ADD COLUMN forensic_is_vpn INTEGER")
+        cursor.execute("ALTER TABLE incident_cases ADD COLUMN forensic_is_hosting INTEGER")
+        cursor.execute("ALTER TABLE incident_cases ADD COLUMN forensic_domain_age INTEGER")
+        cursor.execute("ALTER TABLE incident_cases ADD COLUMN forensic_lookalike_match TEXT")
+        cursor.execute("ALTER TABLE incident_cases ADD COLUMN forensic_linked_incidents TEXT")
+        cursor.execute("ALTER TABLE incident_cases ADD COLUMN forensic_origin_risk_score REAL")
+        conn.commit()
+    except sqlite3.OperationalError:
+        pass # Columns already exist
+        
     conn.close()
+    
 
-def determine_campaign_cluster(sender_domain: str, origin_ip: str, primary_threat: str) -> str:
-    """Clustering heuristic to group related email attacks into persistent threat campaigns."""
-    if not sender_domain:
-        sender_domain = "unknown"
-    if "paypal" in sender_domain or "paypa1" in sender_domain:
+def determine_campaign_cluster(sender_domain: str, origin_ip: str, primary_threat: str, case_id: str = None) -> str:
+    """Dynamically cluster related email attacks into persistent threat campaigns via networkx."""
+    sync_graph_from_db()
+    
+    if case_id:
+        # Check if this case is part of any known campaign cluster
+        campaigns = cluster_campaigns(GLOBAL_GRAPH, min_incidents=2)
+        for i, campaign in enumerate(campaigns, 1):
+            if case_id in campaign:
+                return f"CAMP-GRAPH-CLUSTER-{i:03d}"
+                
+    # Fallback to general categorization if isolated
+    if "paypal" in (sender_domain or "") or "paypa1" in (sender_domain or ""):
         return "CAMP-FINANCIAL-SPOOF-PAYPAL"
-    elif "apple" in sender_domain or "exec" in sender_domain or primary_threat == "bec_executive_impersonation":
+    elif "apple" in (sender_domain or "") or "exec" in (sender_domain or "") or primary_threat == "bec_executive_impersonation":
         return "CAMP-VIP-EXECUTIVE-IMPERSONATION"
     elif primary_threat == "invoice_payment_fraud":
         return "CAMP-PAYMENT-WIRE-DIVERSION"
     elif primary_threat == "extortion_blackmail":
         return "CAMP-EXTORTION-RANSOM-WAVE"
-    elif sender_domain != "unknown":
+    elif sender_domain and sender_domain != "unknown":
         clean_d = sender_domain.replace(".", "-").upper()
         return f"CAMP-DOM-{clean_d}"
     elif origin_ip:
         return f"CAMP-IP-{origin_ip.replace('.', '-')}"
     else:
-        return "CAMP-GENERAL-PHISHING"
+        return "CAMP-GENERAL-PHISHING" 
 
 def save_incident_case(data: Dict[str, Any]) -> str:
     """Saves analyzed email into the persistent case management database and assigns a campaign cluster."""
@@ -138,6 +190,18 @@ def save_incident_case(data: Dict[str, Any]) -> str:
     
     primary_threat = data.get("ai_ml_analysis", {}).get("classification", {}).get("primary_threat", "clean")
     
+    # ADD TO GLOBAL GRAPH BEFORE CALCULATING CAMPAIGN
+    inc = Incident(
+        incident_id=case_id,
+        from_address=from_addr,
+        from_domain=domain,
+        originating_ip=origin_ip,
+        subject=data.get("subject", ""),
+        fraud_score=score
+    )
+    add_incident(GLOBAL_GRAPH, inc)
+
+    
     # Try dynamic graph attribution first
     try:
         from app.parsers.attribution import assign_campaign_dynamically
@@ -145,11 +209,15 @@ def save_incident_case(data: Dict[str, Any]) -> str:
     except ImportError:
         dynamic_campaign = None
         
-    campaign_id = dynamic_campaign if dynamic_campaign else determine_campaign_cluster(domain, origin_ip, primary_threat)
+    campaign_id = dynamic_campaign if dynamic_campaign else determine_campaign_cluster(domain, origin_ip, primary_threat, case_id=case_id)
     
     # Cross-case threat intelligence correlation
     correlations = _check_historical_correlations(domain, origin_ip, from_addr)
     data["threat_correlations"] = correlations
+    
+    forensics = data.get("advanced_forensics", {})
+    geo = forensics.get("geo") or {}
+    domain_report = forensics.get("domain") or {}
     
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -157,15 +225,29 @@ def save_incident_case(data: Dict[str, Any]) -> str:
         INSERT OR REPLACE INTO incident_cases (
             case_id, evidence_id, timestamp_utc, from_address, sender_domain,
             subject, origin_ip, fraud_score, risk_level, primary_threat,
-            campaign_id, payload_json
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            campaign_id, forensic_originating_ip, forensic_geo,
+            forensic_is_tor, forensic_is_vpn, forensic_is_hosting,
+            forensic_domain_age, forensic_lookalike_match,
+            forensic_linked_incidents, forensic_origin_risk_score, payload_json
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         case_id, evidence_id, timestamp_utc, from_addr, domain,
         subject, origin_ip, score, risk, primary_threat,
-        campaign_id, json.dumps(data)
+        campaign_id,
+        forensics.get("header", {}).get("originating_ip", ""),
+        f"{geo.get('city', '')}, {geo.get('region', '')}, {geo.get('country', '')}" if geo else "",
+        1 if geo.get("is_tor_exit") else 0,
+        1 if geo.get("is_known_vpn") else 0,
+        1 if geo.get("is_hosting_provider") else 0,
+        domain_report.get("domain_age_days"),
+        domain_report.get("lookalike_of"),
+        json.dumps(forensics.get("related_incidents", [])),
+        forensics.get("origin_risk_score", 0.0),
+        json.dumps(data)
     ))
     conn.commit()
     conn.close()
+    
     return campaign_id
 
 def get_all_cases(limit: int = 50) -> List[Dict[str, Any]]:
@@ -176,7 +258,10 @@ def get_all_cases(limit: int = 50) -> List[Dict[str, Any]]:
     cursor = conn.cursor()
     cursor.execute("""
         SELECT case_id, evidence_id, timestamp_utc, from_address, sender_domain,
-               subject, origin_ip, fraud_score, risk_level, primary_threat, campaign_id
+               subject, origin_ip, fraud_score, risk_level, primary_threat, campaign_id,
+               forensic_originating_ip, forensic_geo, forensic_is_tor, forensic_is_vpn,
+               forensic_is_hosting, forensic_domain_age, forensic_lookalike_match,
+               forensic_linked_incidents, forensic_origin_risk_score, payload_json
         FROM incident_cases
         ORDER BY timestamp_utc DESC
         LIMIT ?

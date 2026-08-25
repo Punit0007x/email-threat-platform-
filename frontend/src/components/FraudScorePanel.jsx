@@ -138,17 +138,12 @@ export default function FraudScorePanel({ data }) {
       <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
       <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
 
-      <div className="flex items-center justify-between border-b border-[#f8fafc] pb-3 px-2">
+      <div className="flex items-center justify-between border-b border-gray-200 pb-4 px-2">
         <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4 text-[#ef4444]" />
-          <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-[#0f172a]">
-            ANALYTIC MODULE // MULTI-VECTOR THREAT GAUGES
+          <Zap className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-lg font-bold text-gray-900">
+            Fraudulent Email Detection Engine
           </h2>
-        </div>
-        <div className="vent-louvers">
-          <div className="vent-slot" />
-          <div className="vent-slot" />
-          <div className="vent-slot" />
         </div>
       </div>
 
@@ -156,7 +151,7 @@ export default function FraudScorePanel({ data }) {
         
         {/* Radial Instrument Dial */}
         <div className="flex flex-col items-center justify-center flex-shrink-0 relative">
-          <div className="relative flex items-center justify-center w-48 h-48 rounded-full p-2 slot-recessed">
+          <div className="relative flex items-center justify-center w-56 h-56 rounded-full p-2 bg-white shadow-sm border border-gray-100">
             
             {/* SVG Circular Progress Meter */}
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 160 160">
@@ -165,8 +160,8 @@ export default function FraudScorePanel({ data }) {
                 cx="80"
                 cy="80"
                 r={radius}
-                className="stroke-[#f8fafc]"
-                strokeWidth="11"
+                className="stroke-gray-100"
+                strokeWidth="12"
                 fill="transparent"
               />
               {/* Animated Progress Ring */}
@@ -175,73 +170,72 @@ export default function FraudScorePanel({ data }) {
                 cy="80"
                 r={radius}
                 stroke={gaugeColor}
-                strokeWidth="11"
+                strokeWidth="12"
                 strokeDasharray={circumference}
                 strokeDashoffset={strokeDashoffset}
                 strokeLinecap="round"
                 fill="transparent"
                 style={{
-                  transition: "stroke-dashoffset 0.8s var(--ease-spring)"
+                  transition: "stroke-dashoffset 0.8s ease-out"
                 }}
               />
             </svg>
 
             {/* Centered Score */}
             <div className="absolute flex flex-col items-center justify-center text-center">
-              <span className={`text-5xl font-black font-mono tracking-tight drop-shadow-[0_1px_0_#ffffff] ${colorClass}`}>
+              <span className={`text-6xl font-black tracking-tight ${colorClass}`}>
                 {score}
               </span>
-              <span className="text-[10px] font-bold text-[#64748b] uppercase tracking-widest font-mono mt-0.5">
-                Threat Score
+              <span className="text-sm font-semibold text-gray-500 uppercase tracking-wide mt-1">
+                Fraud Score
               </span>
             </div>
           </div>
 
-          <div className={`mt-3.5 flex items-center gap-1.5 px-4 py-1.5 rounded-full font-bold uppercase tracking-wider text-xs ${colorClass} slot-recessed-sm`}>
-            <Icon className="w-4 h-4" />
+          <div className={`mt-4 flex items-center gap-2 px-5 py-2 rounded-full font-bold uppercase tracking-wide text-sm bg-white shadow-sm border border-gray-100 ${colorClass}`}>
+            <Icon className="w-5 h-5" />
             <span>{risk_level} Risk Level</span>
           </div>
         </div>
 
         {/* Reasons & Triggered Signals List */}
-        <div className="flex-1 w-full slot-recessed p-5 sm:p-6 space-y-4">
-          <div className="flex items-center justify-between border-b border-[#e2e8f0]/50 pb-3">
-            <h3 className="text-xs font-bold text-[#0f172a] uppercase tracking-wider flex items-center gap-2 font-mono">
-              <Radio className="w-4 h-4 text-[#ef4444]" />
-              Forensic Detection Telemetry & Signals
+        <div className="flex-1 w-full bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+            <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
+              <Radio className="w-5 h-5 text-indigo-500" />
+              Detected Threat Indicators
             </h3>
-            <span className="text-[11px] font-mono text-[#0f172a] font-bold slot-recessed-sm px-3 py-0.5">
-              {reasons.length} Signal(s)
+            <span className="text-sm text-gray-600 font-semibold bg-gray-50 px-3 py-1 rounded-lg">
+              {reasons.length} Indicator(s) Found
             </span>
           </div>
 
-          <ul className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+          <ul className="space-y-3 max-h-64 overflow-y-auto pr-2">
             {reasons && reasons.length > 0 ? (
               reasons.map((reason, idx) => {
                 const cat = getReasonCategory(reason);
                 return (
-                  <li key={idx} className="flex items-start gap-2.5 text-xs bg-[#f8fafc] p-3 rounded-xl border border-[#e2e8f0]/50 shadow-sm transition-all">
-                    <span className={`px-2 py-0.5 rounded font-mono text-[9px] font-bold uppercase border flex-shrink-0 mt-0.5 ${cat.color}`}>
+                  <li key={idx} className="flex items-start gap-3 text-sm bg-gray-50 p-4 rounded-xl border border-gray-100 transition-all">
+                    <span className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase border flex-shrink-0 ${cat.color}`}>
                       {cat.label}
                     </span>
-                    <span className="text-[#0f172a] leading-relaxed font-sans font-medium">{reason}</span>
+                    <span className="text-gray-800 leading-relaxed font-medium">{reason}</span>
                   </li>
                 );
               })
             ) : (
-              <li className="text-[#64748b] italic text-xs py-4 text-center">No threat indicators detected. Standard legitimate email baseline.</li>
+              <li className="text-gray-500 italic text-sm py-6 text-center bg-gray-50 rounded-xl">No threat indicators detected. This email appears legitimate.</li>
             )}
           </ul>
 
           {/* Quick Status Strip */}
-          <div className="pt-2 border-t border-[#e2e8f0]/50 flex flex-wrap items-center justify-between text-[11px] font-mono text-[#64748b] gap-2">
+          <div className="pt-4 border-t border-gray-100 flex flex-wrap items-center justify-between text-sm text-gray-600 gap-3">
             <div className="flex items-center gap-2">
-              <span className={`led-node ${score >= 70 ? 'led-node-red animate-pulse' : (score > 30 ? 'led-node-amber' : 'led-node-green')}`} />
-              <span>SIEM ACTION: <strong className="text-[#0f172a] font-bold">{score >= 70 ? 'HIGH-PRIORITY INCIDENT' : (score > 30 ? 'MANUAL REVIEW' : 'AUTO-APPROVED')}</strong></span>
+              <span>Recommended Action: <strong className="text-gray-900 font-bold">{score >= 70 ? 'Block and Quarantine' : (score > 30 ? 'Review Carefully' : 'Allow (Safe)')}</strong></span>
             </div>
             {score >= 70 && (
-              <span className="text-[#d63031] font-bold flex items-center gap-1 bg-[#ef4444]/15 px-2.5 py-0.5 rounded border border-[#ef4444]/30 text-[10px]">
-                <ShieldAlert className="w-3.5 h-3.5" /> QUARANTINE ACTIVE
+              <span className="text-red-700 font-bold flex items-center gap-1.5 bg-red-50 px-3 py-1 rounded-lg border border-red-200">
+                <ShieldAlert className="w-4 h-4" /> QUARANTINE SUGGESTED
               </span>
             )}
           </div>
@@ -253,29 +247,29 @@ export default function FraudScorePanel({ data }) {
       <ThreatRadarGraphic data={data} score={score} />
 
       {/* Multi-Vector Sub-Score Breakdown Matrix */}
-      <div className="slot-recessed p-5 space-y-4">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-bold uppercase tracking-wider text-[#0f172a] font-mono flex items-center gap-2">
-            <span className="w-1.5 h-3 bg-[#ef4444] rounded-sm"></span>
-            Multi-Vector Explainable Risk Breakdown
+          <h4 className="text-base font-bold text-gray-900 flex items-center gap-2">
+            <span className="w-1.5 h-4 bg-indigo-500 rounded-sm"></span>
+            Threat Breakdown Analysis
           </h4>
-          <span className="text-[10px] font-mono text-[#64748b] font-semibold">6 Mathematical Defense Dimensions</span>
+          <span className="text-sm text-gray-500 font-medium">NLP & ML Component Scores</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
           {vectors.map((vec, i) => (
-            <div key={i} className="bg-[#f8fafc] p-3.5 rounded-xl border border-[#e2e8f0]/60 space-y-2 shadow-sm">
+            <div key={i} className="bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-3">
               <div className="flex justify-between items-center">
-                <span className="font-bold text-[#0f172a] text-[11px] font-sans">{vec.name}</span>
-                <span className="font-mono font-bold text-[11px] text-[#ef4444]">{Math.min(100, Math.max(0, vec.score))}%</span>
+                <span className="font-bold text-gray-900 text-sm">{vec.name}</span>
+                <span className="font-bold text-red-500">{Math.min(100, Math.max(0, vec.score))}%</span>
               </div>
-              <div className="w-full bg-[#f8fafc] h-2 rounded-full overflow-hidden shadow-[inset_1px_1px_2px_rgba(0,0,0,0.2)]">
+              <div className="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden">
                 <div 
                   className={`h-full rounded-full bg-gradient-to-r ${vec.color} transition-all duration-700`}
                   style={{ width: `${Math.min(100, Math.max(4, vec.score))}%` }}
                 />
               </div>
-              <span className="text-[10px] text-[#64748b] block truncate font-mono font-medium">{vec.desc}</span>
+              <span className="text-xs text-gray-600 block truncate font-medium">{vec.desc}</span>
             </div>
           ))}
         </div>

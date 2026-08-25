@@ -34,7 +34,7 @@ def predict_spam(text: str) -> dict:
     classes = model.classes_
     prob_dict = {cls: float(p) for cls, p in zip(classes, probs)}
     
-    prediction = "spam" if prob_dict.get("spam", 0) > 0.5 else "ham"
+    prediction = "spam" if prob_dict.get("spam", 0) > 0.85 else "ham"
     
     return {
         "prediction": prediction,

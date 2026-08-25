@@ -17,7 +17,8 @@ import GraphAttributionPanel from './components/GraphAttributionPanel';
 import PlaybookModal from './components/PlaybookModal';
 import IOCSearchModal from './components/IOCSearchModal';
 import CyberScanOverlay from './components/CyberScanOverlay';
-import EmailBodyDissector from './components/EmailBodyDissector';
+import EmailBodyDissector from "./components/EmailBodyDissector";
+import LandingPage from "./components/LandingPage";
 import DashboardView from './components/DashboardView';
 
 const DEMO_EMAILS = [
@@ -61,7 +62,7 @@ function App() {
   const [showIOCSearch, setShowIOCSearch] = useState(false);
   const [iocQuery, setIocQuery] = useState('');
   
-  const [activeView, setActiveView] = useState('summary');
+  const [activeView, setActiveView] = useState('detection');
   const [activeSection, setActiveSection] = useState(1);
 
   const heroRef = useRef(null);
@@ -282,88 +283,79 @@ function App() {
         </motion.div>
       </section>
 
-      {/* SECTION 3: ANALYSIS / DASHBOARD */}
-      <section ref={dashboardRef} className="snap-start h-screen w-full bg-[#F8FAFC] relative">
-        {results ? (
+      {/* SECTION 3: ANALYSIS / RESULTS (Only shows when an email is scanned) */}
+      {results && (
+        <section ref={dashboardRef} className="snap-start min-h-screen w-full bg-[#F8FAFC] relative">
           <div className="pt-24 pb-12 px-4 sm:px-8 max-w-[90rem] mx-auto h-full flex flex-col">
             
             {/* Tab Navigation System */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-2 flex flex-wrap gap-2 shadow-sm mb-6">
+            <div className="bg-white border border-gray-200 rounded-2xl p-3 flex flex-wrap gap-3 shadow-sm mb-8">
               {[
-                { id: 'summary', label: 'Summary & Verdict' },
-                { id: 'content', label: 'Email Content' },
-                { id: 'sender', label: 'Sender Details' },
-                { id: 'network', label: 'Network & Origin' },
-                { id: 'report', label: 'Analysis Report' },
-                { id: 'advanced', label: 'God-Level SOC' },
+                { id: 'detection', label: '1. AI Fraud Detection' },
+                { id: 'protocols', label: '2. Header & Protocol Analysis' },
+                { id: 'traceability', label: '3. Origin Traceability & Location' },
+                { id: 'attribution', label: '4. Identity & Attribution Graph' },
+                { id: 'reporting', label: '5. Forensic Reporting & Legal' }
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveView(tab.id)}
-                  className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${activeView === tab.id ? 'bg-[#0f172a] text-white shadow-md' : 'text-gray-500 hover:bg-gray-100'}`}
+                  className={`px-5 py-3 rounded-xl text-base font-semibold transition-all ${activeView === tab.id ? 'bg-[#4F46E5] text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}
                 >
                   {tab.label}
                 </button>
               ))}
-              <div className="ml-auto flex gap-2">
-                 <button onClick={() => setShowIOCSearch(true)} className="px-3 py-2 rounded-xl text-sm font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2">
-                   <Search className="w-4 h-4"/> IOC Search
+              <div className="ml-auto flex gap-3">
+                 <button onClick={() => setShowIOCSearch(true)} className="px-4 py-3 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2">
+                   <Search className="w-5 h-5"/> IOC Search
                  </button>
-                 <button onClick={() => setResults(null)} className="px-3 py-2 rounded-xl text-sm font-bold bg-red-50 text-red-600 hover:bg-red-100 border border-red-100">
-                   Clear Session
+                 <button onClick={() => setResults(null)} className="px-4 py-3 rounded-xl text-sm font-semibold bg-red-50 text-red-600 hover:bg-red-100 border border-red-100">
+                   Clear Scan
                  </button>
               </div>
             </div>
 
-            {/* GlassCard Ecosystem for Results */}
-            <div className="flex-1 bg-white/60 backdrop-blur-xl border border-gray-200 rounded-3xl p-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-y-auto">
+            {/* Main Content Area */}
+            <div className="flex-1 bg-white/80 backdrop-blur-xl border border-gray-200 rounded-3xl p-8 shadow-lg overflow-y-auto">
               
-              {activeView === 'summary' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-6">
+              {activeView === 'detection' && (
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
                   <FraudScorePanel data={results} />
                   <AIMLThreatPanel data={results} />
-                </motion.div>
-              )}
-
-              {activeView === 'content' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-6">
                   <EmailBodyDissector data={results} onLookupIOC={handleLookupIOC} />
-                  <DeepOSINTPanel data={results} />
                 </motion.div>
               )}
 
-              {activeView === 'sender' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <HeaderPanel data={results} />
+              {activeView === 'protocols' && (
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <AuthPanel data={results} />
+                  <HeaderPanel data={results} />
                 </motion.div>
               )}
 
-              {activeView === 'network' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-6">
-                  <GraphAttributionPanel data={results} onLookupIOC={handleLookupIOC} />
+              {activeView === 'traceability' && (
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
                   <MapPanel data={results} />
                 </motion.div>
               )}
 
-              {activeView === 'report' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-6">
-                  <CustodyReportPanel data={results} />
+              {activeView === 'attribution' && (
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
+                  <GraphAttributionPanel data={results} onLookupIOC={handleLookupIOC} />
+                  <DeepOSINTPanel data={results} />
                 </motion.div>
               )}
 
-              {activeView === 'advanced' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-6">
-                  <AdvancedSOC data={results} />
+              {activeView === 'reporting' && (
+                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
+                  <CustodyReportPanel data={results} />
                 </motion.div>
               )}
 
             </div>
           </div>
-        ) : (
-          <DashboardView />
-        )}
-      </section>
+        </section>
+      )}
 
       {/* Modals & Overlays */}
       <PlaybookModal isOpen={showPlaybook} onClose={() => setShowPlaybook(false)} />

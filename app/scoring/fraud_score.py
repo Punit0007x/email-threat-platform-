@@ -166,7 +166,7 @@ def calculate_fraud_score(
                 
         classification = ai_ml_analysis.get("classification", {})
         primary_threat = classification.get("primary_threat", "clean")
-        if primary_threat != "clean" and classification.get("confidence", 0) >= 0.50:
+        if primary_threat != "clean" and classification.get("confidence", 0) >= 0.75:
             score += 20
             reasons.append(f"AI Multi-Class Model: Identified as '{primary_threat.replace('_', ' ').title()}' (Confidence: {round(classification.get('confidence', 0)*100)}%).")
             
