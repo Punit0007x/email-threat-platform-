@@ -83,7 +83,7 @@ function App() {
   useEffect(() => {
     const handleExtensionData = (data) => {
       setResults(data);
-      setActiveView('summary');
+      setActiveView('detection');
       setTimeout(() => {
         dashboardRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -149,7 +149,7 @@ function App() {
     try {
       const data = await analyzeEmail(targetFile);
       setResults(data);
-      setActiveView('summary');
+      setActiveView('detection');
       dashboardRef.current?.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       console.error("Analysis failed:", err);
@@ -191,20 +191,20 @@ function App() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-200/50 border border-slate-300 text-slate-700 text-xs font-mono font-bold tracking-widest uppercase mb-8">
             <Zap className="w-4 h-4 text-cyan-600" />
-            <span>Email Threat Operations Center</span>
+            <span>Email Security Platform</span>
           </div>
           <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6 text-slate-900">
-            Intelligent <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-cyan-600">Threat Detonation</span>
+            Identify Email Threats <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-cyan-600">Instantly</span>
           </h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-10">
-            Advanced forensic parsing, speed-of-light relay anomaly triangulation, computer vision OCR detonation, and neural campaign attribution.
+            Expose sophisticated email threats with deep forensic analysis, AI-driven fraud detection, and precise geographical origin tracing.
           </p>
           <div className="flex items-center justify-center gap-4">
              <button onClick={() => scannerRef.current?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-full font-bold transition-all shadow-[0_4px_14px_0_rgba(8,145,178,0.39)]">
-               Initialize Scan Bay
+               Scan an Email
              </button>
              <button onClick={() => setShowPlaybook(true)} className="px-8 py-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-900 rounded-full font-bold transition-all shadow-sm">
-               SOC Playbook
+               View Playbook
              </button>
           </div>
         </motion.div>

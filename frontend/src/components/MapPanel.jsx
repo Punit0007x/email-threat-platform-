@@ -55,18 +55,12 @@ export default function MapPanel({ data, onLookupIOC }) {
         )}
       </div>
 
-      {/* Speed-of-Light Relay Hop Pipeline */}
-      <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
-        <h3 className="text-base font-bold text-gray-800 mb-4">Email Routing Path (Hop by Hop)</h3>
-        <RelayHopVisualizer data={data} />
-      </div>
-
-      {/* Interactive Map Box */}
+      {/* Interactive Map Box (Almost Full Screen) */}
       {geoHops.length > 0 ? (
         <div className="space-y-4">
           <div className="bg-gray-900 rounded-2xl p-2 shadow-inner border border-gray-800">
-            <div className="h-[400px] w-full flex items-center justify-center rounded-xl overflow-hidden">
-              <CyberGlobe hops={hops} interactive={true} width={800} />
+            <div className="h-[80vh] w-full flex items-center justify-center rounded-xl overflow-hidden">
+              <CyberGlobe hops={hops} interactive={true} />
             </div>
           </div>
 
@@ -91,6 +85,12 @@ export default function MapPanel({ data, onLookupIOC }) {
           No geographic coordinates resolved for the servers in this email.
         </div>
       )}
+
+      {/* Speed-of-Light Relay Hop Pipeline (Moved Below Globe) */}
+      <div className="bg-gray-50 rounded-xl p-6 border border-gray-100">
+        <h3 className="text-base font-bold text-gray-800 mb-4">Email Routing Path (Hop by Hop)</h3>
+        <RelayHopVisualizer data={data} />
+      </div>
 
       {/* Deep IP Reputation & Network Context Lower Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

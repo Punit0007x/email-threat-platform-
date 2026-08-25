@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import GlobeMap from 'react-globe.gl';
 
-const CyberGlobe = ({ hops = null, interactive = false, width = null }) => {
+const CyberGlobe = ({ hops = null, interactive = false, width = null, height = null }) => {
   const [windowWidth, setWindowWidth] = useState(width || 800);
+  const [windowHeight, setWindowHeight] = useState(height || 500);
   const globeRef = useRef();
 
   useEffect(() => {
-    if (width) return;
+    if (width && height) return;
     const handleResize = () => {
-      setWindowWidth(window.innerWidth > 1024 ? window.innerWidth / 2.5 : window.innerWidth - 40);
+      setWindowWidth(width || (window.innerWidth > 1024 ? window.innerWidth * 0.8 : window.innerWidth - 40));
+      setWindowHeight(height || window.innerHeight * 0.8);
     };
     handleResize();
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, [width]);
+  }, [width, height]);
 
   let displayArcs = [];
   let displayLabels = [];
@@ -79,7 +81,7 @@ const CyberGlobe = ({ hops = null, interactive = false, width = null }) => {
         labelColor={d => d.color}
         labelResolution={2}
         width={windowWidth}
-        height={width ? width * 0.75 : 500}
+        height={windowHeight}
         backgroundColor="rgba(0,0,0,0)"
         enablePointerInteraction={interactive}
       />
