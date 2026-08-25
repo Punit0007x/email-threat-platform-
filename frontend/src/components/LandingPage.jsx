@@ -88,49 +88,52 @@ export default function LandingPage({ onLaunchDemo }) {
       <div className="fixed inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-cyan-900/20 blur-[120px] rounded-full z-0 pointer-events-none" />
 
-      {/* Navigation */}
-      <nav className="relative z-50 flex items-center justify-between px-6 py-6 max-w-7xl mx-auto">
-        <div className="flex items-center gap-2">
-          <Shield className="w-8 h-8 text-cyan-400" />
-          <span className="text-xl font-bold tracking-tight">ShieldMail<span className="text-cyan-400">.ai</span></span>
-        </div>
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-          <a href="#platform" className="hover:text-cyan-400 transition-colors">Platform</a>
-          <a href="#outcomes" className="hover:text-cyan-400 transition-colors">Outcomes</a>
-          <button onClick={onLaunchDemo} className="px-5 py-2.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all text-white">
-            Access Demo
-          </button>
-        </div>
-      </nav>
+      {/* Light Theme Top Section */}
+      <div className="bg-slate-50 text-slate-900 pb-12 rounded-b-[3rem] shadow-sm relative z-10">
+        {/* Navigation */}
+        <nav className="relative z-50 flex items-center justify-between px-6 py-6 max-w-7xl mx-auto">
+          <div className="flex items-center gap-2">
+            <Shield className="w-8 h-8 text-cyan-600" />
+            <span className="text-xl font-bold tracking-tight">ShieldMail<span className="text-cyan-600">.ai</span></span>
+          </div>
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+            <a href="#platform" className="hover:text-cyan-600 transition-colors">Platform</a>
+            <a href="#outcomes" className="hover:text-cyan-600 transition-colors">Outcomes</a>
+            <button onClick={onLaunchDemo} className="px-5 py-2.5 rounded-full bg-white hover:bg-slate-100 border border-slate-200 transition-all text-slate-900 shadow-sm">
+              Access Demo
+            </button>
+          </div>
+        </nav>
 
-      {/* Hero Section */}
-      <main className="relative z-10 pt-20 pb-32 px-6">
-        <div className="max-w-5xl mx-auto text-center space-y-8">
-          
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 text-xs font-semibold uppercase tracking-widest mb-4">
-            <Zap className="w-4 h-4" /> Next-Gen Email Fraud & Protocol Forensics
-          </motion.div>
-          
-          <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight">
-            Stop BEC, Phishing, and Spoofing <br className="hidden md:block"/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-emerald-400">Before Delivery.</span>
-          </motion.h1>
-          
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
-            Combine semantic NLP, deep MTA protocol dissection, and graph-based campaign intelligence into a single automated defense and forensic command center.
-          </motion.p>
-          
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-            <button onClick={onLaunchDemo} className="w-full sm:w-auto px-8 py-4 rounded-full bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold transition-all flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(6,182,212,0.3)] hover:shadow-[0_0_40px_rgba(6,182,212,0.5)]">
-              Launch Live Demo <ArrowRight className="w-5 h-5" />
-            </button>
-            <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-slate-800/50 hover:bg-slate-800 border border-slate-700 text-white font-bold transition-all flex items-center justify-center gap-2">
-              Read Forensic Whitepaper
-            </button>
-          </motion.div>
-          
-        </div>
-      </main>
+        {/* Hero Section */}
+        <main className="relative z-10 pt-16 pb-20 px-6">
+          <div className="max-w-5xl mx-auto text-center space-y-8">
+            
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-100/50 border border-cyan-200 text-cyan-800 text-xs font-semibold uppercase tracking-widest mb-4">
+              <Zap className="w-4 h-4" /> Next-Gen Email Fraud & Protocol Forensics
+            </motion.div>
+            
+            <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight">
+              Stop BEC, Phishing, and Spoofing <br className="hidden md:block"/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-emerald-600">Before Delivery.</span>
+            </motion.h1>
+            
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
+              Combine semantic NLP, deep MTA protocol dissection, and graph-based campaign intelligence into a single automated defense and forensic command center.
+            </motion.p>
+            
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
+              <button onClick={onLaunchDemo} className="w-full sm:w-auto px-8 py-4 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-[0_4px_14px_0_rgba(8,145,178,0.39)] hover:shadow-[0_6px_20px_rgba(8,145,178,0.23)]">
+                Launch Live Demo <ArrowRight className="w-5 h-5" />
+              </button>
+              <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
+                Read Forensic Whitepaper
+              </button>
+            </motion.div>
+            
+          </div>
+        </main>
+      </div>
 
       {/* Key Architecture & Functional Modules */}
       <section id="platform" className="relative z-10 py-24 bg-slate-900/50 border-y border-slate-800/50">

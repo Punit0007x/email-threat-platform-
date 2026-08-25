@@ -180,8 +180,8 @@ function App() {
       </nav>
 
       {/* SECTION 1: HERO */}
-      <section ref={heroRef} className="snap-start h-screen w-full bg-[#0A0A0C] flex flex-col justify-center items-center text-white relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-slate-800/20 blur-[120px] rounded-full pointer-events-none" />
+      <section ref={heroRef} className="snap-start h-screen w-full bg-slate-50 flex flex-col justify-center items-center text-slate-900 relative overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-100/50 blur-[120px] rounded-full pointer-events-none" />
         
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
@@ -189,21 +189,21 @@ function App() {
           transition={{ duration: 0.8 }}
           className="z-10 text-center max-w-4xl px-4"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs font-mono font-bold tracking-widest uppercase mb-8">
-            <Zap className="w-4 h-4 text-slate-500" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-slate-200/50 border border-slate-300 text-slate-700 text-xs font-mono font-bold tracking-widest uppercase mb-8">
+            <Zap className="w-4 h-4 text-cyan-600" />
             <span>Email Threat Operations Center</span>
           </div>
-          <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6">
-            Intelligent <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-500 to-cyan-400">Threat Detonation</span>
+          <h1 className="text-5xl sm:text-7xl font-extrabold tracking-tight mb-6 text-slate-900">
+            Intelligent <span className="text-transparent bg-clip-text bg-gradient-to-r from-slate-700 to-cyan-600">Threat Detonation</span>
           </h1>
-          <p className="text-lg text-gray-400 max-w-2xl mx-auto mb-10">
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto mb-10">
             Advanced forensic parsing, speed-of-light relay anomaly triangulation, computer vision OCR detonation, and neural campaign attribution.
           </p>
           <div className="flex items-center justify-center gap-4">
-             <button onClick={() => scannerRef.current?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-full font-bold transition-all shadow-[0_0_20px_rgba(15,23,42,0.4)]">
+             <button onClick={() => scannerRef.current?.scrollIntoView({ behavior: 'smooth' })} className="px-8 py-3 bg-cyan-600 hover:bg-cyan-700 text-white rounded-full font-bold transition-all shadow-[0_4px_14px_0_rgba(8,145,178,0.39)]">
                Initialize Scan Bay
              </button>
-             <button onClick={() => setShowPlaybook(true)} className="px-8 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-full font-bold transition-all">
+             <button onClick={() => setShowPlaybook(true)} className="px-8 py-3 bg-white hover:bg-slate-100 border border-slate-200 text-slate-900 rounded-full font-bold transition-all shadow-sm">
                SOC Playbook
              </button>
           </div>
@@ -211,7 +211,7 @@ function App() {
       </section>
 
       {/* SECTION 2: SCANNER */}
-      <section ref={scannerRef} className="snap-start h-screen w-full bg-[#0f172a] flex flex-col justify-center items-center relative overflow-hidden text-white">
+      <section ref={scannerRef} className="snap-start h-screen w-full bg-gradient-to-br from-[#0a0212] via-[#160212] to-[#06000a] flex flex-col justify-center items-center relative overflow-hidden text-white">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
         
         <motion.div 
