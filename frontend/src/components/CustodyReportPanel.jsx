@@ -171,187 +171,173 @@ export default function CustodyReportPanel({ data }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
-      
-      {/* Corner Screws */}
-      <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
-      <div className="absolute top-3.5 right-3.5"><div className="screw-head" /></div>
-      <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
-      <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
+    <div className="bg-transparent space-y-10 relative">
 
       {/* Header & Print Action */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#f8fafc] pb-4 px-2">
-        <div className="flex items-center space-x-3.5">
-          <div className="p-3 bg-[#ffffff] text-[#10b981] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
-            <ShieldCheck className="w-6 h-6" />
+      <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 px-2">
+        <div className="flex items-center space-x-5">
+          <div className="p-4 bg-white/20 backdrop-blur-3xl text-slate-800 rounded-[1.5rem] border border-white/60 shadow-[inset_0_1px_2px_rgba(255,255,255,1),0_8px_32px_rgba(0,0,0,0.1)]">
+            <Printer className="w-8 h-8" />
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-[#0f172a] flex items-center gap-2">
-              Chain-of-Custody & Evidence Manifest
-              <span className="text-xs bg-[#10b981]/15 text-[#047857] font-mono px-2.5 py-0.5 rounded border border-[#10b981]/30 font-bold">
-                {custody.custody_seal}
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3 drop-shadow-sm">
+              Official Incident Report
+              <span className="text-xs bg-white/30 text-slate-700 font-mono px-3 py-1.5 rounded-lg border border-white/60 font-bold backdrop-blur-3xl shadow-[inset_0_1px_1px_rgba(255,255,255,0.9)]">
+                {custody.custody_seal || "SEALED"}
               </span>
             </h2>
-            <p className="text-sm text-[#64748b] font-mono">Cryptographic evidence preservation & legal reporting</p>
+            <p className="text-base text-slate-600 font-medium">Downloadable investigation reports and security data exports.</p>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={handleExportSTIX}
-            className="btn-tactile-secondary text-sm font-mono font-bold"
-            title="Download OASIS STIX 2.1 Threat Intel Bundle"
+            className="bg-white/10 hover:bg-white/30 backdrop-blur-3xl border border-white/60 text-slate-800 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_4px_16px_rgba(0,0,0,0.05)] transition-all text-sm font-bold px-5 py-2.5 rounded-xl"
+            title="Download STIX Threat Data"
           >
-            STIX 2.1
+            Download STIX Data
           </button>
 
           <button
             onClick={handleExportMISP}
-            className="btn-tactile-secondary text-sm font-mono font-bold"
-            title="Download MISP Event Threat Format"
+            className="bg-white/10 hover:bg-white/30 backdrop-blur-3xl border border-white/60 text-slate-800 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_4px_16px_rgba(0,0,0,0.05)] transition-all text-sm font-bold px-5 py-2.5 rounded-xl"
+            title="Download MISP Security Event"
           >
-            MISP Event
-          </button>
-
-          <button
-            onClick={handlePreviewReport}
-            disabled={loadingReport}
-            className="btn-tactile-secondary flex items-center gap-1.5 text-sm font-bold"
-          >
-            <Eye className="w-3.5 h-3.5 text-[#0ea5e9]" />
-            {loadingReport ? "Loading..." : "Preview Report"}
+            Download MISP Data
           </button>
           
           <button
             onClick={handlePrintReport}
             disabled={loadingReport}
-            className="btn-tactile-primary flex items-center gap-1.5 text-sm font-bold"
+            className="bg-slate-800/90 hover:bg-slate-900 backdrop-blur-3xl border border-slate-700 text-white shadow-xl transition-all flex items-center gap-2 text-sm font-bold px-6 py-2.5 rounded-xl ml-2"
           >
-            <Printer className="w-3.5 h-3.5" />
-            Print / PDF
+            <Printer className="w-4 h-4" />
+            Print / Save PDF
           </button>
         </div>
       </div>
 
       {/* Checksum & Metadata Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-sm font-mono">
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 rounded-xl">
-          <span className="text-[#64748b] font-bold block mb-1 text-xs uppercase">EVIDENCE ID</span>
-          <span className="text-[#0f172a] font-bold">{custody.evidence_id}</span>
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6 text-base">
+        <div className="bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-7 group hover:bg-white/30 transition-all duration-500">
+          <span className="text-slate-600 font-bold block mb-2 text-xs uppercase tracking-wider drop-shadow-sm">Report ID</span>
+          <span className="text-slate-900 font-bold font-mono text-lg">{custody.evidence_id}</span>
         </div>
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 rounded-xl overflow-hidden">
-          <span className="text-[#64748b] font-bold block mb-1 text-xs uppercase">SHA-256 DIGEST</span>
-          <span className="text-[#7048e8] truncate block font-bold">{custody.sha256}</span>
+        <div className="bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-7 overflow-hidden group hover:bg-white/30 transition-all duration-500">
+          <span className="text-slate-600 font-bold block mb-2 text-xs uppercase tracking-wider drop-shadow-sm">File Fingerprint</span>
+          <span className="text-indigo-700 truncate block font-bold font-mono text-lg drop-shadow-sm">{custody.sha256}</span>
         </div>
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 rounded-xl">
-          <span className="text-[#64748b] font-bold block mb-1 text-xs uppercase">INGESTION UTC</span>
-          <span className="text-[#0f172a] font-medium">{custody.ingestion_timestamp_utc?.replace('T', ' ').substring(0, 19)}</span>
+        <div className="bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-7 group hover:bg-white/30 transition-all duration-500">
+          <span className="text-slate-600 font-bold block mb-2 text-xs uppercase tracking-wider drop-shadow-sm">Analysis Time</span>
+          <span className="text-slate-900 font-medium font-mono text-lg">{custody.ingestion_timestamp_utc?.replace('T', ' ').substring(0, 19)}</span>
         </div>
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 rounded-xl">
-          <span className="text-[#64748b] font-bold block mb-1 text-xs uppercase">FILE CHECKSUMS</span>
-          <span className="text-[#64748b] block truncate text-xs font-bold">MD5: {custody.md5 || 'N/A'}</span>
-          <span className="text-[#64748b] block truncate text-xs">Size: {custody.file_size_bytes ? `${custody.file_size_bytes} B` : 'N/A'}</span>
+        <div className="bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-7 space-y-1.5 group hover:bg-white/30 transition-all duration-500">
+          <span className="text-slate-600 font-bold block mb-2 text-xs uppercase tracking-wider drop-shadow-sm">File Details</span>
+          <span className="text-slate-900 block truncate text-sm font-bold font-mono">MD5: <span className="text-slate-600">{custody.md5 || 'N/A'}</span></span>
+          <span className="text-slate-900 block truncate text-sm font-bold">Size: <span className="text-slate-600">{custody.file_size_bytes ? `${custody.file_size_bytes} Bytes` : 'N/A'}</span></span>
         </div>
       </div>
 
       {/* Blockchain Notarization Ledger Strip */}
       {data.blockchain_receipt && (
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm">
-          <div className="flex items-center space-x-2.5">
-            <span className="px-2 py-0.5 rounded font-mono font-bold text-xs bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30 flex items-center gap-1">
-              <CheckCircle2 className="w-3 h-3 text-[#059669]" />
-              {data.blockchain_receipt.status || "NOTARIZED"}
+        <div className="relative z-10 bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-6 px-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 text-base">
+          <div className="flex items-center space-x-4">
+            <span className="px-4 py-1.5 rounded-xl font-bold text-xs bg-emerald-500/20 text-emerald-800 border border-emerald-300/50 flex items-center gap-2 uppercase tracking-wide backdrop-blur-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]">
+              <CheckCircle2 className="w-4 h-4 text-emerald-700" />
+              {data.blockchain_receipt.status === 'NOTARIZED' ? "SECURELY RECORDED" : data.blockchain_receipt.status}
             </span>
-            <span className="text-[#0f172a] font-bold">
-              Immutable Ledger: <span className="text-[#7048e8] font-mono">{data.blockchain_receipt.blockchain_network || "Local-Ethereum-Notary"}</span>
+            <span className="text-slate-800 font-bold">
+              Secure Record: <span className="text-indigo-700 font-mono font-medium drop-shadow-sm">Local System Database</span>
             </span>
           </div>
-          <div className="font-mono text-sm text-[#64748b] truncate max-w-full sm:max-w-md">
-            Txn: <span className="text-[#0f172a] font-bold">{data.blockchain_receipt.transaction_hash || "0x..."}</span>
+          <div className="font-mono text-sm text-slate-600 truncate max-w-full">
+            Receipt ID: <span className="text-slate-900 font-bold ml-1">{data.blockchain_receipt.transaction_hash || "0x..."}</span>
           </div>
         </div>
       )}
 
       {/* Infrastructure, DNS & WHOIS Snapshot Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm pt-1">
+      <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 pt-2">
         
         {/* Card 1: Origin Infrastructure */}
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2 flex flex-col justify-between">
+        <div className="bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-8 space-y-4 flex flex-col justify-between group hover:bg-white/30 transition-all duration-500">
           <div>
-            <span className="text-[#64748b] font-bold block uppercase tracking-wider text-sm mb-1 font-mono">
-              Origin Infrastructure Tier
+            <span className="text-slate-600 font-bold block uppercase tracking-wider text-xs mb-4 drop-shadow-sm">
+              Sending Server Details
             </span>
-            <div className="text-sm font-bold text-[#0f172a] flex items-center gap-2">
-              <span className={`w-2.5 h-2.5 rounded-full ${infra.is_vpn_proxy ? 'bg-[#ef4444]' : (infra.is_cloud ? 'bg-[#f59e0b]' : 'bg-[#0ea5e9]')}`} />
-              {infra.infra_type || "Standard ISP"}
+            <div className="text-base font-bold text-slate-900 flex items-center gap-2.5">
+              <span className={`w-3 h-3 rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.3)] ${infra.is_vpn_proxy ? 'bg-red-500' : (infra.is_cloud ? 'bg-amber-500' : 'bg-sky-500')}`} />
+              {infra.infra_type || "Standard Internet Provider"}
             </div>
-            <p className="text-[#64748b] text-sm mt-1 leading-relaxed font-sans">{infra.details}</p>
+            <p className="text-slate-600 text-sm mt-3 leading-relaxed font-sans">{infra.details}</p>
           </div>
           {infra.ip && (
-            <div className="pt-2 border-t border-[#e2e8f0]/50 text-sm font-mono text-[#64748b]">
-              Analyzed IP: <span className="text-[#0f172a] font-bold">{infra.ip}</span>
+            <div className="pt-5 border-t border-slate-300/40 text-sm text-slate-600">
+              Analyzed IP Address: <br/>
+              <span className="text-slate-900 font-bold font-mono text-base mt-1.5 block">{infra.ip}</span>
             </div>
           )}
         </div>
 
         {/* Card 2: DNS & MX Routing */}
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2 flex flex-col justify-between">
+        <div className="bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-8 space-y-4 flex flex-col justify-between group hover:bg-white/30 transition-all duration-500">
           <div>
-            <span className="text-[#64748b] font-bold block uppercase tracking-wider text-sm mb-1 font-mono">
-              Sender DNS & MX Status
+            <span className="text-slate-600 font-bold block uppercase tracking-wider text-xs mb-4 drop-shadow-sm">
+              Domain Routing Check
             </span>
-            <div className="text-sm font-bold text-[#0f172a] flex items-center gap-1.5">
+            <div className="text-base font-bold text-slate-900 flex items-center gap-2.5">
               {dns.is_resolvable ? (
                 <>
-                  <CheckCircle2 className="w-4 h-4 text-[#059669] flex-shrink-0" />
-                  <span className="text-[#059669]">Resolvable ({dns.mx_records?.length || 0} MX)</span>
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0 drop-shadow-sm" />
+                  <span className="text-emerald-700 drop-shadow-sm">Resolvable ({dns.mx_records?.length || 0} Routes)</span>
                 </>
               ) : (
                 <>
-                  <ShieldAlert className="w-4 h-4 text-[#ef4444] flex-shrink-0" />
-                  <span className="text-[#d63031] font-bold">Unresolvable / NXDOMAIN</span>
+                  <ShieldAlert className="w-5 h-5 text-red-500 flex-shrink-0 drop-shadow-sm" />
+                  <span className="text-red-700 font-bold drop-shadow-sm">Unresolvable / Fake Domain</span>
                 </>
               )}
             </div>
-            <p className="text-[#64748b] text-sm mt-1 leading-relaxed font-sans">
-              {dns.risk_indicators?.length > 0 ? dns.risk_indicators.join("; ") : "Valid DNS and MX routing records configured."}
+            <p className="text-slate-600 text-sm mt-3 leading-relaxed font-sans">
+              {dns.risk_indicators?.length > 0 ? dns.risk_indicators.join("; ") : "Valid internet routing records configured."}
             </p>
           </div>
           {dns.domain && (
-            <div className="pt-2 border-t border-[#e2e8f0]/50 text-sm font-mono text-[#64748b] truncate">
-              Domain: <span className="text-[#0f172a] font-bold">{dns.domain}</span>
+            <div className="pt-5 border-t border-slate-300/40 text-sm text-slate-600 truncate">
+              Email Domain: <br/>
+              <span className="text-slate-900 font-bold text-base mt-1.5 block drop-shadow-sm">{dns.domain}</span>
             </div>
           )}
         </div>
 
         {/* Card 3: WHOIS & Registrar Intelligence */}
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-2 flex flex-col justify-between">
+        <div className="bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-8 space-y-4 flex flex-col justify-between group hover:bg-white/30 transition-all duration-500">
           <div>
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[#64748b] font-bold block uppercase tracking-wider text-sm font-mono">
-                WHOIS & Registrar Intel
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-slate-600 font-bold block uppercase tracking-wider text-xs drop-shadow-sm">
+                Domain Registration Info
               </span>
-              {getDomainAgeBadge()}
             </div>
             
-            <div className="text-sm font-bold text-[#0f172a] truncate">
-              {whois.registrar || <span className="text-[#94a3b8] italic font-normal">Registrar Unspecified</span>}
+            <div className="text-base font-bold text-slate-900 truncate">
+              {whois.registrar || <span className="text-slate-500 italic font-normal">Registrar Unspecified</span>}
             </div>
 
-            <div className="space-y-1 mt-2 text-sm text-[#0f172a]">
+            <div className="space-y-2.5 mt-5 text-sm text-slate-900">
               {whois.creation_date && (
-                <div className="flex items-center gap-1.5 text-[#64748b]">
-                  <Calendar className="w-3.5 h-3.5 text-[#7048e8] flex-shrink-0" />
-                  <span>Created: <strong className="text-[#0f172a] font-mono">{whois.creation_date.substring(0, 10)}</strong></span>
+                <div className="flex items-center gap-2.5 text-slate-600">
+                  <Calendar className="w-4 h-4 text-indigo-600 flex-shrink-0" />
+                  <span>Created: <strong className="text-slate-900 font-mono drop-shadow-sm">{whois.creation_date.substring(0, 10)}</strong></span>
                 </div>
               )}
               {whois.is_privacy_protected !== undefined && (
-                <div className="flex items-center gap-1.5">
-                  <Lock className={`w-3.5 h-3.5 ${whois.is_privacy_protected ? 'text-[#f59e0b]' : 'text-[#94a3b8]'} flex-shrink-0`} />
-                  <span className="text-[#64748b]">
-                    Privacy: <strong className={whois.is_privacy_protected ? 'text-[#b45309]' : 'text-[#0f172a]'}>
-                      {whois.is_privacy_protected ? 'Redacted / Protected' : 'Public Org'}
+                <div className="flex items-center gap-2.5">
+                  <Lock className={`w-4 h-4 ${whois.is_privacy_protected ? 'text-amber-600' : 'text-slate-500'} flex-shrink-0`} />
+                  <span className="text-slate-600">
+                    Privacy: <strong className={whois.is_privacy_protected ? 'text-amber-700 drop-shadow-sm' : 'text-slate-900 drop-shadow-sm'}>
+                      {whois.is_privacy_protected ? 'Hidden Details' : 'Public Details'}
                     </strong>
                   </span>
                 </div>
@@ -359,16 +345,17 @@ export default function CustodyReportPanel({ data }) {
             </div>
 
             {whois.risk_indicators?.length > 0 && (
-              <div className="mt-2 text-sm text-[#b45309] flex items-start gap-1">
-                <ShieldAlert className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-[#d97706]" />
-                <span className="line-clamp-2">{whois.risk_indicators[0]}</span>
+              <div className="mt-5 text-sm text-amber-900 flex items-start gap-2 p-3 bg-white/30 backdrop-blur-3xl rounded-[1rem] border border-white/60 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8),0_2px_8px_rgba(0,0,0,0.02)]">
+                <ShieldAlert className="w-4 h-4 flex-shrink-0 mt-0.5 text-amber-600 drop-shadow-sm" />
+                <span className="line-clamp-2 leading-relaxed font-medium">{whois.risk_indicators[0]}</span>
               </div>
             )}
           </div>
 
           {whois.registrant_org && (
-            <div className="pt-2 border-t border-[#e2e8f0]/50 text-sm font-mono text-[#64748b] truncate">
-              Org: <span className="text-[#0f172a] font-bold">{whois.registrant_org}</span>
+            <div className="pt-5 border-t border-slate-300/40 text-sm text-slate-600 truncate">
+              Organization: <br/>
+              <span className="text-slate-900 font-bold text-base mt-1.5 block drop-shadow-sm">{whois.registrant_org}</span>
             </div>
           )}
         </div>

@@ -344,7 +344,7 @@ function App() {
                 { id: 'protocols', label: '2. Header & Protocol Analysis' },
                 { id: 'traceability', label: '3. Origin Traceability & Location' },
                 { id: 'attribution', label: '4. Identity & Attribution Graph' },
-                { id: 'reporting', label: '5. Forensic Reporting & Legal' }
+                { id: 'reporting', label: '5. Official Incident Report' }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -365,42 +365,50 @@ function App() {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 bg-white/80 backdrop-blur-xl border border-gray-200 rounded-3xl p-8 shadow-lg overflow-y-auto">
+            <div className="flex-1 bg-[#e2e8f0] rounded-[2.5rem] shadow-sm border border-slate-300 p-8 relative overflow-hidden flex flex-col">
               
-              {activeView === 'detection' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
-                  <FraudScorePanel data={results} />
-                  <AIMLThreatPanel data={results} />
-                  <EmailBodyDissector data={results} onLookupIOC={handleLookupIOC} />
-                </motion.div>
-              )}
+              {/* Background Shapes for Refraction (Crucial for extreme glassmorphism) */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-100 via-[#e2e8f0] to-slate-200 pointer-events-none" />
+              <div className="absolute -top-32 -left-20 w-[400px] h-[400px] bg-white rounded-[100px] rotate-12 blur-2xl opacity-70 pointer-events-none" />
+              <div className="absolute top-20 right-10 w-[500px] h-[300px] bg-indigo-100/60 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-40 left-1/3 w-[600px] h-[400px] bg-slate-300/50 rounded-[200px] -rotate-12 blur-3xl pointer-events-none" />
+              <div className="absolute top-1/2 -right-40 w-[300px] h-[500px] bg-sky-100/50 rounded-full blur-3xl pointer-events-none" />
 
-              {activeView === 'protocols' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <AuthPanel data={results} />
-                  <HeaderPanel data={results} />
-                </motion.div>
-              )}
+              <div className="relative z-10 h-full overflow-y-auto pr-2">
+                {activeView === 'detection' && (
+                  <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
+                    <FraudScorePanel data={results} />
+                    <AIMLThreatPanel data={results} />
+                    <EmailBodyDissector data={results} onLookupIOC={handleLookupIOC} />
+                  </motion.div>
+                )}
 
-              {activeView === 'traceability' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
-                  <MapPanel data={results} />
-                </motion.div>
-              )}
+                {activeView === 'protocols' && (
+                  <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <AuthPanel data={results} />
+                    <HeaderPanel data={results} />
+                  </motion.div>
+                )}
 
-              {activeView === 'attribution' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
-                  <GraphAttributionPanel data={results} onLookupIOC={handleLookupIOC} />
-                  <DeepOSINTPanel data={results} />
-                </motion.div>
-              )}
+                {activeView === 'traceability' && (
+                  <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
+                    <MapPanel data={results} />
+                  </motion.div>
+                )}
 
-              {activeView === 'reporting' && (
-                <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
-                  <CustodyReportPanel data={results} />
-                </motion.div>
-              )}
+                {activeView === 'attribution' && (
+                  <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
+                    <GraphAttributionPanel data={results} onLookupIOC={handleLookupIOC} />
+                    <DeepOSINTPanel data={results} />
+                  </motion.div>
+                )}
 
+                {activeView === 'reporting' && (
+                  <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} className="space-y-8">
+                    <CustodyReportPanel data={results} />
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
         </section>
