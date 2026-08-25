@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Zap, Cpu, Terminal, CheckCircle2 } from 'lucide-react';
+import { Zap, Radar, Terminal, CheckCircle2 } from 'lucide-react';
 
 const SCAN_STEPS = [
   "PARSING RFC-822 MIME STREAM & MULTIPART HEADERS...",
@@ -46,63 +46,67 @@ export default function CyberScanOverlay({ isOpen }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="panel-chassis w-full max-w-2xl p-8 shadow-2xl relative overflow-hidden space-y-6 border border-[#e2e8f0]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-300">
+      <div className="w-full max-w-3xl p-8 rounded-3xl bg-[#0F1319] shadow-[0_0_30px_rgba(234,179,8,0.1)] relative overflow-hidden space-y-6 border border-yellow-500/20">
         
+        {/* Subtle Gold Background Pattern */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(rgba(234, 179, 8, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(234, 179, 8, 0.5) 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
+
         {/* Top Header */}
-        <div className="flex items-center justify-between border-b border-[#f8fafc] pb-4 px-1">
-          <div className="flex items-center space-x-3.5">
-            <div className="p-3 bg-slate-900 text-white rounded-2xl shadow-lg border border-slate-700">
-              <Cpu className="w-6 h-6 animate-pulse" />
+        <div className="relative flex items-center justify-between border-b border-yellow-500/10 pb-4 px-1">
+          <div className="flex items-center space-x-4">
+            <div className="p-3.5 bg-yellow-950/30 text-yellow-500 rounded-2xl shadow-[0_0_10px_rgba(234,179,8,0.2)] border border-yellow-500/30 relative">
+              <Radar className="w-7 h-7 animate-pulse" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900 tracking-wide flex items-center gap-2 font-mono">
-                ANALYZING EMAIL STREAM
+              <h3 className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500 tracking-wider flex items-center gap-2 font-mono drop-shadow-sm">
+                ANALYZING THREAT VECTOR
               </h3>
-              <p className="text-xs text-slate-500 font-mono">Autonomous Forensics & Threat Extraction</p>
+              <p className="text-xs text-yellow-600/60 font-mono tracking-wide">Deep Neural Forensic Extraction in Progress</p>
             </div>
           </div>
 
-          <span className="font-mono text-2xl font-bold text-slate-900">
-            {Math.min(100, progress)}%
+          <span className="font-mono text-4xl font-bold text-yellow-500 drop-shadow-sm">
+            {Math.min(100, progress)}<span className="text-2xl text-yellow-700/80">%</span>
           </span>
         </div>
 
-        {/* Progress Bar */}
-        <div className="space-y-2 px-1">
-          <div className="w-full slot-recessed h-4 rounded-full overflow-hidden p-0.5">
+        {/* Subtle Gold Progress Bar */}
+        <div className="relative space-y-2 px-1">
+          <div className="w-full bg-slate-900 h-3 rounded-full overflow-hidden p-0.5 border border-yellow-900/30">
             <div 
-              className="h-full rounded-full bg-slate-900 transition-all duration-200 shadow-sm"
+              className="h-full rounded-full bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-500 transition-all duration-300 shadow-[0_0_8px_rgba(234,179,8,0.4)]"
               style={{ width: `${Math.min(100, progress)}%` }}
             />
           </div>
         </div>
 
         {/* Terminal Telemetry Log Box */}
-        <div className="bg-white rounded-2xl p-5 font-mono text-xs space-y-2.5 h-48 overflow-y-auto border border-slate-200 shadow-inner">
-          <div className="text-slate-500 flex items-center gap-1.5 text-[11px] pb-1.5 border-b border-slate-200 font-bold uppercase tracking-wider">
-            <Terminal className="w-3.5 h-3.5 text-slate-900" />
-            LIVE TELEMETRY EXECUTION PIPELINE:
+        <div className="relative bg-black/40 rounded-2xl p-6 font-mono text-xs space-y-3 h-56 overflow-y-auto border border-yellow-500/10 shadow-inner">
+          <div className="text-yellow-700 flex items-center gap-2 text-[12px] pb-3 border-b border-yellow-900/30 font-bold uppercase tracking-wider sticky top-0 bg-black/60 z-10">
+            <Terminal className="w-4 h-4 text-yellow-600" />
+            Live Telemetry Execution Pipeline:
           </div>
 
           {SCAN_STEPS.slice(0, currentStep + 1).map((step, idx) => {
             const isLatest = idx === currentStep;
             return (
-              <div key={idx} className={`flex items-center gap-2 ${isLatest ? 'text-slate-900 font-bold' : 'text-slate-400'}`}>
+              <div key={idx} className={`flex items-center gap-3 transition-all duration-300 ${isLatest ? 'text-yellow-500 font-bold drop-shadow-sm scale-100 opacity-100' : 'text-slate-600 scale-95 opacity-50'}`}>
                 {isLatest ? (
-                  <Zap className="w-3.5 h-3.5 text-slate-900 animate-spin flex-shrink-0" />
+                  <Zap className="w-4 h-4 text-yellow-500 animate-spin flex-shrink-0" />
                 ) : (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-[#10b981] flex-shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-yellow-800/50 flex-shrink-0" />
                 )}
-                <span className="truncate">{step}</span>
+                <span className="truncate tracking-wide">{step}</span>
               </div>
             );
           })}
         </div>
 
-        <div className="text-center">
-          <span className="text-[11px] text-slate-500 font-mono font-bold">
-            * Forensically sealed on local Ethereum blockchain notary ledger
+        <div className="relative text-center pt-2">
+          <span className="text-[10px] text-yellow-800/60 font-mono font-medium tracking-wide flex items-center justify-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-yellow-600/80"></div>
+            Forensically sealed on local Ethereum blockchain notary ledger
           </span>
         </div>
 
