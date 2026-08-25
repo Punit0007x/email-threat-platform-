@@ -332,8 +332,7 @@ body::-webkit-scrollbar-thumb { background: var(--indigo-200); border-radius: 99
   stroke-linecap: round;
   stroke-dasharray: 326.73;
   stroke-dashoffset: 326.73;
-  transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1),
-              stroke 0.4s ease;
+  transition: stroke 0.4s ease;
 }
 
 .score-ring__value {
@@ -389,9 +388,12 @@ body::-webkit-scrollbar-thumb { background: var(--indigo-200); border-radius: 99
 }
 
 .score-card__verdict {
-  font-size: 12px;
-  color: var(--slate-500);
-  line-height: 1.5;
+  font-size: 11px;
+  color: var(--slate-600);
+  line-height: 1.4;
+  max-height: 80px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 /* ─── Result Cards ─── */
