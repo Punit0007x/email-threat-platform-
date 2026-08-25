@@ -85,7 +85,7 @@ function App() {
   useEffect(() => {
     const handleExtensionData = (data) => {
       setResults(data);
-      setActiveView('summary');
+      setActiveView('detection');
       setTimeout(() => {
         dashboardRef.current?.scrollIntoView({ behavior: 'smooth' });
       }, 100);
@@ -151,7 +151,7 @@ function App() {
     try {
       const data = await analyzeEmail(targetFile);
       setResults(data);
-      setActiveView('summary');
+      setActiveView('detection');
       dashboardRef.current?.scrollIntoView({ behavior: 'smooth' });
     } catch (err) {
       console.error("Analysis failed:", err);
