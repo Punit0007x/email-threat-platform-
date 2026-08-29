@@ -3,7 +3,7 @@ import { ShieldAlert, CheckCircle, ArrowRight, Activity, Globe, Server, Clock } 
 
 export default function RelayHopVisualizer({ data }) {
   const hops = data?.trace?.hops || [];
-  const solAnomalies = data?.trace?.sol_anomalies || [];
+  const solAnomalies = data?.trace?.anomalies || [];
 
   if (!hops || hops.length === 0) return null;
 
@@ -66,14 +66,14 @@ export default function RelayHopVisualizer({ data }) {
                     </div>
 
                     <div className="text-[10px] font-sans text-[#64748b] font-semibold truncate max-w-[150px]">
-                      {hop.by_host || hop.from_host || 'Relay Server'}
+                      {hop.by || hop.revdns || 'Relay Server'}
                     </div>
 
                     {/* Delay & Geo */}
                     <div className="w-full pt-1 border-t border-[#e2e8f0]/50 flex items-center justify-between text-[9px] font-mono text-[#64748b]">
                       <span className="flex items-center gap-1">
                         <Globe className="w-2.5 h-2.5 text-[#0ea5e9]" />
-                        {hop.geo?.country || hop.country || 'Unknown'}
+                        {hop.geolocation?.country || 'Unknown'}
                       </span>
                       <span className="font-bold">{hop.delay_seconds !== undefined ? `+${hop.delay_seconds.toFixed(1)}s` : '0s'}</span>
                     </div>

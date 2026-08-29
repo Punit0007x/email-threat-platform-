@@ -20,16 +20,26 @@ export default function DeepOSINTPanel({ data }) {
   const attachments = data.attachments || [];
   const domainCheck = data.domain_check || {};
   const textSignals = data.text_signals || {};
-  const linkMismatches = textSignals.link_mismatches || [];
-  const shorteners = textSignals.shortener_urls || [];
+  // Backend returns link_mismatch_count (int) not an array — wrap for display
+  const linkMismatchCount = textSignals.link_mismatch_count || 0;
+  // Backend returns has_shortener (bool) not an array of URLs
+  const hasShortener = textSignals.has_shortener || false;
 
   const tech = data.tech_fingerprint || {};
   const history = data.history_intel || {};
   const dork = data.dork_intel || {};
   const domainRecon = data.domain_recon || {};
 
-  const hasVisionOrLinks = ocrText || qrUrls.length > 0 || linkMismatches.length > 0 || domainCheck.is_lookalike || shorteners.length > 0 || attachments.length > 0;
-  const hasOsint = tech.web_server || (tech.technologies && tech.technologies.length > 0) || history.total_snapshots > 0 || dork.positive_hits > 0 || (domainRecon.subdomains && domainRecon.subdomains.length > 0);
+  // Backend returns technologies as a dict {name: {category, patterns_matched}}; convert to array of names
+  const techList = tech.technologies ? Object.keys(tech.technologies) : [];
+  // Derive web server from technologies dict if present
+  const webServer = tech.technologies?.['Nginx'] ? 'Nginx'
+    : tech.technologies?.['Apache'] ? 'Apache'
+    : tech.technologies?.['IIS'] ? 'IIS'
+    : null;
+
+  const hasVisionOrLinks = ocrText || qrUrls.length > 0 || linkMismatchCount > 0 || domainCheck.is_lookalike || hasShortener || attachments.length > 0;
+  const hasOsint = webServer || techList.length > 0 || (history.snapshot_count > 0) || (dork.total_findings > 0) || (domainRecon.subdomains && domainRecon.subdomains.length > 0);
 
   if (!hasVisionOrLinks && !hasOsint) return null;
 
@@ -89,7 +99,7 @@ export default function DeepOSINTPanel({ data }) {
                     {domainCheck.is_lookalike ? "Brand Typosquatting / Lookalike Domain Detected" : "Subdomain Brand Spoofing Detected"}
                   </h4>
                   <span className="px-2 py-0.5 rounded font-mono font-bold text-xs bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30">
-                    Target: {domainCheck.target_brand || "Recognized Brand"}
+                    Target: {domainCheck.spoofed_brand || "Recognized Brand"}
                   </span>
                 </div>
                 <p className="text-[#0f172a] leading-relaxed font-medium">{domainCheck.details}</p>
@@ -106,43 +116,28 @@ export default function DeepOSINTPanel({ data }) {
                   <Link2 className="w-4 h-4 text-[#0ea5e9]" />
                   Deceptive Link Mismatch Inspector
                 </span>
-                <span className={`font-mono text-xs px-2 py-0.5 rounded font-bold ${linkMismatches.length > 0 ? 'bg-[#ef4444]/15 text-[#d63031]' : 'bg-[#10b981]/15 text-[#047857]'}`}>
-                  {linkMismatches.length} Mismatch(es)
+                <span className={`font-mono text-xs px-2 py-0.5 rounded font-bold ${linkMismatchCount > 0 ? 'bg-[#ef4444]/15 text-[#d63031]' : 'bg-[#10b981]/15 text-[#047857]'}`}>
+                  {linkMismatchCount} Mismatch(es)
                 </span>
               </div>
 
-              {linkMismatches.length > 0 ? (
-                <div className="space-y-2">
-                  {linkMismatches.map((m, i) => (
-                    <div key={i} className="bg-[#f8fafc] p-2.5 rounded-xl border border-[#e2e8f0]/60 space-y-1 font-mono text-sm shadow-sm">
-                      <div className="flex items-center gap-1 text-[#64748b]">
-                        <span className="font-bold">Visible Text:</span>
-                        <span className="text-[#d97706] font-bold truncate">{m.display_text}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-[#64748b]">
-                        <span className="font-bold text-[#d63031]">Actual Target:</span>
-                        <span className="text-[#d63031] font-bold truncate">{m.actual_url}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              {linkMismatchCount > 0 ? (
+                <p className="text-[#d63031] font-bold font-mono text-sm py-1">
+                  ⚠ {linkMismatchCount} deceptive anchor link mismatch(es) detected in email body.
+                </p>
               ) : (
                 <p className="text-[#64748b] italic text-sm py-1">No deceptive href mismatches detected in body text.</p>
               )}
 
               {/* URL Shorteners */}
-              {shorteners.length > 0 && (
+              {hasShortener && (
                 <div className="pt-2 border-t border-[#e2e8f0]/50 space-y-1">
                   <span className="text-[#64748b] font-bold block text-xs uppercase tracking-wider font-mono">
-                    Obfuscated / Shortened URLs ({shorteners.length}):
+                    Obfuscated / Shortened URLs Detected:
                   </span>
-                  <div className="flex flex-wrap gap-1">
-                    {shorteners.map((s, i) => (
-                      <span key={i} className="font-mono text-xs font-bold bg-[#f59e0b]/15 text-[#b45309] px-2 py-0.5 rounded border border-[#f59e0b]/30">
-                        {s}
-                      </span>
-                    ))}
-                  </div>
+                  <span className="font-mono text-xs font-bold bg-[#f59e0b]/15 text-[#b45309] px-2 py-0.5 rounded border border-[#f59e0b]/30">
+                    URL shortener service detected in email links
+                  </span>
                 </div>
               )}
             </div>
@@ -234,14 +229,14 @@ export default function DeepOSINTPanel({ data }) {
               <div className="space-y-2">
                 <div className="bg-[#f8fafc] p-2 rounded-xl border border-[#e2e8f0]/60 flex justify-between font-mono text-sm shadow-sm">
                   <span className="text-[#64748b]">Web Server Software:</span>
-                  <span className="text-[#0f172a] font-bold">{tech.web_server || "Hidden / Unspecified"}</span>
+                  <span className="text-[#0f172a] font-bold">{webServer || "Hidden / Unspecified"}</span>
                 </div>
 
-                {tech.technologies?.length > 0 && (
+                {techList.length > 0 && (
                   <div className="space-y-1">
                     <span className="text-[#64748b] font-bold block text-xs uppercase tracking-wider font-mono">Identified Frameworks & Stacks:</span>
                     <div className="flex flex-wrap gap-1">
-                      {tech.technologies.map((t, i) => (
+                      {techList.map((t, i) => (
                         <span key={i} className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-[#f8fafc] text-[#7048e8] border border-[#7048e8]/30 shadow-sm">
                           {t}
                         </span>
@@ -274,9 +269,9 @@ export default function DeepOSINTPanel({ data }) {
                   <History className="w-4 h-4 text-[#059669]" />
                   Wayback History & OSINT Dorks
                 </span>
-                {history.total_snapshots > 0 && (
+                {history.snapshot_count > 0 && (
                   <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-[#10b981]/15 text-[#047857] border border-[#10b981]/30">
-                    {history.total_snapshots} Snapshot(s)
+                    {history.snapshot_count} Snapshot(s)
                   </span>
                 )}
               </div>
@@ -285,7 +280,7 @@ export default function DeepOSINTPanel({ data }) {
                 <div className="bg-[#f8fafc] p-2.5 rounded-xl border border-[#e2e8f0]/60 space-y-1 font-mono text-sm shadow-sm">
                   <div className="flex justify-between">
                     <span className="text-[#64748b]">First Archived Date:</span>
-                    <span className="text-[#0f172a] font-bold">{history.first_seen_date ? history.first_seen_date.substring(0, 10) : 'Not Archived'}</span>
+                    <span className="text-[#0f172a] font-bold">{history.first_seen ? history.first_seen.substring(0, 10) : 'Not Archived'}</span>
                   </div>
                   <div className="flex justify-between text-xs text-[#64748b]">
                     <span>Web Archive Age:</span>
@@ -298,10 +293,10 @@ export default function DeepOSINTPanel({ data }) {
                 </div>
 
                 {/* Dork Findings */}
-                {dork.positive_hits > 0 && (
+                {dork.total_findings > 0 && (
                   <div className="bg-[#f8fafc] p-2.5 rounded-xl border border-[#e2e8f0]/60 space-y-1 shadow-sm">
                     <span className="text-[#64748b] font-bold block text-xs uppercase tracking-wider font-mono">
-                      OSINT Dork Scanner ({dork.positive_hits} Hit(s)):
+                      OSINT Dork Scanner ({dork.total_findings} Hit(s)):
                     </span>
                     <div className="flex flex-wrap gap-1">
                       {dork.categories?.phishing_pages?.length > 0 && (

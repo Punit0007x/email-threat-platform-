@@ -64,7 +64,7 @@ export default function AuthPanel({ data }) {
           })}
         </div>
 
-        {auth.dmarc_alignment === false && (
+        {auth.domain_alignment_pass === false && (
           <div className="flex items-start gap-3 bg-red-50 p-4 rounded-xl border border-red-200 text-sm text-red-700">
             <ShieldAlert className="w-5 h-5 flex-shrink-0 mt-0.5" />
             <p>

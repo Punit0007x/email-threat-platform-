@@ -35,7 +35,7 @@ export default function MapPanel({ data, onLookupIOC }) {
   
   const geoHops = effectiveHops.filter(h => h.geolocation && (h.geolocation.lat != null || h.geolocation.latitude != null) && (h.geolocation.long != null || h.geolocation.longitude != null));
   
-  const verdictConfig = VERDICT_LABELS[verdict.category] || VERDICT_LABELS.unknown;
+  const verdictConfig = VERDICT_LABELS[verdict.verdict] || VERDICT_LABELS.unknown;
 
   return (
     <div className="bg-transparent relative overflow-hidden p-8 space-y-8">
@@ -54,7 +54,7 @@ export default function MapPanel({ data, onLookupIOC }) {
           </div>
         </div>
 
-        {verdict.category && (
+        {verdict.verdict && (
           <div className="flex flex-col items-end">
             <span className="text-xs text-slate-700 drop-shadow-sm uppercase tracking-wide font-bold mb-1">Source Verdict</span>
             <div className={`px-4 py-2 rounded-lg border text-sm font-bold flex items-center gap-2 ${verdictConfig.color}`}>
