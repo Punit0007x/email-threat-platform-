@@ -15,12 +15,13 @@ def classify_origin_verdict(
     ip_reputation: Optional[Dict[str, Any]],
     trace_results: Optional[Dict[str, Any]],
     domain_check: Optional[Dict[str, Any]],
-    whois_intel: Optional[Dict[str, Any]]
+    whois_intel: Optional[Dict[str, Any]],
+    urls: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """
     Classifies the probable origin nature of the email based on
     authentication results, infrastructure analysis, IP reputation,
-    domain analysis, and WHOIS intelligence.
+    domain analysis, WHOIS intelligence, and embedded URLs.
     """
     auth_analysis = auth_analysis or {}
     infra_intel = infra_intel or {}
@@ -28,6 +29,15 @@ def classify_origin_verdict(
     trace_results = trace_results or {}
     domain_check = domain_check or {}
     whois_intel = whois_intel or {}
+    urls = urls or []
+    
+    from app.scoring.config import SUSPICIOUS_HOSTING_DOMAINS, SUSPICIOUS_URL_PATHS, URL_SHORTENERS
+    has_phish_url = any(
+        any(sd in u.lower() for sd in SUSPICIOUS_HOSTING_DOMAINS) or 
+        any(sp in u.lower() for sp in SUSPICIOUS_URL_PATHS) or
+        any(sh in u.lower() for sh in URL_SHORTENERS)
+        for u in urls
+    )
     
     verdict: OriginVerdict = "unknown"
     confidence = 0
@@ -58,11 +68,18 @@ def classify_origin_verdict(
     
     # === RULE-BASED CLASSIFICATION ===
     
-    # 1. Legitimate: Auth passes, domain aligned, clean infrastructure
-    if spf == "pass" and dkim == "pass" and dmarc == "pass" and domain_aligned:
+    # 1. Compromised Account / Weaponized Webmail: Auth passes but contains phishing URLs/payloads
+    if (spf == "pass" or dkim == "pass") and has_phish_url:
+        verdict = "compromised_account"
+        confidence = 88
+        reasons.append("Email account authenticated (SPF/DKIM) but weaponized with deceptive phishing URLs / credential harvest links")
+        return {"verdict": verdict, "confidence": confidence, "reasons": reasons}
+        
+    # 2. Legitimate: Auth passes, domain aligned, clean infrastructure and NO phishing URLs
+    if spf == "pass" and dkim == "pass" and dmarc == "pass" and domain_aligned and not has_phish_url:
         verdict = "legitimate"
         confidence = 90
-        reasons.append("Full authentication pass (SPF/DKIM/DMARC) with domain alignment")
+        reasons.append("Full authentication pass (SPF/DKIM/DMARC) with domain alignment and clean telemetry")
         return {"verdict": verdict, "confidence": confidence, "reasons": reasons}
     
     # 2. Compromised Account: Auth passes but unusual origin/infrastructure

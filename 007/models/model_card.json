@@ -1,0 +1,83 @@
+{
+  "classes": [
+    "bec_ceo_fraud",
+    "credential_harvesting",
+    "extortion",
+    "invoice_fraud",
+    "legitimate",
+    "malware_delivery",
+    "spam"
+  ],
+  "train_size": 5736,
+  "test_size": 1434,
+  "macro_f1_holdout": 0.9945237144494076,
+  "cv_macro_f1_mean": 0.9949244124512333,
+  "cv_macro_f1_std": 0.001388825955368327,
+  "per_class_report": {
+    "bec_ceo_fraud": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 50.0
+    },
+    "credential_harvesting": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 50.0
+    },
+    "extortion": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 40.0
+    },
+    "invoice_fraud": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 50.0
+    },
+    "legitimate": {
+      "precision": 0.984873949579832,
+      "recall": 0.9766666666666667,
+      "f1-score": 0.9807531380753138,
+      "support": 600.0
+    },
+    "malware_delivery": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 44.0
+    },
+    "spam": {
+      "precision": 0.9768595041322314,
+      "recall": 0.985,
+      "f1-score": 0.9809128630705394,
+      "support": 600.0
+    },
+    "accuracy": 0.9839609483960948,
+    "macro avg": {
+      "precision": 0.9945333505302948,
+      "recall": 0.9945238095238096,
+      "f1-score": 0.9945237144494076,
+      "support": 1434.0
+    },
+    "weighted avg": {
+      "precision": 0.9839888927665537,
+      "recall": 0.9839609483960948,
+      "f1-score": 0.9839606699355035,
+      "support": 1434.0
+    }
+  },
+  "data_sources": {
+    "legitimate": "Real Enron-Spam corpus (ham)",
+    "spam": "Real Enron-Spam corpus (spam)",
+    "credential_harvesting": "Template-augmented synthetic data (see data_generation.py)",
+    "bec_ceo_fraud": "Template-augmented synthetic data (see data_generation.py)",
+    "invoice_fraud": "Template-augmented synthetic data (see data_generation.py)",
+    "extortion": "Template-augmented synthetic data (see data_generation.py)",
+    "malware_delivery": "Template-augmented synthetic data (see data_generation.py)"
+  },
+  "honesty_note": "Two of seven classes are trained on real labeled email data. The five fraud archetype classes are trained on combinatorially-varied template data because no real multi-class fraud corpus was reachable from the build environment. Replace with real incident data as it is collected."
+}

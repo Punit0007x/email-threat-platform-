@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShieldMail — Email Threat Detector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+<div class="extension-wrapper">
+  <!-- ─── HEADER ─── -->
+  <header class="header">
+    <div class="header__brand">
+      <div class="header__icon">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L3 7V12C3 17.55 6.84 22.74 12 24C17.16 22.74 21 17.55 21 12V7L12 2Z" fill="url(#shieldGrad)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5"/>
+          <path d="M10 15.5L7.5 13L6.09 14.41L10 18.33L18 10.33L16.59 8.92L10 15.5Z" fill="white"/>
+          <defs>
+            <linearGradient id="shieldGrad" x1="3" y1="2" x2="21" y2="24" gradientUnits="userSpaceOnUse">
+              <stop stop-color="#6366f1"/>
+              <stop offset="1" stop-color="#8b5cf6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+      <div>
+        <h1 class="header__title">ShieldMail</h1>
+        <p class="header__sub">AI Email Threat Detector</p>
+      </div>
+    </div>
+    <div class="header__status" id="statusDot">
+      <span class="status-dot status-dot--online"></span>
+      <span class="status-label">Online</span>
+    </div>
+  </header>
+
+  <!-- ─── START ZONE ─── -->
+  <section class="start-zone" id="uploadZone">
+    <div class="start-options">
+      <!-- Option 1: Upload EML -->
+      <div class="option-card" id="dropZoneInner">
+        <div class="option-card__icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="8" width="40" height="32" rx="4" fill="none" stroke="url(#uploadGrad)" stroke-width="2" stroke-dasharray="4 3"/>
+            <path d="M24 18V30M18 24L24 18L30 24" stroke="url(#uploadGrad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="uploadGrad" x1="4" y1="8" x2="44" y2="40" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#6366f1"/><stop offset="1" stop-color="#a78bfa"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <p class="option-card__text">Upload <strong>.eml</strong> file</p>
+      </div>
+      
+      <!-- Option 2: Scan Gmail -->
+      <div class="option-card option-card--gmail" id="btnScanGmail">
+        <div class="option-card__icon">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 12C4 9.79086 5.79086 8 8 8H40C42.2091 8 44 9.79086 44 12V36C44 38.2091 42.2091 40 40 40H8C5.79086 40 4 38.2091 4 36V12Z" fill="url(#gmailGrad)"/>
+            <path d="M4 12L24 26L44 12" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="gmailGrad" x1="4" y1="8" x2="44" y2="40" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#ef4444"/><stop offset="1" stop-color="#f87171"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <p class="option-card__text">Scan <strong>Gmail</strong> tab</p>
+      </div>
+    </div>
+    <p class="start-zone__hint" id="gmailStatusText">Open an email in Gmail to scan it directly.</p>
+  </section>
+  <input type="file" id="fileInput" accept=".eml" hidden>
+
+  <!-- ─── LOADING STATE ─── -->
+  <section class="loading-state" id="loadingState" style="display:none;">
+    <div class="loading-state__spinner">
+      <div class="spinner-ring"></div>
+      <div class="spinner-ring spinner-ring--delay"></div>
+    </div>
+    <p class="loading-state__text">Analyzing email forensics…</p>
+    <p class="loading-state__sub" id="loadingStep">Parsing headers & authentication</p>
+  </section>
+
+  <!-- ─── RESULTS PANEL ─── -->
+  <section class="results" id="resultsPanel" style="display:none;">
+
+    <!-- Score Ring -->
+    <div class="score-card">
+      <div class="score-ring" id="scoreRing">
+        <svg viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" class="score-ring__bg"/>
+          <circle cx="60" cy="60" r="52" class="score-ring__fill" id="scoreArc"/>
+        </svg>
+        <div class="score-ring__value">
+          <span class="score-ring__number" id="scoreValue">0</span>
+          <span class="score-ring__label">/ 100</span>
+        </div>
+      </div>
+      <div class="score-card__info">
+        <span class="score-card__risk" id="riskBadge">—</span>
+        <p class="score-card__verdict" id="verdictText">Awaiting analysis</p>
+      </div>
+    </div>
+
+    <!-- Detection Type -->
+    <div class="result-card" id="detectionCard">
+      <div class="result-card__header">
+        <div class="result-card__icon result-card__icon--detection">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="result-card__title">Detection</span>
+      </div>
+      <div class="result-card__body">
+        <div class="result-card__row">
+          <span class="result-card__label">Threat Type</span>
+          <span class="result-card__value" id="threatType">—</span>
+        </div>
+        <div class="result-card__row">
+          <span class="result-card__label">Confidence</span>
+          <span class="result-card__value" id="threatConfidence">—</span>
+        </div>
+        <div class="result-card__row">
+          <span class="result-card__label">Is Threat</span>
+          <span class="result-card__value" id="isThreat">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Geo Location -->
+    <div class="result-card" id="geoCard">
+      <div class="result-card__header">
+        <div class="result-card__icon result-card__icon--geo">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="result-card__title">Origin Geolocation</span>
+      </div>
+      <div class="result-card__body">
+        <div class="result-card__row">
+          <span class="result-card__label">Origin IP</span>
+          <span class="result-card__value mono" id="originIP">—</span>
+        </div>
+        <div class="result-card__row">
+          <span class="result-card__label">Country</span>
+          <span class="result-card__value" id="geoCountry">—</span>
+        </div>
+        <div class="result-card__row">
+          <span class="result-card__label">City / Region</span>
+          <span class="result-card__value" id="geoCity">—</span>
+        </div>
+        <div class="result-card__row">
+          <span class="result-card__label">ISP / ASN</span>
+          <span class="result-card__value" id="geoISP">—</span>
+        </div>
+        <div class="result-card__row">
+          <span class="result-card__label">Coordinates</span>
+          <span class="result-card__value mono" id="geoCoords">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Relay Trace (how it was trapped) (Hidden per user request) -->
+    <div class="result-card" id="traceCard" style="display: none;">
+      <div class="result-card__header">
+        <div class="result-card__icon result-card__icon--trace">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="result-card__title">Relay Trace</span>
+      </div>
+      <div class="result-card__body" id="relayHops">
+        <p class="result-card__empty">No relay data</p>
+      </div>
+    </div>
+
+    <!-- Auth Status (Hidden per user request) -->
+    <div class="result-card" id="authCard" style="display: none;">
+      <div class="result-card__header">
+        <div class="result-card__icon result-card__icon--auth">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/></svg>
+        </div>
+        <span class="result-card__title">Authentication</span>
+      </div>
+      <div class="result-card__body">
+        <div class="auth-badges" id="authBadges">
+          <span class="auth-badge" id="badgeSPF">SPF —</span>
+          <span class="auth-badge" id="badgeDKIM">DKIM —</span>
+          <span class="auth-badge" id="badgeDMARC">DMARC —</span>
+        </div>
+        <div class="result-card__row" style="margin-top: 8px;">
+          <span class="result-card__label">Domain Aligned</span>
+          <span class="result-card__value" id="domainAligned">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="result-actions">
+      <button class="btn btn--secondary" id="btnReset">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+        Scan Another
+      </button>
+      <button class="btn btn--primary" id="btnDashboard">
+        Open Dashboard
+      </button>
+    </div>
+  </section>
+
+  <!-- ─── ERROR STATE ─── -->
+  <section class="error-state" id="errorState" style="display:none;">
+    <div class="error-state__icon">⚠️</div>
+    <p class="error-state__text" id="errorText">Something went wrong</p>
+    <button class="btn btn--secondary" id="btnRetry">Try Again</button>
+  </section>
+</div>
+  <script src="popup.js"></script>
+</body>
+</html>

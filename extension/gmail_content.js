@@ -11,26 +11,37 @@ const scannedMessages = new Set();
 // Instead of fetching raw source via Gmail's internal API,
 // we extract sender, subject, and visible headers from the DOM.
 
+
+function getVisibleElement(selector) {
+  const elements = document.querySelectorAll(selector);
+  for (const el of elements) {
+    if (el.getBoundingClientRect().width > 0 && el.getBoundingClientRect().height > 0) {
+      return el;
+    }
+  }
+  return null;
+}
+
 function extractEmailFromDOM() {
   // Get sender info
-  const senderEl = document.querySelector('span.gD[email]');
+  const senderEl = getVisibleElement('span.gD[email]');
   const senderEmail = senderEl ? senderEl.getAttribute('email') : '';
   const senderName = senderEl ? senderEl.getAttribute('name') || senderEl.textContent.trim() : '';
 
   // Get subject from page title or subject element
-  const subjectEl = document.querySelector('h2.hP');
+  const subjectEl = getVisibleElement('h2.hP');
   const subject = subjectEl ? subjectEl.textContent.trim() : document.title.replace(/ - .+$/, '').trim();
 
   // Get recipient (To:)
-  const toEl = document.querySelector('span.g2');
+  const toEl = getVisibleElement('span.g2');
   const to = toEl ? toEl.textContent.trim() : '';
 
   // Get date
-  const dateEl = document.querySelector('span.g3');
+  const dateEl = getVisibleElement('span.g3');
   const date = dateEl ? dateEl.getAttribute('title') || dateEl.textContent.trim() : '';
 
   // Get email body
-  const bodyEl = document.querySelector('div.a3s.aiL');
+  const bodyEl = getVisibleElement('div.a3s.aiL');
   const bodyText = bodyEl ? bodyEl.innerText : '';
   const bodyHtml = bodyEl ? bodyEl.innerHTML : '';
 
@@ -128,8 +139,15 @@ function tryFetchRawEmail(messageId) {
     fetch(url).then(res => {
       if (!res.ok) throw new Error('fetch failed');
       return res.text();
-    }).then(text => {
-      resolve(text);
+    }).then(htmlText => {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(htmlText, 'text/html');
+      const pre = doc.getElementById('raw_message_text');
+      if (pre && pre.textContent) {
+        resolve(pre.textContent);
+      } else {
+        resolve(htmlText);
+      }
     }).catch(() => {
       resolve(null);
     });
@@ -217,7 +235,7 @@ function observeEmails() {
       lastObservedUrl = currentUrl;
       // Wait for the email to fully render
       setTimeout(() => {
-        const senderEl = document.querySelector('span.gD[email]');
+        const senderEl = getVisibleElement('span.gD[email]');
         if (senderEl) {
           console.log("ShieldMail: Auto-detected email open");
           // We just log it. The user can click "Scan Gmail" in the popup.

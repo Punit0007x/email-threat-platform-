@@ -22,8 +22,10 @@ class ParsedEmail(BaseModel):
     # Full Received chain
     received_chain: List[str] = []
     
-    # Raw auth results
+    # Raw auth results & Originating IP headers
     authentication_results: Optional[str] = None
+    x_originating_ip: Optional[str] = None
+    raw_headers: dict = {}
     
     # Body text
     body_plain: str = ""

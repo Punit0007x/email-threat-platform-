@@ -1,0 +1,14 @@
+From: Priya Sharma <priya.sharma@mycompany.com>
+To: team@mycompany.com
+Subject: Notes from today's standup
+Authentication-Results: mx.mycompany.com; spf=pass smtp.mailfrom=mycompany.com; dkim=pass; dmarc=pass
+Received: from mail.mycompany.com (mail.mycompany.com [203.0.113.9]) by mx.mycompany.com; Sat, 29 Aug 2026 10:00:00 +0000
+Content-Type: text/plain; charset="utf-8"
+
+Hi team,
+
+Quick recap from standup - the API migration is on track for Friday.
+Let me know if you have blockers. No action needed from anyone else right now.
+
+Thanks,
+Priya

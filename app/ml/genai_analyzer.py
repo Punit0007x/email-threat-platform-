@@ -133,6 +133,10 @@ def perform_ai_forensic_reasoning(
         summary += f"Linguistic entropy and structure strongly indicate AI-generated/templated phrasing ({synthetic_analysis.get('synthetic_score')}%). "
     if not email_data.get("auth_analysis", {}).get("domain_alignment_pass", True):
         summary += "Sender domain alignment failed between From and Return-Path headers. "
+    if features.get("url_risks", {}).get("has_suspicious_hosting"):
+        summary += "Embedded links point to disposable cloud tunneling/hosting infrastructure utilized in credential harvesting. "
+    if features.get("url_risks", {}).get("has_suspicious_path"):
+        summary += "URL path contains suspicious authentication/credential harvesting endpoints. "
 
     # 2. Check for Gemini API Key to enrich with advanced Generative AI reasoning
     gemini_key = os.environ.get("GEMINI_API_KEY")

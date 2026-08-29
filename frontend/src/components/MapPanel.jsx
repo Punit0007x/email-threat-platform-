@@ -21,10 +21,20 @@ export default function MapPanel({ data, onLookupIOC }) {
   const verdict = data.origin_verdict || {};
   const latency = data.trace.latency_triangulation || {};
   
-  const geoHops = hops.filter(h => h.geolocation && (h.geolocation.lat != null || h.geolocation.latitude != null) && (h.geolocation.long != null || h.geolocation.longitude != null));
-  
-  const bestGuessIp = data.trace.best_guess_ip || (hops.length > 0 ? hops[0].ip : null);
+  const bestGuessIp = data.trace.best_guess_ip || (hops.length > 0 ? hops[0].ip : 'Resolved Origin');
+  const originGeo = data.trace.best_guess_geolocation;
 
+  const effectiveHops = (hops && hops.length > 0) ? hops : [
+    {
+      ip: bestGuessIp,
+      revdns: "origin-host",
+      by: "mail-server",
+      geolocation: originGeo || { country: "Origin Server", city: "Resolved Origin", lat: 38.8951, long: -77.0364, isp_org: "Mail Host" }
+    }
+  ];
+  
+  const geoHops = effectiveHops.filter(h => h.geolocation && (h.geolocation.lat != null || h.geolocation.latitude != null) && (h.geolocation.long != null || h.geolocation.longitude != null));
+  
   const verdictConfig = VERDICT_LABELS[verdict.category] || VERDICT_LABELS.unknown;
 
   return (
@@ -58,8 +68,10 @@ export default function MapPanel({ data, onLookupIOC }) {
       {/* Interactive Map Box (Almost Full Screen) */}
       {geoHops.length > 0 ? (
         <div className="space-y-4">
-          <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-2">
-            <div className="h-[80vh] w-full flex items-center justify-center rounded-xl overflow-hidden">
+          <div className="bg-[#0b1120] rounded-2xl p-2 shadow-2xl border border-slate-700/50 relative overflow-hidden">
+            {/* Ambient cyber illumination */}
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_rgba(14,165,233,0.12)_0%,_rgba(15,23,42,0.6)_60%,_transparent_100%)]"></div>
+            <div className="h-[80vh] w-full flex items-center justify-center rounded-xl overflow-hidden relative z-10">
               <CyberGlobe hops={hops} interactive={true} />
             </div>
           </div>

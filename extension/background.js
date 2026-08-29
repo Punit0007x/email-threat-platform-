@@ -19,31 +19,51 @@ function dataUrlToBlob(dataUrl) {
   return new Blob([u8arr], {type:mime});
 }
 
+function injectDataIntoTab(tabId, dataPayload) {
+  chrome.scripting.executeScript({
+    target: { tabId: tabId },
+    func: (data) => {
+      try {
+        localStorage.setItem('shieldmail_shared_result', JSON.stringify(data));
+        window.dispatchEvent(new CustomEvent('shieldmail_inject', { detail: { data: data } }));
+      } catch (e) {
+        console.error("ShieldMail injection error:", e);
+      }
+    },
+    args: [dataPayload]
+  }).catch((err) => {
+    console.warn("Failed to inject script into tab:", err);
+  });
+}
+
 function openDashboard(data) {
-  chrome.tabs.query({ url: 'http://localhost:5174/*' }, (tabs) => {
-    if (tabs.length > 0) {
+  const targetUrls = [
+    'http://localhost:5173/*',
+    'http://localhost:5174/*',
+    'http://127.0.0.1:5173/*',
+    'http://127.0.0.1:5174/*'
+  ];
+
+  chrome.tabs.query({ url: targetUrls }, (tabs) => {
+    if (tabs && tabs.length > 0) {
       const tab = tabs[0];
-      chrome.tabs.update(tab.id, { active: true });
-      chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        func: (dataPayload) => {
-          localStorage.setItem('shieldmail_shared_result', JSON.stringify(dataPayload));
-          window.dispatchEvent(new CustomEvent('shieldmail_inject', { detail: { data: dataPayload } }));
-        },
-        args: [data]
+      chrome.tabs.update(tab.id, { active: true }, () => {
+        injectDataIntoTab(tab.id, data);
+        setTimeout(() => injectDataIntoTab(tab.id, data), 300);
       });
     } else {
-      chrome.tabs.create({ url: 'http://localhost:5174/' }, (tab) => {
-        setTimeout(() => {
-          chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: (dataPayload) => {
-              localStorage.setItem('shieldmail_shared_result', JSON.stringify(dataPayload));
-              window.dispatchEvent(new CustomEvent('shieldmail_inject', { detail: { data: dataPayload } }));
-            },
-            args: [data]
-          });
-        }, 800);
+      chrome.tabs.create({ url: 'http://localhost:5173/' }, (tab) => {
+        const listener = (tabId, changeInfo) => {
+          if (tabId === tab.id && changeInfo.status === 'complete') {
+            chrome.tabs.onUpdated.removeListener(listener);
+            injectDataIntoTab(tab.id, data);
+            setTimeout(() => injectDataIntoTab(tab.id, data), 500);
+            setTimeout(() => injectDataIntoTab(tab.id, data), 1200);
+          }
+        };
+        chrome.tabs.onUpdated.addListener(listener);
+        // Safety timeout
+        setTimeout(() => injectDataIntoTab(tab.id, data), 1500);
       });
     }
   });
