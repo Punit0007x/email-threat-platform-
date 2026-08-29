@@ -66,7 +66,7 @@ export default function CustodyReportPanel({ data }) {
           description: `Cryptographically verified email threat assessment. Fraud Index: ${data.fraud_assessment?.score || 0}/100. Primary Threat: ${data.ai_ml_analysis?.classification?.primary_threat || 'Phishing'}.`,
           published: new Date().toISOString(),
           object_refs: [],
-          confidence: data.ai_ml_analysis?.classification?.confidence_pct || 90,
+          confidence: data.ai_ml_analysis?.classification?.confidence != null ? Math.round(data.ai_ml_analysis.classification.confidence * (data.ai_ml_analysis.classification.confidence <= 1 ? 100 : 1)) : 90,
           labels: ["malicious-activity", "phishing", "email-threat"]
         },
         {
@@ -273,10 +273,10 @@ export default function CustodyReportPanel({ data }) {
             </div>
             <p className="text-slate-600 text-sm mt-3 leading-relaxed font-sans">{infra.details}</p>
           </div>
-          {infra.ip && (
+          {(infra.ip || data.trace?.best_guess_ip) && (
             <div className="pt-5 border-t border-slate-300/40 text-sm text-slate-600">
               Analyzed IP Address: <br/>
-              <span className="text-slate-900 font-bold font-mono text-base mt-1.5 block">{infra.ip}</span>
+              <span className="text-slate-900 font-bold font-mono text-base mt-1.5 block">{infra.ip || data.trace?.best_guess_ip}</span>
             </div>
           )}
         </div>

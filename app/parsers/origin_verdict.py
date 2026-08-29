@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional, Literal
+from typing import Dict, Any, Optional, Literal, List
 
 OriginVerdict = Literal[
     "compromised_account",

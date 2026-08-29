@@ -138,7 +138,8 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
   const plainBody = data?.body_plain || "";
   const htmlBody = data?.body_html || "";
-  const linkMismatches = data?.domain_check?.link_mismatches || [];
+  // Backend returns link_mismatch_count (int) in text_signals, not an array in domain_check
+  const linkMismatchCount = data?.text_signals?.link_mismatch_count || 0;
 
   const obfuscations = useMemo(() => {
     const fullContent = `${plainBody} ${htmlBody}`;
@@ -262,8 +263,8 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm font-mono">
         <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3 flex items-center justify-between">
           <span className="text-[#64748b] font-bold">Deceptive Links:</span>
-          <span className={`font-bold font-mono ${linkMismatches.length > 0 ? 'text-[#ef4444]' : 'text-[#059669]'}`}>
-            {linkMismatches.length} Detected
+          <span className={`font-bold font-mono ${linkMismatchCount > 0 ? 'text-[#ef4444]' : 'text-[#059669]'}`}>
+            {linkMismatchCount} Detected
           </span>
         </div>
 
@@ -316,46 +317,15 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
         <div className="space-y-6 animate-in fade-in duration-200 bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-6">
           
           {/* Deceptive Links Callouts */}
-          {linkMismatches.length > 0 ? (
+          {linkMismatchCount > 0 ? (
             <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-5 space-y-3 border-l-4 border-l-[#ef4444]">
               <h4 className="text-sm font-bold text-[#d63031] uppercase tracking-wider font-mono flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-[#ef4444]" />
-                Deceptive Link Divergence Detected ({linkMismatches.length})
+                Deceptive Link Divergence Detected ({linkMismatchCount})
               </h4>
               <p className="text-sm text-[#0f172a] font-medium">
                 The displayed anchor text in the email leads the victim to believe they are navigating to a legitimate service, but the underlying destination points to a malicious host.
               </p>
-
-              <div className="space-y-2.5 pt-1">
-                {linkMismatches.map((mismatch, idx) => (
-                  <div key={idx} className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3.5 space-y-2 font-mono text-sm">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                      <div className="flex items-center gap-1.5 text-[#64748b]">
-                        <span className="text-xs uppercase font-bold">Displayed Anchor:</span>
-                        <strong className="text-[#059669] font-bold">{mismatch.text}</strong>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[9px] bg-[#ef4444]/15 text-[#d63031] px-2 py-0.5 rounded border border-[#ef4444]/30 font-bold">
-                          MISMATCH
-                        </span>
-                        {onLookupIOC && (
-                          <button
-                            onClick={() => onLookupIOC(mismatch.href)}
-                            className="text-xs text-[#ef4444] hover:underline cursor-pointer font-bold"
-                          >
-                            Lookup Target IOC
-                          </button>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 text-[#64748b] truncate">
-                      <span className="text-xs uppercase font-bold">Actual HREF Target:</span>
-                      <span className="text-[#d63031] font-bold truncate">{mismatch.href}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
           ) : (
             <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 text-sm text-[#64748b] font-mono flex items-center gap-2">

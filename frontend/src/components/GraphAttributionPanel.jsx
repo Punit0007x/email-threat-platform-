@@ -9,11 +9,11 @@ export default function GraphAttributionPanel({ data, onLookupIOC }) {
 
   const auth = data.auth_analysis || {};
   const threat = data.ai_ml_analysis?.classification || {};
-  const origin = data.trace?.origin || {};
   const whois = data.whois_intel || {};
   const ipRep = data.ip_reputation || {};
-  const domain = data.from_domain || data.domain || 'Target Domain';
   const sender = data.from_address || 'Sender Mailbox';
+  const extractedDomain = sender.includes('@') ? sender.split('@').pop().replace('>', '').trim() : null;
+  const domain = auth.from_domain || whois.domain || data.dns_intel?.domain || extractedDomain || 'Target Domain';
 
   const generateDynamicGraph = () => {
     const gNodes = [];
