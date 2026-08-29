@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { 
-  Upload, AlertCircle, FileText, BookOpen, Search, Zap, Terminal, Sparkles, Radio, Database, Shield, Mail, Lock
+  Upload, AlertCircle, FileText, BookOpen, Search, Zap, Terminal, Sparkles, Radio, Database, Shield, Mail, Lock, LogOut
 } from 'lucide-react';
 import { analyzeEmail } from './services/analysisService';
+import { login, getToken, setToken, removeToken } from './services/authService';
 
 import HeaderPanel from './components/HeaderPanel';
 import AuthPanel from './components/AuthPanel';
@@ -20,6 +21,7 @@ import CyberScanOverlay from './components/CyberScanOverlay';
 import EmailBodyDissector from "./components/EmailBodyDissector";
 import LandingPage from "./components/LandingPage";
 import DashboardView from './components/DashboardView';
+import LoginPage from './components/LoginPage';
 
 import CyberBackground from './components/CyberBackground';
 
@@ -54,7 +56,23 @@ const DEMO_EMAILS = [
   }
 ];
 
-function App() {
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+
+function ProtectedRoute({ children }) {
+  const [isAuthenticated] = useState(() => {
+    const token = getToken();
+    return token && token !== 'false' && token !== 'null' && token !== 'undefined';
+  });
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+}
+
+function MainApp() {
+  const navigate = useNavigate();
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -81,7 +99,6 @@ function App() {
     else if (isDashboardInView) setActiveSection(3);
   }, [isHeroInView, isScannerInView, isDashboardInView]);
 
-  // Load shared data from Chrome extension (injected via scripting API)
   useEffect(() => {
     const handleExtensionData = (data) => {
       setResults(data);
@@ -91,18 +108,16 @@ function App() {
       }, 100);
     };
 
-    // 1. Check if data was set in localStorage before the app fully loaded
     const shared = localStorage.getItem('shieldmail_shared_result');
     if (shared) {
       try {
         handleExtensionData(JSON.parse(shared));
-        localStorage.removeItem('shieldmail_shared_result'); // Clean up
+        localStorage.removeItem('shieldmail_shared_result');
       } catch (err) {
         console.error("Failed to parse shared data from localStorage", err);
       }
     }
 
-    // 2. Listen for custom events dispatched by the content script while app is open
     const handleSharedData = (event) => {
       if (event.detail && event.detail.data) {
         handleExtensionData(event.detail.data);
@@ -111,6 +126,7 @@ function App() {
     window.addEventListener('shieldmail_inject', handleSharedData);
     return () => window.removeEventListener('shieldmail_inject', handleSharedData);
   }, []);
+
   const handleLookupIOC = (ioc) => {
     setIocQuery(ioc);
     setShowIOCSearch(true);
@@ -168,17 +184,32 @@ function App() {
     handleAnalyze(demoFile);
   };
 
+  const handleLogout = () => {
+    removeToken();
+    navigate('/login');
+  };
+
   return (
     <div className="h-screen w-full overflow-y-scroll snap-y snap-mandatory bg-[#0A0A0C] font-sans selection:bg-[#ff4757] selection:text-white">
       
       {/* Floating Navigation Pill */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-white/10 border border-white/20 px-6 py-3 rounded-full flex gap-4 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]">
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-4 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]">
+        <div className="flex gap-4 items-center mr-4">
+
         {[1, 2, 3].map((num) => (
           <div 
             key={num} 
             className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${activeSection === num ? 'bg-white scale-125' : 'bg-white/30'}`}
           />
         ))}
+        </div>
+        <button 
+          onClick={handleLogout}
+          className="ml-2 pl-4 border-l border-white/20 text-white/70 hover:text-white transition-colors"
+          title="Sign out"
+        >
+          <LogOut className="w-4 h-4" />
+        </button>
       </nav>
 
       {/* SECTION 1: HERO */}
@@ -412,6 +443,36 @@ function App() {
       <CyberScanOverlay isOpen={loading} />
       
     </div>
+  );
+}
+
+function AppLoginWrapper() {
+  const navigate = useNavigate();
+
+  const handleLogin = async (username, password) => {
+    const data = await login(username, password);
+    setToken(data.access_token);
+    navigate('/');
+  };
+
+  return <LoginPage onLogin={handleLogin} />;
+}
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/login" element={<AppLoginWrapper />} />
+        <Route 
+          path="/*" 
+          element={
+            <ProtectedRoute>
+              <MainApp />
+            </ProtectedRoute>
+          } 
+        />
+      </Routes>
+    </Router>
   );
 }
 

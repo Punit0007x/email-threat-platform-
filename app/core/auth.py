@@ -157,3 +157,11 @@ def init_default_user():
             password="CHANGE_ME_IN_PRODUCTION",
             scopes=["read", "write", "admin"],
         ))
+    if "shrutha" not in FAKE_USERS_DB:
+        create_user(UserCreate(
+            username="shrutha",
+            email="shrutha@localhost.com",
+            full_name="Shrutha",
+            password="shrutha123",
+            scopes=["read", "write", "admin"],
+        ))

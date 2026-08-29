@@ -216,7 +216,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
   }, [htmlBody, plainBody]);
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+    <div className="bg-transparent space-y-6 relative overflow-hidden p-8">
       
       {/* Header with Mode Switcher */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-gray-100 pb-4">
@@ -225,15 +225,15 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
             <Eye className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-slate-900 drop-shadow-sm">
               Email Content & Payload Dissector
             </h2>
-            <p className="text-sm text-gray-500 font-medium">Safely rendering and inspecting the email body.</p>
+            <p className="text-sm text-slate-700 drop-shadow-sm font-medium">Safely rendering and inspecting the email body.</p>
           </div>
         </div>
 
         {/* View Mode Selector Tabs */}
-        <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 border border-gray-100 rounded-xl font-mono text-sm">
+        <div className="flex items-center gap-1.5 p-1.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 font-mono text-sm">
           {[
             { id: 'wysiwyg', label: 'Safe Preview', icon: Eye },
             { id: 'text', label: 'Threat Callouts', icon: FileText },
@@ -260,28 +260,28 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
       {/* Threat Metrics Strip */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm font-mono">
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex items-center justify-between">
+        <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3 flex items-center justify-between">
           <span className="text-[#64748b] font-bold">Deceptive Links:</span>
           <span className={`font-bold font-mono ${linkMismatches.length > 0 ? 'text-[#ef4444]' : 'text-[#059669]'}`}>
             {linkMismatches.length} Detected
           </span>
         </div>
 
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex items-center justify-between">
+        <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3 flex items-center justify-between">
           <span className="text-[#64748b] font-bold">Obfuscated Strings:</span>
           <span className={`font-bold font-mono ${obfuscations.length > 0 ? 'text-[#d97706]' : 'text-[#0f172a]'}`}>
             {obfuscations.length} Detected
           </span>
         </div>
 
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex items-center justify-between">
+        <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3 flex items-center justify-between">
           <span className="text-[#64748b] font-bold">Hidden / Zero-Font:</span>
           <span className={`font-bold font-mono ${hiddenText.length > 0 ? 'text-[#d97706]' : 'text-[#0f172a]'}`}>
             {hiddenText.length} Found
           </span>
         </div>
 
-        <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 flex items-center justify-between">
+        <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3 flex items-center justify-between">
           <span className="text-[#64748b] font-bold">Tracking Beacons:</span>
           <span className={`font-bold font-mono ${trackingPixels.length > 0 ? 'text-[#7048e8]' : 'text-[#0f172a]'}`}>
             {trackingPixels.length} Pixels
@@ -292,7 +292,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
       {/* TAB 1: Safe Sandboxed WYSIWYG Preview */}
       {viewMode === 'wysiwyg' && (
         <div className="space-y-3 animate-in fade-in duration-200">
-          <div className="flex items-center justify-between text-sm font-mono text-[#64748b] bg-gray-50 border border-gray-100 rounded-xl-sm px-4 py-2">
+          <div className="flex items-center justify-between text-sm font-mono text-[#64748b] bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 px-4 py-2">
             <span className="flex items-center gap-2 text-[#059669] font-bold">
               <Lock className="w-3.5 h-3.5" />
               SANDBOX SECURITY: SCRIPTS DISABLED & EXTERNAL BEACONS NEUTRALIZED
@@ -300,7 +300,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
             <span className="text-[#94a3b8] font-semibold">Render Engine: Chromium Isolated Frame</span>
           </div>
 
-          <div className="w-full h-[450px] rounded-xl overflow-hidden bg-gray-50 border border-gray-100 rounded-xl border border-[#e2e8f0]/60 shadow-inner bg-[#f8fafc]">
+          <div className="w-full h-[450px] overflow-hidden bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem]">
             <iframe
               title="Sandboxed Email Preview"
               srcDoc={safeSandboxedHtml}
@@ -313,11 +313,11 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
       {/* TAB 2: Threat Callouts & Deceptive Links */}
       {viewMode === 'text' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="space-y-6 animate-in fade-in duration-200 bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-6">
           
           {/* Deceptive Links Callouts */}
           {linkMismatches.length > 0 ? (
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 space-y-3 border-l-4 border-l-[#ef4444]">
+            <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-5 space-y-3 border-l-4 border-l-[#ef4444]">
               <h4 className="text-sm font-bold text-[#d63031] uppercase tracking-wider font-mono flex items-center gap-2">
                 <AlertTriangle className="w-4 h-4 text-[#ef4444]" />
                 Deceptive Link Divergence Detected ({linkMismatches.length})
@@ -328,7 +328,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
               <div className="space-y-2.5 pt-1">
                 {linkMismatches.map((mismatch, idx) => (
-                  <div key={idx} className="bg-[#f8fafc] p-3.5 rounded-xl border border-[#e2e8f0]/60 space-y-2 font-mono text-sm shadow-sm">
+                  <div key={idx} className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3.5 space-y-2 font-mono text-sm">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                       <div className="flex items-center gap-1.5 text-[#64748b]">
                         <span className="text-xs uppercase font-bold">Displayed Anchor:</span>
@@ -358,7 +358,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
               </div>
             </div>
           ) : (
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 text-sm text-[#64748b] font-mono flex items-center gap-2">
+            <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 text-sm text-[#64748b] font-mono flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-[#059669]" />
               <span>No deceptive link mismatches detected. Links match their visible anchor text.</span>
             </div>
@@ -366,14 +366,14 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
           {/* Hidden Zero-Font & Filter Poisoning Callouts */}
           {hiddenText.length > 0 && (
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 space-y-3 border-l-4 border-l-[#f59e0b]">
+            <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-5 space-y-3 border-l-4 border-l-[#f59e0b]">
               <h4 className="text-sm font-bold text-[#b45309] uppercase tracking-wider font-mono flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-[#f59e0b]" />
                 Hidden Zero-Font & Camouflage Poisoning ({hiddenText.length})
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {hiddenText.map((item, idx) => (
-                  <div key={idx} className="bg-[#f8fafc] p-3 rounded-xl border border-[#e2e8f0]/60 space-y-1 text-sm shadow-sm">
+                  <div key={idx} className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3 space-y-1 text-sm">
                     <div className="flex items-center justify-between">
                       <strong className="text-[#b45309] font-bold font-mono">{item.type}</strong>
                       <span className="text-xs text-[#64748b] font-mono font-semibold">{item.location}</span>
@@ -390,7 +390,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
             <h4 className="text-sm font-bold text-[#0f172a] uppercase tracking-wider font-mono">
               Normalized Plaintext Stream
             </h4>
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 text-sm font-mono text-[#0f172a] max-h-72 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+            <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 text-sm font-mono text-[#0f172a] max-h-72 overflow-y-auto whitespace-pre-wrap leading-relaxed">
               {plainBody || "[No Plaintext Stream Detected]"}
             </div>
           </div>
@@ -400,7 +400,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
       {/* TAB 3: Automated & Interactive De-Obfuscator Studio */}
       {viewMode === 'deobfuscate' && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="space-y-6 animate-in fade-in duration-200 bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-6">
           
           {/* Automated De-Obfuscated Findings */}
           <div className="space-y-3">
@@ -412,7 +412,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
             {obfuscations.length > 0 ? (
               <div className="space-y-3">
                 {obfuscations.map((item, idx) => (
-                  <div key={idx} className="bg-[#f8fafc] p-4 rounded-xl border border-[#e2e8f0]/60 space-y-2.5 font-mono text-sm shadow-sm">
+                  <div key={idx} className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 space-y-2.5 font-mono text-sm">
                     <div className="flex items-center justify-between">
                       <span className={`px-2 py-0.5 rounded border text-xs font-bold ${item.color}`}>
                         {item.type}
@@ -429,14 +429,14 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                       <div className="space-y-1">
                         <span className="text-[#64748b] uppercase text-xs font-bold">Obfuscated Raw Input:</span>
-                        <div className="bg-gray-50 border border-gray-100 rounded-xl p-2.5 text-[#64748b] break-all max-h-24 overflow-y-auto">
+                        <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-2.5 text-[#64748b] break-all max-h-24 overflow-y-auto">
                           {item.fullRaw}
                         </div>
                       </div>
 
                       <div className="space-y-1">
                         <span className="text-[#059669] uppercase text-xs font-bold">Unpacked Payload:</span>
-                        <div className="bg-gray-50 border border-gray-100 rounded-xl p-2.5 text-[#059669] break-all max-h-24 overflow-y-auto font-bold bg-[#10b981]/5 border border-[#10b981]/20">
+                        <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-2.5 text-[#059669] break-all max-h-24 overflow-y-auto font-bold bg-[#10b981]/5 border-[#10b981]/20">
                           {item.decoded}
                         </div>
                       </div>
@@ -445,7 +445,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
                 ))}
               </div>
             ) : (
-              <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 text-sm text-[#64748b] font-mono flex items-center gap-2">
+              <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 text-sm text-[#64748b] font-mono flex items-center gap-2">
                 <Check className="w-4 h-4 text-[#059669]" />
                 <span>No complex Base64, Hex, or Script obfuscation layers detected in this payload.</span>
               </div>
@@ -453,7 +453,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
           </div>
 
           {/* Interactive De-Obfuscator Sandbox Workbench */}
-          <div className="bg-gray-50 border border-gray-100 rounded-xl p-5 space-y-4">
+          <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-5 space-y-4">
             <h4 className="text-sm font-bold text-[#0f172a] uppercase tracking-wider font-mono flex items-center gap-2">
               <Zap className="w-4 h-4 text-[#f59e0b]" />
               Live Analyst De-Obfuscator Sandbox Workbench
@@ -468,7 +468,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
                 onChange={(e) => setCustomInput(e.target.value)}
                 placeholder="Paste encoded string here (e.g. SGVsbG8gV29ybGQ= or \x61\x64\x6d\x69\x6e or https://google.com/url?q=...)"
                 rows={3}
-                className="w-full bg-[#f8fafc] border border-[#e2e8f0] rounded-xl p-3 text-sm font-mono text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:border-[#ef4444] shadow-inner"
+                className="w-full bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3 text-sm font-mono text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:border-[#ef4444]"
               />
 
               <button
@@ -479,7 +479,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
               </button>
 
               {customDecoded && (
-                <div className="bg-[#f8fafc] p-4 rounded-xl border border-[#0ea5e9]/40 space-y-2 font-mono text-sm shadow-sm animate-in fade-in">
+                <div className="bg-white/20 backdrop-blur-md rounded-xl border border-[#0ea5e9]/40 shadow-sm transition-all hover:bg-white/30 p-4 space-y-2 font-mono text-sm animate-in fade-in">
                   <div className="flex items-center justify-between text-[#0284c7] font-bold text-sm">
                     <span>Format Identified: {customDecoded.type}</span>
                     <button
@@ -490,7 +490,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
                       {copiedId === 'custom' ? 'Copied' : 'Copy'}
                     </button>
                   </div>
-                  <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 text-[#059669] break-all whitespace-pre-wrap font-bold bg-[#10b981]/5">
+                  <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3 text-[#059669] break-all whitespace-pre-wrap font-bold bg-[#10b981]/5">
                     {customDecoded.decoded}
                   </div>
                 </div>
@@ -503,7 +503,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
 
       {/* TAB 4: Raw MIME Source Code */}
       {viewMode === 'raw' && (
-        <div className="space-y-3 animate-in fade-in duration-200">
+        <div className="space-y-3 animate-in fade-in duration-200 bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-6">
           <div className="flex items-center justify-between text-sm font-mono text-[#64748b]">
             <span className="font-bold">Raw HTML / MIME Source Code Stream</span>
             <button
@@ -515,7 +515,7 @@ export default function EmailBodyDissector({ data, onLookupIOC }) {
             </button>
           </div>
 
-          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 text-sm font-mono text-[#0f172a] max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+          <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 text-sm font-mono text-[#0f172a] max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed">
             {htmlBody || plainBody || "[No Raw Body Content Available]"}
           </div>
         </div>
