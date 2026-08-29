@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShieldMail — Threat Detected</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --indigo-500: #6366f1; --indigo-600: #4f46e5;
+      --emerald-500: #10b981; --amber-500: #f59e0b; --red-500: #ef4444;
+      --slate-50: #f8fafc; --slate-100: #f1f5f9; --slate-200: #e2e8f0;
+      --slate-400: #94a3b8; --slate-600: #475569; --slate-700: #334155;
+      --slate-800: #1e293b; --glass-bg: rgba(255,255,255,0.9);
+      --glass-border: rgba(255,255,255,0.6); --radius: 12px;
+    }
+    body { width: 360px; min-height: 100vh; font-family: 'Inter', sans-serif; font-size: 12px; color: var(--slate-800); background: linear-gradient(165deg, #f5f3ff 0%, #eef2ff 100%); display: flex; flex-direction: column; }
+    .panel { flex: 1; padding: 16px; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 8px; border-bottom: 1px solid var(--slate-200); }
+    .panel-title { font-weight: 700; font-size: 14px; color: var(--slate-800); }
+    .panel-close { background: none; border: none; font-size: 18px; color: var(--slate-400); cursor: pointer; padding: 4px; }
+    .panel-close:hover { color: var(--slate-600); }
+
+    /* Score Ring */
+    .score-section { display: flex; align-items: center; gap: 16px; }
+    .score-ring { position: relative; width: 80px; height: 80px; flex-shrink: 0; }
+    .score-ring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .score-ring__bg { fill: none; stroke: var(--slate-100); stroke-width: 6; }
+    .score-ring__fill { fill: none; stroke: var(--indigo-500); stroke-width: 6; stroke-linecap: round; stroke-dasharray: 251.3; stroke-dashoffset: 251.3; transition: stroke 0.3s; }
+    .score-ring__value { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .score-ring__number { font-size: 20px; font-weight: 800; line-height: 1; color: var(--slate-800); }
+    .score-ring__label { font-size: 9px; color: var(--slate-400); margin-top: 2px; }
+    .score-info { flex: 1; }
+    .side-risk { display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; text-transform: uppercase; margin-top: 8px; }
+    .side-risk.low { background: rgba(16,185,129,0.12); color: var(--emerald-500); }
+    .side-risk.medium { background: rgba(245,158,11,0.12); color: var(--amber-500); }
+    .side-risk.high, .side-risk.critical { background: rgba(239,68,68,0.12); color: var(--red-500); }
+
+    /* Threat Card */
+    .card { background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: var(--radius); padding: 12px; }
+    .card-title { font-weight: 700; font-size: 12px; color: var(--slate-700); margin-bottom: 8px; }
+    .threat-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; }
+    .threat-row + .threat-row { border-top: 1px solid var(--slate-100); }
+    .threat-label { font-size: 11px; color: var(--slate-500); }
+    .threat-value { font-weight: 600; color: var(--slate-800); }
+    .threat-value.threat { color: var(--red-500); }
+    .threat-value.safe { color: var(--emerald-500); }
+
+    /* Indicators */
+    .indicators-list { font-size: 11px; color: var(--slate-600); line-height: 1.8; padding-left: 16px; }
+    .indicators-list li { margin: 4px 0; }
+
+    /* Origin */
+    .origin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .origin-item { background: var(--slate-50); border-radius: 8px; padding: 8px; }
+    .origin-label { font-size: 9px; text-transform: uppercase; color: var(--slate-400); letter-spacing: 0.5px; }
+    .origin-value { font-size: 11px; font-weight: 600; color: var(--slate-700); font-family: monospace; word-break: break-all; }
+
+    /* Actions */
+    .actions { display: flex; gap: 8px; margin-top: 8px; }
+    .btn { flex: 1; padding: 10px 12px; border-radius: 8px; border: none; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, var(--indigo-500), var(--indigo-600)); color: white; }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+    .btn-secondary { background: var(--slate-100); color: var(--slate-600); border: 1px solid var(--slate-200); }
+    .btn-secondary:hover { background: var(--slate-200); color: var(--indigo-600); }
+
+    /* States */
+    .state { display: none; text-align: center; padding: 32px 16px; }
+    .state-icon { font-size: 48px; margin-bottom: 12px; }
+    .state-title { font-weight: 700; font-size: 14px; color: var(--slate-700); margin-bottom: 4px; }
+    .state-text { font-size: 12px; color: var(--slate-500); }
+
+    .hidden { display: none !important; }
+    .loading-spinner { width: 32px; height: 32px; border: 3px solid var(--slate-200); border-top-color: var(--indigo-500); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <header class="panel-header">
+      <span class="panel-title">ShieldMail</span>
+      <button class="panel-close" id="side-dismiss" aria-label="Close">×</button>
+    </header>
+
+    <!-- Loading -->
+    <div class="state" id="loading">
+      <div class="loading-spinner"></div>
+      <div class="state-title">Analyzing...</div>
+      <div class="state-text">Running forensic analysis on the opened email</div>
+    </div>
+
+    <!-- No Threat -->
+    <div class="state" id="no-threat">
+      <div class="state-icon">✅</div>
+      <div class="state-title">No Threats Detected</div>
+      <div class="state-text">The currently opened email appears safe</div>
+    </div>
+
+    <!-- Threat Content -->
+    <div class="state" id="threat-content">
+      <!-- Score -->
+      <div class="card score-section">
+        <div class="score-ring">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="40" class="score-ring__bg"/>
+            <circle cx="50" cy="50" r="40" class="score-ring__fill" id="side-arc"/>
+          </svg>
+          <div class="score-ring__value">
+            <span class="score-ring__number" id="side-score">0</span>
+            <span class="score-ring__label">/ 100</span>
+          </div>
+        </div>
+        <div class="score-info">
+          <span class="side-risk" id="side-risk">Low Risk</span>
+        </div>
+      </div>
+
+      <!-- Threat Type -->
+      <div class="card">
+        <div class="card-title">Detection</div>
+        <div class="threat-row">
+          <span class="threat-label">Threat Type</span>
+          <span class="threat-value threat" id="side-threat">—</span>
+        </div>
+        <div class="threat-row">
+          <span class="threat-label">Confidence</span>
+          <span class="threat-value" id="side-confidence">—</span>
+        </div>
+      </div>
+
+      <!-- Indicators -->
+      <div class="card">
+        <div class="card-title">Key Indicators</div>
+        <ul class="indicators-list" id="side-indicators"></ul>
+      </div>
+
+      <!-- Origin -->
+      <div class="card">
+        <div class="card-title">Origin</div>
+        <div class="origin-grid">
+          <div class="origin-item">
+            <div class="origin-label">IP Address</div>
+            <div class="origin-value mono" id="side-ip">—</div>
+          </div>
+          <div class="origin-item">
+            <div class="origin-label">Location</div>
+            <div class="origin-value" id="side-location">—</div>
+          </div>
+          <div class="origin-item">
+            <div class="origin-label">ISP / ASN</div>
+            <div class="origin-value" id="side-isp">—</div>
+          </div>
+          <div class="origin-item">
+            <div class="origin-label">Risk Score</div>
+            <div class="origin-value" id="side-score">—</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="actions">
+        <button class="btn btn-primary" id="side-open-dashboard">Open Dashboard</button>
+        <button class="btn btn-secondary" id="side-dismiss">Dismiss</button>
+      </div>
+    </div>
+  </div>
+  <script src="sidepanel.js"></script>
+</body>
+</html>

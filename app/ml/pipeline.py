@@ -4,7 +4,6 @@ from app.ml.bec_engine import analyze_bec_threat
 from app.ml.synthetic_detector import detect_synthetic_content
 from app.ml.threat_classifier import classify_email_threat
 from app.ml.genai_analyzer import perform_ai_forensic_reasoning
-from app.ml.spam_model import predict_spam
 
 def analyze_email_ai_ml(
     from_address: str,
@@ -45,10 +44,9 @@ def analyze_email_ai_ml(
     # 3. Synthetic / AI-Generated Language Detection
     synthetic_analysis = detect_synthetic_content(combined_body)
     
-    # 4. Basic Spam Classification (from isolated ML model)
-    spam_analysis = predict_spam(combined_body)
-    
-    # 5. Multi-Class Probabilistic Threat Classification (Trained Scikit-Learn TF-IDF + Heuristic Ensemble)
+    # 4. Multi-Class Probabilistic Threat Classification (Unified trained model).
+    #    "spam" is one of the model's classes (the legacy standalone SMS spam model
+    #    is retired — see audit finding #3).
     threat_classification = classify_email_threat(
         features=features,
         domain_check=domain_check or {},
@@ -56,6 +54,16 @@ def analyze_email_ai_ml(
         bec_analysis=bec_analysis,
         raw_text=f"{subject} {combined_body}"
     )
+    
+    # Spam signal is now derived directly from the unified model's calibrated
+    # "spam" class probability, not from a separate Naive Bayes SMS model.
+    spam_prob = threat_classification.get("class_probabilities", {}).get("spam", 0.0)
+    spam_analysis = {
+        "prediction": "spam" if spam_prob >= 0.5 else "ham",
+        "is_spam": spam_prob >= 0.5,
+        "confidence": round(spam_prob, 4),
+        "spam_probability": round(spam_prob, 4),
+    }
     
     # 6. AI / LLM Forensic Reasoning & MITRE ATT&CK Mapping
     email_summary_ctx = {

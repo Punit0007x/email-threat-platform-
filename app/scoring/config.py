@@ -10,7 +10,15 @@ URGENCY_PHRASES = [
     "update your account",
     "unauthorized login attempt",
     "payment declined",
-    "invoice overdue"
+    "invoice overdue",
+    "logged out unexpectedly",
+    "login via",
+    "please login",
+    "re-verify",
+    "confirm your identity",
+    "unusual activity",
+    "suspicious activity",
+    "security alert"
 ]
 
 AUTHORITY_KEYWORDS = [
@@ -35,7 +43,13 @@ AUTHORITY_KEYWORDS = [
     "paypal",
     "microsoft",
     "amazon",
-    "google"
+    "google",
+    "instagram",
+    "facebook",
+    "meta",
+    "whatsapp",
+    "netflix",
+    "apple"
 ]
 
 URL_SHORTENERS = [
@@ -45,7 +59,69 @@ URL_SHORTENERS = [
     "goo.gl",
     "ow.ly",
     "is.gd",
-    "buff.ly"
+    "buff.ly",
+    "rb.gy",
+    "shorturl.at",
+    "cutt.ly"
+]
+
+# Free hosting/tunneling domains commonly abused for phishing
+SUSPICIOUS_HOSTING_DOMAINS = [
+    "trycloudflare.com",
+    "cloudflare-dns.com",
+    "workers.dev",
+    "pages.dev",
+    "ngrok.io",
+    "ngrok-free.app",
+    "ngrok.app",
+    "serveo.net",
+    "localtunnel.me",
+    "loca.lt",
+    "herokuapp.com",
+    "netlify.app",
+    "vercel.app",
+    "web.app",
+    "firebaseapp.com",
+    "000webhostapp.com",
+    "glitch.me",
+    "repl.co",
+    "replit.dev",
+    "onrender.com",
+    "surge.sh",
+    "github.io",
+    "weebly.com",
+    "wixsite.com",
+    "blogspot.com",
+    "sites.google.com",
+    "forms.gle",
+    "docs.google.com",
+    "storage.googleapis.com",
+    "s3.amazonaws.com",
+    "azurewebsites.net",
+    "infinityfreeapp.com",
+    "rf.gd",
+    "epizy.com",
+    "freenom.com",
+    "tk", "ml", "ga", "cf", "gq",
+    "duckdns.org",
+    "freedynamicdns.net",
+    "hopto.org",
+    "zapto.org",
+    "sytes.net",
+    "ddns.net"
+]
+
+# Suspicious URL path keywords commonly seen in phishing pages
+SUSPICIOUS_URL_PATHS = [
+    "login", "signin", "sign-in", "log-in",
+    "verify", "verification", "validate",
+    "account", "secure", "security",
+    "update", "confirm", "authenticate",
+    "password", "credential", "billing",
+    "payment", "wallet", "bank",
+    "reset", "recover", "unlock",
+    "webmail", "outlook", "office365",
+    "onedrive", "sharepoint"
 ]
 
 SPOOFED_BRANDS = [
@@ -57,7 +133,11 @@ SPOOFED_BRANDS = [
     "sbi.co.in",
     "hdfcbank.com",
     "icicibank.com",
-    "axisbank.com"
+    "axisbank.com",
+    "instagram.com",
+    "facebook.com",
+    "netflix.com",
+    "whatsapp.com"
 ]
 
 # Fraud Scoring Weights (Maximum theoretical score is capped at 100)
@@ -70,6 +150,8 @@ WEIGHTS = {
     "link_mismatch": 15,
     "url_shortener": 10,
     "suspicious_ip": 5,
+    "suspicious_hosting_domain": 25,
+    "suspicious_url_path": 15,
     "whois_new_domain": 15,
     "whois_privacy_protected": 8,
     "whois_risky_registrar": 10,

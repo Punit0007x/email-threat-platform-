@@ -1,5 +1,11 @@
 from typing import Dict, Any, List, Optional
-from app.scoring.config import WEIGHTS
+from app.scoring.config import WEIGHTS, URL_SHORTENERS
+
+# Documented weights for the AI/ML risk component (007 rebuild). Only one fixed,
+# auditable weight is defined here — the ML output is never tweaked per-email.
+ML_WEIGHTS = {
+    "ml_fraud_probability": 40,  # 1 - P(legitimate), scaled to points
+}
 
 def calculate_fraud_score(
     auth_analysis: Dict[str, Any], 
@@ -14,7 +20,8 @@ def calculate_fraud_score(
     history_intel: Optional[Dict[str, Any]] = None,
     tech_fingerprint: Optional[Dict[str, Any]] = None,
     dork_intel: Optional[Dict[str, Any]] = None,
-    ip_network_context: Optional[Dict[str, Any]] = None
+    ip_network_context: Optional[Dict[str, Any]] = None,
+    extracted_urls: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """
     Combines protocol, forensic, and AI/ML threat signals into a single 0-100 fraud score and generates plain English reasons.
@@ -108,10 +115,22 @@ def calculate_fraud_score(
         from app.ml.bec_engine import FREE_WEBMAIL_DOMAINS
         sender_domain = auth_analysis.get("from_domain", "")
         print(f"DEBUG FRAUD SCORE: sender_domain={sender_domain}, FREE_WEBMAIL_DOMAINS={FREE_WEBMAIL_DOMAINS}")
-        # Don't heavily penalize massive shared domains like gmail.com just because they appear in previous cases
-        if repeat_score > 0 and sender_domain not in FREE_WEBMAIL_DOMAINS and not auth_analysis.get("domain_alignment_pass", False):
+        
+        sender_seen = threat_correlations.get("sender_seen_before", False)
+        ip_seen = threat_correlations.get("ip_seen_before", False)
+        
+        # Don't heavily penalize massive shared domains like gmail.com just because the DOMAIN appears in previous cases.
+        # But DO penalize if the specific sender or IP has been seen before.
+        should_penalize = False
+        if repeat_score > 0:
+            if sender_seen or ip_seen:
+                should_penalize = True
+            elif sender_domain not in FREE_WEBMAIL_DOMAINS and not auth_analysis.get("domain_alignment_pass", False):
+                should_penalize = True
+                
+        if should_penalize:
             score += int(repeat_score * WEIGHTS["repeat_offender"])
-            reasons.append(f"Repeat offender intelligence: Indicators seen in {threat_correlations.get('domain_case_count', 0) + threat_correlations.get('ip_case_count', 0)} prior malicious case(s).")
+            reasons.append(f"Repeat offender intelligence: Indicators seen in {threat_correlations.get('domain_case_count', 0) + threat_correlations.get('ip_case_count', 0) + threat_correlations.get('sender_case_count', 0)} prior malicious case(s).")
     
     # 6e. Domain Reconnaissance (Subdomain Analysis)
     if domain_recon and not auth_analysis.get("domain_alignment_pass", False):
@@ -157,34 +176,111 @@ def calculate_fraud_score(
             reasons.append(f"Origin IP in cloud hosting CIDR ({ip_network_context.get('cidr', 'unknown')}).")
     
     # 7. AI/ML Deep Threat Indicators
+    #
+    # 007-clean scoring: the ML model's output is used as ONE named risk
+    # component with a FIXED, DOCUMENTED weight, driven by the calibrated
+    # probability the email is NOT legitimate. No ad-hoc +25/+20/+15 point bumps
+    # and no heuristic logit bonuses here — those were the audit findings.
     if ai_ml_analysis:
+        classification = ai_ml_analysis.get("classification", {})
+        class_probs = classification.get("class_probabilities", {})
+        p_legit = class_probs.get("legitimate", 0.0)
+        if not class_probs:
+            # Fallback for consumers that only expose the legacy label
+            p_legit = 1.0 if classification.get("primary_threat", "clean") in ["clean", "legitimate"] else 0.0
+        ml_fraud_prob = 1.0 - p_legit
+        ml_pts = ML_WEIGHTS["ml_fraud_probability"]
+        score += round(ml_fraud_prob * ml_pts, 2)
+        primary_threat = classification.get("primary_threat", "clean")
+        pred = classification.get("predicted_class", primary_threat)
+        reasons.append(
+            f"AI Multi-Class Model: Not-legitimate probability {round(ml_fraud_prob * 100, 1)}% "
+            f"(weighted {ml_pts} pts). Top predicted class '{pred}' "
+            f"(confidence {round(classification.get('confidence', 0) * 100, 1)}%)."
+        )
+
         bec = ai_ml_analysis.get("bec_analysis", {})
         if bec.get("bec_confidence_score", 0) >= 40:
-            score += 25
             for ind in bec.get("bec_indicators", []):
                 reasons.append(f"AI BEC Analysis: {ind}")
-                
-        classification = ai_ml_analysis.get("classification", {})
-        primary_threat = classification.get("primary_threat", "clean")
-        if primary_threat != "clean" and classification.get("confidence", 0) >= 0.75:
-            score += 20
-            reasons.append(f"AI Multi-Class Model: Identified as '{primary_threat.replace('_', ' ').title()}' (Confidence: {round(classification.get('confidence', 0)*100)}%).")
-            
+
         synthetic = ai_ml_analysis.get("synthetic_analysis", {})
         if synthetic.get("is_likely_synthetic"):
-            score += 10
-            reasons.append(f"AI Language Analysis: High likelihood of synthetic/LLM-generated text (Score: {synthetic.get('synthetic_score')}%).")
-            
-        spam = ai_ml_analysis.get("spam_analysis", {})
-        if spam.get("is_spam"):
-            score += 15
-            reasons.append(f"AI Spam Detection: Classified as spam using Naive Bayes model (Confidence: {round(spam.get('confidence', 0)*100)}%).")
-            
+            reason_text = f"AI Language Analysis: High likelihood of synthetic/LLM-generated text (Score: {synthetic.get('synthetic_score')}%)."
+            if reason_text not in reasons:
+                reasons.append(reason_text)
+
         features = ai_ml_analysis.get("features", {})
         suspicious_att = features.get("suspicious_attachments", [])
         if suspicious_att:
-            score += 30
-            reasons.append(f"Malicious Attachment Vector: {len(suspicious_att)} high-risk file extension(s) detected ({', '.join([a['filename'] for a in suspicious_att])}).")
+            reasons.append(
+                f"Malicious Attachment Vector: {len(suspicious_att)} high-risk file extension(s) "
+                f"detected ({', '.join([a['filename'] for a in suspicious_att])})."
+            )
+
+    # 7b. Suspicious URL Analysis (check extracted URLs for risky patterns)
+    from app.scoring.config import SUSPICIOUS_HOSTING_DOMAINS, SUSPICIOUS_URL_PATHS
+    import re
+    from urllib.parse import urlparse
+    
+    urls_to_check = extracted_urls or []
+    has_url_shortener_in_urls = False
+    has_ip_based_url = False
+    has_suspicious_hosting = False
+    has_suspicious_path = False
+    suspicious_hosting_matches = []
+    suspicious_path_matches = []
+    
+    for url in urls_to_check:
+        url_lower = url.lower().strip()
+        
+        try:
+            parsed_url = urlparse(url_lower if '://' in url_lower else f'https://{url_lower}')
+            hostname = parsed_url.hostname or ''
+            path = parsed_url.path or ''
+        except Exception:
+            hostname = url_lower
+            path = ''
+        
+        # Check for URL shorteners
+        if any(shortener in hostname for shortener in URL_SHORTENERS):
+            has_url_shortener_in_urls = True
+        
+        # Check for IP-based URLs
+        if re.search(r'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', url_lower):
+            has_ip_based_url = True
+        
+        # Check for suspicious free hosting / tunneling domains
+        for sus_domain in SUSPICIOUS_HOSTING_DOMAINS:
+            if hostname.endswith(sus_domain) or hostname == sus_domain:
+                has_suspicious_hosting = True
+                if sus_domain not in suspicious_hosting_matches:
+                    suspicious_hosting_matches.append(sus_domain)
+                break
+        
+        # Check for suspicious URL paths (login pages, credential harvesting)
+        for sus_path in SUSPICIOUS_URL_PATHS:
+            if sus_path in path.lower():
+                has_suspicious_path = True
+                if sus_path not in suspicious_path_matches:
+                    suspicious_path_matches.append(sus_path)
+                break
+    
+    if has_url_shortener_in_urls and not text_signals.get("has_shortener", False):
+        score += WEIGHTS["url_shortener"]
+        reasons.append("URL shortener used: Email contains shortened links often used to hide malicious destinations.")
+    
+    if has_ip_based_url:
+        score += 15
+        reasons.append("IP-based URL detected: Email contains URLs pointing to raw IP addresses instead of domains.")
+    
+    if has_suspicious_hosting:
+        score += WEIGHTS["suspicious_hosting_domain"]
+        reasons.append(f"Suspicious hosting detected: Link(s) point to free/disposable hosting service ({', '.join(suspicious_hosting_matches)}) commonly abused for phishing.")
+    
+    if has_suspicious_path:
+        score += WEIGHTS["suspicious_url_path"]
+        reasons.append(f"Suspicious URL path: Link contains credential-harvesting keywords ({', '.join(suspicious_path_matches)}).")
 
     # 8. Cryptographic Authenticity Validation Discount
     is_fully_authenticated = (
@@ -197,7 +293,11 @@ def calculate_fraud_score(
         domain_check.get("is_lookalike", False) or
         text_signals.get("link_mismatch_count", 0) > 0 or
         text_signals.get("has_shortener", False) or
-        (ai_ml_analysis and ai_ml_analysis.get("classification", {}).get("primary_threat", "clean") not in ["clean", "legitimate"] and ai_ml_analysis.get("classification", {}).get("confidence", 0) > 0.75)
+        has_url_shortener_in_urls or
+        has_ip_based_url or
+        has_suspicious_hosting or
+        has_suspicious_path or
+        (ai_ml_analysis and ai_ml_analysis.get("classification", {}).get("primary_threat", "clean") not in ["clean", "legitimate"] and ai_ml_analysis.get("classification", {}).get("confidence", 0) > 0.60)
     )
     
     if is_fully_authenticated and not has_attack_payload and urgency_count == 0 and auth_count == 0:

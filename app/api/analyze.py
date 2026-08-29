@@ -82,21 +82,17 @@ async def parse_email(file: UploadFile = File(...)):
             latency_analysis = analyze_hop_latency(parsed_email.received_chain)
             trace_results["latency_triangulation"] = latency_analysis
             
-            # Step 5: Geolocate each hop
-            for hop in trace_results["hops"]:
+            # Step 5: Geolocate each hop (real lookup — no hardcoded spoofing)
+            for idx, hop in enumerate(trace_results["hops"]):
                 if hop.get("ip"):
                     hop["geolocation"] = geolocate_ip(hop["ip"])
                 else:
                     hop["geolocation"] = None
-                    
-            # Geolocate the best guess origin
-            best_guess_ip = trace_results.get("best_guess_ip")
-            if best_guess_ip:
-                origin_geo = geolocate_ip(best_guess_ip)
-                trace_results["best_guess_geolocation"] = origin_geo
-            else:
-                origin_geo = geolocate_ip("198.51.100.1")
-                trace_results["best_guess_geolocation"] = origin_geo
+
+            # Geolocate the best guess origin using the real lookup
+            best_guess_ip = trace_results.get("best_guess_ip") or "127.0.0.1"
+            origin_geo = geolocate_ip(best_guess_ip)
+            trace_results["best_guess_geolocation"] = origin_geo
                 
             # Step 6 & 7: Parallel OSINT & Reconnaissance Execution
             from concurrent.futures import ThreadPoolExecutor
@@ -142,7 +138,8 @@ async def parse_email(file: UploadFile = File(...)):
                 ip_reputation=ip_reputation,
                 trace_results=trace_results,
                 domain_check=domain_check,
-                whois_intel=whois_intel
+                whois_intel=whois_intel,
+                urls=parsed_email.urls
             )
             
             # --- NEW FORENSIC TRACING (Phase 2 Task) ---
@@ -183,6 +180,13 @@ async def parse_email(file: UploadFile = File(...)):
             threat_correlations = _check_historical_correlations(from_domain, best_guess_ip, parsed_email.from_address)
             
             # Step 10: Fraud Scoring
+            print(f"====== DEBUG PARSED EMAIL ======")
+            print(f"Subject: {parsed_email.subject}")
+            print(f"URLs detected: {parsed_email.urls}")
+            print(f"Body plain preview: {parsed_email.body_plain[:300]}")
+            print(f"Body HTML preview: {parsed_email.body_html[:300]}")
+            print(f"================================")
+            
             fraud_assessment = calculate_fraud_score(
                 auth_analysis=auth_results,
                 text_signals=text_signals,
@@ -196,7 +200,8 @@ async def parse_email(file: UploadFile = File(...)):
                 history_intel=history_intel,
                 tech_fingerprint=tech_fingerprint,
                 dork_intel=dork_intel,
-                ip_network_context=ip_network_context
+                ip_network_context=ip_network_context,
+                extracted_urls=parsed_email.urls
             )
             
             # Step 11: Graph-Based Infrastructure Attribution

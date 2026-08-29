@@ -1,0 +1,72 @@
+{
+  "classes": [
+    "bec_ceo_fraud",
+    "credential_harvesting",
+    "extortion",
+    "invoice_fraud",
+    "legitimate",
+    "malware_delivery",
+    "spam"
+  ],
+  "train_size": 7680,
+  "test_size": 1920,
+  "accuracy": 0.9942708333333333,
+  "macro_f1_holdout": 0.996071373325116,
+  "per_class_report": {
+    "bec_ceo_fraud": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 240.0
+    },
+    "credential_harvesting": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 240.0
+    },
+    "extortion": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 200.0
+    },
+    "invoice_fraud": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 240.0
+    },
+    "legitimate": {
+      "precision": 0.9899244332493703,
+      "recall": 0.9825,
+      "f1-score": 0.986198243412798,
+      "support": 400.0
+    },
+    "malware_delivery": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 200.0
+    },
+    "spam": {
+      "precision": 0.9826302729528535,
+      "recall": 0.99,
+      "f1-score": 0.9863013698630136,
+      "support": 400.0
+    },
+    "accuracy": 0.9942708333333333,
+    "macro avg": {
+      "precision": 0.9960792437431748,
+      "recall": 0.9960714285714286,
+      "f1-score": 0.996071373325116,
+      "support": 1920.0
+    },
+    "weighted avg": {
+      "precision": 0.9942822304587966,
+      "recall": 0.9942708333333333,
+      "f1-score": 0.9942707527657941,
+      "support": 1920.0
+    }
+  }
+}

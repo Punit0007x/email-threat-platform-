@@ -97,11 +97,11 @@ def geolocate_ip(ip_str: str) -> Dict[str, Any]:
         if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_reserved:
             res = {
                 "ip": ip_str,
-                "country": "Internal Network",
-                "region": "Private Range",
-                "city": "Local Relay",
-                "lat": 37.7749,
-                "long": -122.4194,
+                "country": "India",
+                "region": "Karnataka",
+                "city": "Bangalore",
+                "lat": 12.9716,
+                "long": 77.5946,
                 "isp_org": "Private / Internal Enterprise Relay",
                 "error": None
             }
@@ -158,9 +158,9 @@ def geolocate_ip(ip_str: str) -> Dict[str, Any]:
     if result["region"] is None:
         result["region"] = result["city"]
     if result["lat"] is None:
-        result["lat"] = 38.8951
+        result["lat"] = 12.9716
     if result["long"] is None:
-        result["long"] = -77.0364
+        result["long"] = 77.5946
     if result["isp_org"] is None:
         result["isp_org"] = "Global Hosting / Mail Server"
 

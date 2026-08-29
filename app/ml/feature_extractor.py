@@ -186,8 +186,40 @@ def extract_advanced_features(
     plain_present = bool(body_plain and len(body_plain.strip()) > 0)
     has_cloaking_risk = False
     if html_present and not plain_present:
-        # Email has HTML body but zero plain text (often used to evade text scanners)
         has_cloaking_risk = True
+
+    # 7. URL Threat Vectors (Hosting & Credential Harvesting Paths)
+    from app.scoring.config import SUSPICIOUS_HOSTING_DOMAINS, SUSPICIOUS_URL_PATHS, URL_SHORTENERS
+    from urllib.parse import urlparse
+    
+    has_suspicious_hosting = False
+    has_suspicious_path = False
+    has_shortener = False
+    matched_suspicious_urls = []
+    
+    for u in urls:
+        u_clean = u.lower().strip()
+        try:
+            parsed_u = urlparse(u_clean if '://' in u_clean else f'https://{u_clean}')
+            h = parsed_u.hostname or ''
+            p = parsed_u.path or ''
+        except Exception:
+            h = u_clean
+            p = ''
+            
+        is_sus = False
+        if any(sd in h for sd in SUSPICIOUS_HOSTING_DOMAINS):
+            has_suspicious_hosting = True
+            is_sus = True
+        if any(sp in p for sp in SUSPICIOUS_URL_PATHS):
+            has_suspicious_path = True
+            is_sus = True
+        if any(sh in h for sh in URL_SHORTENERS):
+            has_shortener = True
+            is_sus = True
+            
+        if is_sus and u not in matched_suspicious_urls:
+            matched_suspicious_urls.append(u)
 
     return {
         "metrics": {
@@ -206,10 +238,79 @@ def extract_advanced_features(
         "intent_analysis": {
             "cta_scores": cta_scores,
             "cta_detected": cta_detected,
-            "primary_intent": max(cta_scores, key=cta_scores.get) if any(cta_scores.values()) else "informational_or_benign"
+            "primary_intent": max(cta_scores, key=cta_scores.get) if any(cta_scores.values()) else ("phishing_credential_harvesting" if (has_suspicious_hosting or has_suspicious_path) else "informational_or_benign")
+        },
+        "url_risks": {
+            "has_suspicious_hosting": has_suspicious_hosting,
+            "has_suspicious_path": has_suspicious_path,
+            "has_shortener": has_shortener,
+            "matched_suspicious_urls": matched_suspicious_urls
         },
         "entities": entities,
         "suspicious_attachments": suspicious_attachments,
         "attachment_risk_count": len(suspicious_attachments),
         "url_count": len(urls)
     }
+
+
+# ---------------------------------------------------------------------------
+# 007-rebuild structural feature set (used by the unified threat classifier).
+# These are MODEL TRAINING FEATURES — the classifier learns weights for them —
+# never post-hoc score bonuses. They are combined with TF-IDF text features
+# inside the model pipeline (see train_model.py). Not applied at runtime.
+# ---------------------------------------------------------------------------
+from urllib.parse import urlparse as _urlparse
+
+_URGENCY_WORDS = [
+    "urgent", "immediately", "action required", "verify your account",
+    "suspend", "suspended", "expire", "expires", "within 24 hours",
+    "click here", "act now", "final notice", "confirm your identity",
+    "unauthorized", "unusual activity", "limited time", "as soon as possible",
+]
+_FINANCIAL_WORDS = [
+    "wire transfer", "bank account", "invoice", "payment", "bitcoin", "btc",
+    "cryptocurrency", "routing number", "swift code", "remit", "refund",
+    "gift card", "western union",
+]
+_URL_RE = re.compile(r"https?://[^\s<>\"']+")
+
+
+def extract_urls(text: str):
+    return _URL_RE.findall(text or "")
+
+
+def features(text: str, sender_domain: str = "", subject: str = "") -> dict:
+    text = text or ""
+    subject = subject or ""
+    full = f"{subject}\n{text}"
+    lower = full.lower()
+    urls = extract_urls(full)
+    words = re.findall(r"[A-Za-z']+", full)
+    n_words = max(len(words), 1)
+    n_caps_words = sum(1 for w in words if len(w) > 2 and w.isupper())
+
+    return {
+        "n_urls": len(urls),
+        "n_unique_domains": len({_urlparse(u).netloc for u in urls}),
+        "urgency_word_count": sum(lower.count(w) for w in _URGENCY_WORDS),
+        "financial_word_count": sum(lower.count(w) for w in _FINANCIAL_WORDS),
+        "exclamation_count": full.count("!"),
+        "all_caps_word_ratio": n_caps_words / n_words,
+        "has_generic_greeting": int(bool(re.search(
+            r"\bdear (customer|user|member|sir/?madam|valued)\b", lower))),
+        "subject_len": len(subject),
+        "body_len": len(text),
+        "has_attachment_keyword": int(bool(re.search(
+            r"\battach(ed|ment)\b", lower))),
+        "money_amount_mentions": len(re.findall(
+            r"[$₹€£]\s?\d[\d,]*(\.\d+)?", full)),
+    }
+
+
+FEATURE_NAMES = list(features("", "", "").keys())
+
+
+def features_vector(text: str, sender_domain: str = "", subject: str = ""):
+    f = features(text, sender_domain, subject)
+    return [f[name] for name in FEATURE_NAMES]
+

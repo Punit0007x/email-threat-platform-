@@ -68,8 +68,10 @@ export default function MapPanel({ data, onLookupIOC }) {
       {/* Interactive Map Box (Almost Full Screen) */}
       {geoHops.length > 0 ? (
         <div className="space-y-4">
-          <div className="bg-gray-900 rounded-2xl p-2 shadow-inner border border-gray-800">
-            <div className="h-[80vh] w-full flex items-center justify-center rounded-xl overflow-hidden">
+          <div className="bg-[#0b1120] rounded-2xl p-2 shadow-2xl border border-slate-700/50 relative overflow-hidden">
+            {/* Ambient cyber illumination */}
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_rgba(14,165,233,0.12)_0%,_rgba(15,23,42,0.6)_60%,_transparent_100%)]"></div>
+            <div className="h-[80vh] w-full flex items-center justify-center rounded-xl overflow-hidden relative z-10">
               <CyberGlobe hops={hops} interactive={true} />
             </div>
           </div>
