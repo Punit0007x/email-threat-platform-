@@ -77,7 +77,7 @@ export default function HeaderPanel({ data }) {
   );
 
   return (
-    <div className="panel-chassis p-6 sm:p-8 space-y-6 relative overflow-hidden">
+    <div className="bg-transparent space-y-6 relative overflow-hidden p-6 sm:p-8">
       
       {/* Corner Screws */}
       <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
@@ -85,149 +85,149 @@ export default function HeaderPanel({ data }) {
       <div className="absolute bottom-3.5 left-3.5"><div className="screw-head" /></div>
       <div className="absolute bottom-3.5 right-3.5"><div className="screw-head" /></div>
 
-      {/* Header & Tabs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#f8fafc] pb-4 px-2">
-        <div className="flex items-center space-x-3.5">
-          <div className="p-3 bg-[#ffffff] text-[#0ea5e9] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
-            <Mail className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold text-[#0f172a] flex items-center gap-2">
-              Email Payload & RFC Header Matrix
-            </h2>
-            <p className="text-xs text-[#64748b]">
-              Standard RFC-5322 header dissection, Return-Path divergence, and threat signal annotations
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 p-1.5 slot-recessed rounded-xl font-mono text-xs">
-          <button
-            onClick={() => setViewTab('headers')}
-            className={`key-switch px-3 py-1.5 text-xs font-bold ${viewTab === 'headers' ? 'active' : ''}`}
-          >
-            Headers
-          </button>
-          <button
-            onClick={() => setViewTab('body')}
-            className={`key-switch px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 ${viewTab === 'body' ? 'active' : ''}`}
-          >
-            <AlignLeft className="w-3.5 h-3.5" />
-            Body Preview
-          </button>
-          <button
-            onClick={() => setViewTab('raw_hops')}
-            className={`key-switch px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 ${viewTab === 'raw_hops' ? 'active' : ''}`}
-          >
-            <Layers className="w-3.5 h-3.5" />
-            Hops ({data.received_chain?.length || 0})
-          </button>
-        </div>
-      </div>
-
-      {/* Tab 1: Headers Table */}
-      {viewTab === 'headers' && (
-        <div className="space-y-4">
-          <div className="slot-recessed p-1 rounded-2xl overflow-hidden">
-            <table className="min-w-full divide-y divide-[#e2e8f0]/50 text-xs text-left">
-              <tbody className="divide-y divide-[#e2e8f0]/40 bg-[#f8fafc] font-mono">
-                {rows.map((row, idx) => {
-                  if (!row.value && row.label === "Reply-To") return null;
-                  const isReplyTo = row.label === "Reply-To";
-                  return (
-                    <tr key={idx} className="hover:bg-[#ffffff]/60 transition-colors">
-                      <th className="px-4 py-3 font-bold text-[#64748b] w-1/4 bg-[#ffffff]/70 font-mono text-[11px] uppercase tracking-wider">
-                        {row.label}
-                      </th>
-                      <td className="px-4 py-3 text-[#0f172a] break-all text-[11px] font-medium">
-                        <div className="flex items-center justify-between gap-2">
-                          <span>{row.value || <span className="text-[#94a3b8] italic font-sans font-normal">Not available</span>}</span>
-                          {isReplyTo && hasReplyToMismatch && (
-                            <span className="flex items-center gap-1 text-[10px] text-[#b45309] bg-[#f59e0b]/15 px-2.5 py-0.5 rounded border border-[#f59e0b]/30 flex-shrink-0 font-bold font-sans">
-                              <ShieldAlert className="w-3.5 h-3.5 text-[#d97706]" />
-                              Domain Mismatch
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Raw Auth Results Snippet */}
-          {data.authentication_results && (
-            <div className="slot-recessed p-3.5 rounded-xl text-[11px] font-mono">
-              <span className="text-[#64748b] font-bold block mb-1 text-[10px] uppercase font-mono tracking-wider">Raw Authentication-Results:</span>
-              <span className="text-[#0f172a] break-all">{data.authentication_results}</span>
+      <div className="bg-white/20 backdrop-blur-3xl border border-white/70 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] rounded-[2rem] p-6 space-y-6">
+        {/* Header & Tabs */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/30 pb-4 px-2">
+          <div className="flex items-center space-x-3.5">
+            <div className="p-3 bg-[#ffffff] text-[#0ea5e9] rounded-2xl shadow-[var(--shadow-card)] border border-white/70">
+              <Mail className="w-6 h-6" />
             </div>
-          )}
-        </div>
-      )}
-
-      {/* Tab 2: Sanitized Body Preview & Threat Highlighter */}
-      {viewTab === 'body' && (
-        <div className="space-y-4">
-          {/* Controls & Legend Bar */}
-          <div className="flex flex-wrap items-center justify-between gap-2 slot-recessed p-3 rounded-xl text-[11px]">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[#64748b] font-bold uppercase text-[10px] font-mono tracking-wider">Signal Legend:</span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30 text-[10px] font-bold font-mono">
-                Urgency / Threat
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#7048e8]/15 text-[#5f3dc4] border border-[#7048e8]/30 text-[10px] font-bold font-mono">
-                Financial / BEC
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#f59e0b]/15 text-[#b45309] border border-[#f59e0b]/30 text-[10px] font-bold font-mono">
-                Authority Framing
-              </span>
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#0ea5e9]/15 text-[#0369a1] border border-[#0ea5e9]/30 text-[10px] font-bold font-mono">
-                URL Link
-              </span>
+            <div>
+              <h2 className="text-lg font-bold text-slate-900 drop-shadow-sm flex items-center gap-2">
+                Email Payload & RFC Header Matrix
+              </h2>
+              <p className="text-xs text-slate-700 drop-shadow-sm">
+                Standard RFC-5322 header dissection, Return-Path divergence, and threat signal annotations
+              </p>
             </div>
+          </div>
 
+          <div className="flex items-center gap-1.5 p-1.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 font-mono text-xs">
             <button
-              onClick={() => setHighlightThreats(!highlightThreats)}
-              className={`key-switch px-3 py-1 text-xs font-bold ${highlightThreats ? 'active text-[#ef4444]' : ''}`}
+              onClick={() => setViewTab('headers')}
+              className={`key-switch px-3 py-1.5 text-xs font-bold ${viewTab === 'headers' ? 'active' : ''}`}
             >
-              {highlightThreats ? '✓ Highlighting Active' : 'Highlighting Disabled'}
+              Headers
+            </button>
+            <button
+              onClick={() => setViewTab('body')}
+              className={`key-switch px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 ${viewTab === 'body' ? 'active' : ''}`}
+            >
+              <AlignLeft className="w-3.5 h-3.5" />
+              Body Preview
+            </button>
+            <button
+              onClick={() => setViewTab('raw_hops')}
+              className={`key-switch px-3 py-1.5 text-xs font-bold flex items-center gap-1.5 ${viewTab === 'raw_hops' ? 'active' : ''}`}
+            >
+              <Layers className="w-3.5 h-3.5" />
+              Hops ({data.received_chain?.length || 0})
             </button>
           </div>
-
-          <div className="slot-recessed p-5 rounded-xl text-xs text-[#0f172a] max-h-72 overflow-y-auto leading-relaxed whitespace-pre-wrap font-sans select-text font-medium bg-[#f8fafc]">
-            {renderAnnotatedBody(data.body_plain || data.body_html, highlightThreats)}
-          </div>
-          
-          <div className="flex justify-between text-[10px] text-[#64748b] font-mono px-1">
-            <span>Body Length: {(data.body_plain || data.body_html || '').length} characters</span>
-            <span>Extracted URLs: {data.urls?.length || 0} link(s)</span>
-          </div>
         </div>
-      )}
 
-      {/* Tab 3: Full Received Header Chain */}
-      {viewTab === 'raw_hops' && (
-        <div className="space-y-2.5 max-h-72 overflow-y-auto font-mono text-[11px] pr-1">
-          {data.received_chain && data.received_chain.length > 0 ? (
-            data.received_chain.map((hopHeader, idx) => (
-              <div key={idx} className="bg-[#f8fafc] p-3 rounded-xl border border-[#e2e8f0]/60 space-y-1 shadow-sm">
-                <span className="text-[#0ea5e9] font-bold block text-[10px] uppercase">
-                  HOP #{idx + 1} (Received Header)
-                </span>
-                <p className="text-[#0f172a] break-all leading-tight whitespace-pre-wrap">
-                  {hopHeader}
-                </p>
+        {/* Tab 1: Headers Table */}
+        {viewTab === 'headers' && (
+          <div className="space-y-4">
+            <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-1 overflow-hidden">
+              <table className="min-w-full divide-y divide-[#e2e8f0]/50 text-xs text-left">
+                <tbody className="divide-y divide-[#e2e8f0]/40 bg-transparent font-mono">
+                  {rows.map((row, idx) => {
+                    if (!row.value && row.label === "Reply-To") return null;
+                    const isReplyTo = row.label === "Reply-To";
+                    return (
+                      <tr key={idx} className="hover:bg-white/30 transition-colors">
+                        <th className="px-4 py-3 font-bold text-slate-700 drop-shadow-sm w-1/4 bg-white/20 font-mono text-[11px] uppercase tracking-wider">
+                          {row.label}
+                        </th>
+                        <td className="px-4 py-3 text-slate-900 drop-shadow-sm break-all text-[11px] font-medium">
+                          <div className="flex items-center justify-between gap-2">
+                            <span>{row.value || <span className="text-slate-700 italic font-sans font-normal">Not available</span>}</span>
+                            {isReplyTo && hasReplyToMismatch && (
+                              <span className="flex items-center gap-1 text-[10px] text-[#b45309] bg-[#f59e0b]/15 px-2.5 py-0.5 rounded border border-[#f59e0b]/30 flex-shrink-0 font-bold font-sans">
+                                <ShieldAlert className="w-3.5 h-3.5 text-[#d97706]" />
+                                Domain Mismatch
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Raw Auth Results Snippet */}
+            {data.authentication_results && (
+              <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3.5 text-[11px] font-mono">
+                <span className="text-slate-700 font-bold block mb-1 text-[10px] uppercase font-mono tracking-wider drop-shadow-sm">Raw Authentication-Results:</span>
+                <span className="text-slate-900 drop-shadow-sm break-all">{data.authentication_results}</span>
               </div>
-            ))
-          ) : (
-            <p className="text-[#64748b] italic text-xs py-4 text-center slot-recessed">No Received header chain available.</p>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
 
+        {/* Tab 2: Sanitized Body Preview & Threat Highlighter */}
+        {viewTab === 'body' && (
+          <div className="space-y-4">
+            {/* Controls & Legend Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3 text-[11px]">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-slate-700 drop-shadow-sm font-bold uppercase text-[10px] font-mono tracking-wider">Signal Legend:</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#ef4444]/15 text-[#d63031] border border-[#ef4444]/30 text-[10px] font-bold font-mono">
+                  Urgency / Threat
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#7048e8]/15 text-[#5f3dc4] border border-[#7048e8]/30 text-[10px] font-bold font-mono">
+                  Financial / BEC
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#f59e0b]/15 text-[#b45309] border border-[#f59e0b]/30 text-[10px] font-bold font-mono">
+                  Authority Framing
+                </span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[#0ea5e9]/15 text-[#0369a1] border border-[#0ea5e9]/30 text-[10px] font-bold font-mono">
+                  URL Link
+                </span>
+              </div>
+
+              <button
+                onClick={() => setHighlightThreats(!highlightThreats)}
+                className={`key-switch px-3 py-1 text-xs font-bold ${highlightThreats ? 'active text-[#ef4444]' : ''}`}
+              >
+                {highlightThreats ? '✓ Highlighting Active' : 'Highlighting Disabled'}
+              </button>
+            </div>
+
+            <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-5 text-xs text-slate-900 drop-shadow-sm max-h-72 overflow-y-auto leading-relaxed whitespace-pre-wrap font-sans select-text font-medium">
+              {renderAnnotatedBody(data.body_plain || data.body_html, highlightThreats)}
+            </div>
+            
+            <div className="flex justify-between text-[10px] text-slate-700 drop-shadow-sm font-mono px-1">
+              <span>Body Length: {(data.body_plain || data.body_html || '').length} characters</span>
+              <span>Extracted URLs: {data.urls?.length || 0} link(s)</span>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 3: Full Received Header Chain */}
+        {viewTab === 'raw_hops' && (
+          <div className="space-y-2.5 max-h-72 overflow-y-auto font-mono text-[11px] pr-1">
+            {data.received_chain && data.received_chain.length > 0 ? (
+              data.received_chain.map((hopHeader, idx) => (
+                <div key={idx} className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-3 space-y-1">
+                  <span className="text-[#0ea5e9] font-bold block text-[10px] uppercase">
+                    HOP #{idx + 1} (Received Header)
+                  </span>
+                  <p className="text-slate-900 drop-shadow-sm break-all leading-tight whitespace-pre-wrap">
+                    {hopHeader}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-slate-700 drop-shadow-sm italic text-xs py-4 text-center bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30">No Received header chain available.</p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-

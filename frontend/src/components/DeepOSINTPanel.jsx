@@ -34,7 +34,7 @@ export default function DeepOSINTPanel({ data }) {
   if (!hasVisionOrLinks && !hasOsint) return null;
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 space-y-6">
+    <div className="bg-transparent relative overflow-hidden p-8 space-y-6">
       
       {/* Corner Screws */}
       <div className="absolute top-3.5 left-3.5"><div className="screw-head" /></div>
@@ -59,7 +59,7 @@ export default function DeepOSINTPanel({ data }) {
         </div>
 
         {/* Tab Buttons */}
-        <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 border border-gray-100 rounded-xl rounded-xl font-mono text-sm">
+        <div className="flex items-center gap-1.5 p-1.5 bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 rounded-xl font-mono text-sm">
           <button
             onClick={() => setActiveTab('vision_links')}
             className={`key-switch px-3 py-1.5 text-sm font-bold ${activeTab === 'vision_links' ? 'active' : ''}`}
@@ -81,7 +81,7 @@ export default function DeepOSINTPanel({ data }) {
           
           {/* Domain Lookalike / Brand Spoofing Banner */}
           {(domainCheck.is_lookalike || domainCheck.is_subdomain_spoof) && (
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 flex items-start gap-3 border-l-4 border-l-[#ef4444]">
+            <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 flex items-start gap-3 border-l-4 border-l-[#ef4444]">
               <ShieldAlert className="w-5 h-5 text-[#ef4444] flex-shrink-0 mt-0.5" />
               <div className="space-y-1 text-sm">
                 <div className="flex items-center gap-2">
@@ -100,7 +100,7 @@ export default function DeepOSINTPanel({ data }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             {/* Left Card: Deceptive Links & URL Shorteners */}
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-3 text-sm">
+            <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 space-y-3 text-sm">
               <div className="flex items-center justify-between border-b border-[#e2e8f0]/50 pb-2">
                 <span className="font-bold text-[#0f172a] uppercase tracking-wider text-sm flex items-center gap-1.5 font-mono">
                   <Link2 className="w-4 h-4 text-[#0ea5e9]" />
@@ -148,7 +148,7 @@ export default function DeepOSINTPanel({ data }) {
             </div>
 
             {/* Right Card: Multi-Modal OCR & QR Detonation */}
-            <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-3 text-sm">
+            <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 space-y-3 text-sm">
               <div className="flex items-center justify-between border-b border-[#e2e8f0]/50 pb-2">
                 <span className="font-bold text-[#0f172a] uppercase tracking-wider text-sm flex items-center gap-1.5 font-mono">
                   <QrCode className="w-4 h-4 text-[#7048e8]" />
@@ -182,7 +182,7 @@ export default function DeepOSINTPanel({ data }) {
                   <span className="text-[#64748b] font-bold block text-xs uppercase tracking-wider font-mono">
                     Extracted Attachment Text (OCR):
                   </span>
-                  <div className="bg-gray-50 border border-gray-100 rounded-xl p-2.5 max-h-24 overflow-y-auto text-sm font-mono text-[#0f172a] leading-relaxed whitespace-pre-wrap">
+                  <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-2.5 max-h-24 overflow-y-auto text-sm font-mono text-[#0f172a] leading-relaxed whitespace-pre-wrap">
                     {ocrText}
                   </div>
                 </div>
@@ -217,7 +217,7 @@ export default function DeepOSINTPanel({ data }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           
           {/* Subcard 1: Web Tech & Phishing Kit Fingerprint */}
-          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+          <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2 border-b border-[#e2e8f0]/50 pb-2">
                 <span className="font-bold text-[#0f172a] uppercase tracking-wider text-sm flex items-center gap-1.5 font-mono">
@@ -267,7 +267,7 @@ export default function DeepOSINTPanel({ data }) {
           </div>
 
           {/* Subcard 2: Wayback Machine History & Dork Intel */}
-          <div className="bg-gray-50 border border-gray-100 rounded-xl p-4 space-y-3 flex flex-col justify-between">
+          <div className="bg-white/20 backdrop-blur-md rounded-xl border border-white/40 shadow-sm transition-all hover:bg-white/30 p-4 space-y-3 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-2 border-b border-[#e2e8f0]/50 pb-2">
                 <span className="font-bold text-[#0f172a] uppercase tracking-wider text-sm flex items-center gap-1.5 font-mono">
