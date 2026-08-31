@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "ShieldMail — Email Threat Detector",
-  "short_name": "ShieldMail",
-  "description": "Analyze .eml files for phishing, BEC, malware, and fraud — powered by AI/ML forensic intelligence.",
+  "name": "eRakshak — AI Email Threat Detector",
+  "short_name": "eRakshak",
+  "description": "Analyze emails and .eml files for phishing, BEC, malware, and fraud — powered by eRakshak AI forensic intelligence.",
   "version": "1.0.0",
   "permissions": ["activeTab", "downloads", "notifications", "storage", "scripting"],
   "host_permissions": [

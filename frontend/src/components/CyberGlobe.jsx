@@ -23,7 +23,11 @@ const CyberGlobe = ({ hops = null, interactive = false, width = null, height = n
   let displayLabels = [];
 
   if (hops && hops.length > 0) {
-    const geoHops = hops.filter(h => h.geolocation && (h.geolocation.lat != null || h.geolocation.latitude != null) && (h.geolocation.long != null || h.geolocation.longitude != null));
+    // Reverse so it draws from Origin (last hop in headers) to Destination (first hop in headers)
+    const geoHops = [...hops]
+      .filter(h => h.geolocation && (h.geolocation.lat != null || h.geolocation.latitude != null) && (h.geolocation.long != null || h.geolocation.longitude != null))
+      .reverse();
+      
     const getLat = (h) => h.geolocation?.lat ?? h.geolocation?.latitude;
     const getLong = (h) => h.geolocation?.long ?? h.geolocation?.longitude;
 
@@ -42,8 +46,8 @@ const CyberGlobe = ({ hops = null, interactive = false, width = null, height = n
         lat: getLat(h),
         lng: getLong(h),
         text: h.geolocation?.city || h.ip,
-        color: i === 0 ? '#ef4444' : '#0ea5e9',
-        size: 1.2
+        color: i === 0 ? '#ef4444' : (i === geoHops.length - 1 ? '#10b981' : '#0ea5e9'),
+        size: i === 0 ? 1.5 : 1.2
       });
     });
   } else {

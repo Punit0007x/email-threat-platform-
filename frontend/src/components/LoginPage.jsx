@@ -249,8 +249,10 @@ function useRealHackerOverlay(canvasRef) {
 // ============================================================
 // LOGIN PAGE COMPONENT (WHITE / LIGHT THEME + HACKER SCENE)
 // ============================================================
-const LoginPage = ({ onLogin, onGoogleLogin }) => {
+const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
+  const [isLoginView, setIsLoginView] = useState(true);
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -262,6 +264,15 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
   const canvasRef = useRef(null);
   useRealHackerOverlay(canvasRef);
 
+  // Use refs to avoid useEffect dependency issues with Google SDK
+  const onGoogleLoginRef = useRef(onGoogleLogin);
+  const rememberMeRef = useRef(rememberMe);
+  
+  useEffect(() => {
+    onGoogleLoginRef.current = onGoogleLogin;
+    rememberMeRef.current = rememberMe;
+  }, [onGoogleLogin, rememberMe]);
+
   // Official Google Identity Services SDK Handler
   const handleGoogleCredentialResponse = useCallback(async (response) => {
     if (!response || !response.credential) return;
@@ -269,7 +280,11 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
     setError(null);
     try {
       const base64Url = response.credential.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const pad = base64.length % 4;
+      if (pad) {
+        base64 += '='.repeat(4 - pad);
+      }
       const jsonPayload = decodeURIComponent(
         atob(base64)
           .split('')
@@ -278,13 +293,13 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
       );
       const googleUser = JSON.parse(jsonPayload);
 
-      if (onGoogleLogin) {
-        await onGoogleLogin({
+      if (onGoogleLoginRef.current) {
+        await onGoogleLoginRef.current({
           credential: response.credential,
           email: googleUser.email,
           name: googleUser.name,
           picture: googleUser.picture
-        }, rememberMe);
+        }, rememberMeRef.current);
       }
     } catch (err) {
       setError(err.message || 'Google authentication failed.');
@@ -294,7 +309,8 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
 
   useEffect(() => {
     const initGoogleGSI = () => {
-      if (window.google?.accounts?.id) {
+      if (window.google?.accounts?.id && !isGoogleInitialized.current) {
+        isGoogleInitialized.current = true;
         const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1043819890989-u3g3k3l2d1j1h4k4j5l.apps.googleusercontent.com";
         try {
           window.google.accounts.id.initialize({
@@ -341,7 +357,16 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
     setIsLoading(true);
     setIsSuccess(false);
     try {
-      await onLogin(username, password, rememberMe);
+      if (isLoginView) {
+        await onLogin(username, password, rememberMe);
+      } else {
+        if (onSignUp) {
+          await onSignUp(username, email, password, rememberMe);
+        } else {
+          // If no onSignUp prop is provided, we simulate success for demo
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      }
       setIsSuccess(true);
     } catch (err) {
       setError(err.message || 'Authentication failed. Please verify credentials.');
@@ -361,7 +386,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
       {/* ======================================================== */}
       {/* LEFT 50%: REALISTIC HACKER SCENE WITH LIVE OVERLAY       */}
       {/* ======================================================== */}
-      <section className="w-full lg:w-1/2 h-[380px] lg:h-full relative overflow-hidden flex-shrink-0 bg-black">
+      <section className="w-full lg:w-1/2 h-[200px] sm:h-[280px] lg:h-full relative overflow-hidden flex-shrink-0 bg-black">
         
         {/* Photorealistic Hacker Image */}
         <img
@@ -374,7 +399,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-none" />
 
         {/* Top-left HUD badge */}
-        <div className="absolute top-6 left-6 z-10 pointer-events-none">
+        <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-10 pointer-events-none scale-75 sm:scale-100 origin-top-left">
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-slate-950/80 border border-cyan-500/30 rounded-full backdrop-blur-md shadow-lg">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,220,255,0.9)] animate-pulse" />
             <span className="text-[11px] font-bold text-cyan-300 tracking-wider font-mono uppercase flex items-center gap-1.5">
@@ -385,7 +410,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
         </div>
 
         {/* Bottom center HUD status bar */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap">
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap scale-75 sm:scale-100 origin-bottom">
           <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-950/85 border border-emerald-500/30 rounded-full backdrop-blur-md shadow-xl">
             <Terminal className="w-4 h-4 text-emerald-400" />
             <span className="font-mono text-[11px] font-semibold text-emerald-400 tracking-wider">
@@ -401,7 +426,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
       {/* ======================================================== */}
       {/* RIGHT 50%: CRISP WHITE / LIGHT THEME CARD                */}
       {/* ======================================================== */}
-      <section className="w-full lg:w-1/2 min-h-[calc(100vh-380px)] lg:h-full flex items-center justify-center p-6 sm:p-12 overflow-y-auto relative bg-white flex-shrink-0">
+      <section className="w-full lg:w-1/2 min-h-[calc(100vh-200px)] sm:min-h-[calc(100vh-280px)] lg:h-full flex items-center justify-center p-4 sm:p-6 lg:p-12 overflow-y-auto relative bg-white flex-shrink-0 pb-16 lg:pb-12">
 
         {/* Soft background ambient light blobs */}
         <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-blue-100/50 blur-[90px] pointer-events-none" />
@@ -412,7 +437,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: 'easeOut' }}
-          className="w-full max-w-[440px] bg-white border border-slate-200/90 rounded-2xl p-8 sm:p-10 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.09)] relative z-10"
+          className="w-full max-w-[440px] bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-10 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.09)] relative z-10 my-4 lg:my-0"
         >
           {/* Header */}
           <div className="flex flex-col items-start mb-6">
@@ -447,13 +472,31 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
             <div className="border-t border-slate-200 w-full" />
           </div>
 
+          {/* Tabs for Sign In / Sign Up */}
+          <div className="flex bg-slate-100/80 p-1 rounded-xl mb-6 shadow-inner">
+            <button
+              type="button"
+              onClick={() => { setIsLoginView(true); setError(null); }}
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${isLoginView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => { setIsLoginView(false); setError(null); }}
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${!isLoginView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Create Account
+            </button>
+          </div>
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
 
             {/* Username */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-[#1E3A8A]">
-                Username or Email
+                {isLoginView ? 'Username or Email' : 'Choose Username'}
               </label>
               <div className="relative flex items-center">
                 <User className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -463,10 +506,30 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 transition-all shadow-sm"
-                  placeholder="admin or name@company.com"
+                  placeholder={isLoginView ? "admin or name@company.com" : "e.g. jdoe"}
                 />
               </div>
             </div>
+
+            {/* Email (Signup only) */}
+            {!isLoginView && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-1.5 overflow-hidden">
+                <label className="block text-xs font-semibold text-[#1E3A8A]">
+                  Email Address
+                </label>
+                <div className="relative flex items-center">
+                  <Globe className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <input
+                    type="email"
+                    required={!isLoginView}
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 transition-all shadow-sm"
+                    placeholder="name@company.com"
+                  />
+                </div>
+              </motion.div>
+            )}
 
             {/* Password */}
             <div className="space-y-1.5">
@@ -474,24 +537,26 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
                 <label className="text-xs font-semibold text-[#1E3A8A]">
                   Security Password
                 </label>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] text-slate-400">Quick Fill:</span>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickFill('admin', 'secret')}
-                    className="text-[11px] font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
-                  >
-                    Admin
-                  </button>
-                  <span className="text-slate-300">|</span>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickFill('shrutha', 'shrutha123')}
-                    className="text-[11px] font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
-                  >
-                    Shrutha
-                  </button>
-                </div>
+                {isLoginView && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-slate-400">Quick Fill:</span>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickFill('admin', 'secret')}
+                      className="text-[11px] font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
+                    >
+                      Admin
+                    </button>
+                    <span className="text-slate-300">|</span>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickFill('shrutha', 'shrutha123')}
+                      className="text-[11px] font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
+                    >
+                      Shrutha
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="relative flex items-center">
                 <Lock className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -550,11 +615,11 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
               className="w-full mt-2 py-3 px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold tracking-tight shadow-[0_4px_14px_rgba(37,99,235,0.25)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.35)] active:translate-y-px disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isLoading ? (
-                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /><span>Verifying Credentials...</span></>
+                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /><span>Verifying...</span></>
               ) : isSuccess ? (
-                <><CheckCircle2 className="w-4 h-4" /><span>Signed In Successfully</span></>
+                <><CheckCircle2 className="w-4 h-4" /><span>{isLoginView ? 'Signed In Successfully' : 'Account Created'}</span></>
               ) : (
-                <><span>Sign In Securely</span><ArrowRight className="w-4 h-4" /></>
+                <><span>{isLoginView ? 'Sign In Securely' : 'Create Account'}</span><ArrowRight className="w-4 h-4" /></>
               )}
             </button>
           </form>

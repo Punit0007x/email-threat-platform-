@@ -98,6 +98,9 @@ export default function LandingPage({ onLaunchDemo }) {
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
             <a href="#platform" className="hover:text-cyan-600 transition-colors">Platform</a>
             <a href="#outcomes" className="hover:text-cyan-600 transition-colors">Outcomes</a>
+            <a href="/erakshak-extension.zip" download className="px-5 py-2.5 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-medium transition-all shadow-sm flex items-center gap-2">
+              Download Extension
+            </a>
             <button onClick={onLaunchDemo} className="px-5 py-2.5 rounded-full bg-white hover:bg-slate-100 border border-slate-200 transition-all text-slate-900 shadow-sm">
               Access Demo
             </button>
@@ -125,6 +128,9 @@ export default function LandingPage({ onLaunchDemo }) {
               <button onClick={onLaunchDemo} className="w-full sm:w-auto px-8 py-4 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-[0_4px_14px_0_rgba(8,145,178,0.39)] hover:shadow-[0_6px_20px_rgba(8,145,178,0.23)]">
                 Launch Live Demo <ArrowRight className="w-5 h-5" />
               </button>
+              <a href="/erakshak-extension.zip" download className="w-full sm:w-auto px-8 py-4 rounded-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold transition-all flex items-center justify-center gap-2 shadow-[0_4px_14px_0_rgba(16,185,129,0.39)] hover:shadow-[0_6px_20px_rgba(16,185,129,0.23)]">
+                Download Extension
+              </a>
               <button className="w-full sm:w-auto px-8 py-4 rounded-full bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 font-bold transition-all flex items-center justify-center gap-2 shadow-sm">
                 Read Forensic Whitepaper
               </button>
