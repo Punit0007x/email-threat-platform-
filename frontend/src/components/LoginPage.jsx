@@ -76,10 +76,7 @@ function useRealHackerOverlay(canvasRef) {
       frame++;
       ctx.clearRect(0, 0, W, H);
 
-      // ========================================================
-      // 1. LEFT MONITOR (Network Map Pulses & Glow)
-      // Screen bounds approx: X (5% to 31%), Y (22% to 71%)
-      // ========================================================
+      // 1. LEFT MONITOR
       const leftMonX = W * 0.05;
       const leftMonY = H * 0.22;
       const leftMonW = W * 0.26;
@@ -88,9 +85,8 @@ function useRealHackerOverlay(canvasRef) {
       ctx.save();
       ctx.beginPath();
       ctx.rect(leftMonX, leftMonY, leftMonW, leftMonH);
-      ctx.clip(); // Strictly clipped inside left monitor bezel
+      ctx.clip();
 
-      // Subtle pulse on map nodes
       mapNodes.forEach((node, idx) => {
         const pulse = (Math.sin(frame * 0.05 + idx) + 1) * 3;
         const nx = leftMonX + node.x * leftMonW * 3;
@@ -104,10 +100,7 @@ function useRealHackerOverlay(canvasRef) {
       });
       ctx.restore();
 
-      // ========================================================
-      // 2. CENTER MONITOR (Live Terminal Code)
-      // Screen bounds approx: X (32% to 59%), Y (20% to 55%)
-      // ========================================================
+      // 2. CENTER MONITOR
       const centerMonX = W * 0.32;
       const centerMonY = H * 0.20;
       const centerMonW = W * 0.27;
@@ -116,13 +109,11 @@ function useRealHackerOverlay(canvasRef) {
       ctx.save();
       ctx.beginPath();
       ctx.rect(centerMonX, centerMonY, centerMonW, centerMonH);
-      ctx.clip(); // Strictly clipped inside center monitor bezel
+      ctx.clip();
 
-      // Screen glow overlay
       ctx.fillStyle = 'rgba(0, 15, 30, 0.2)';
       ctx.fillRect(centerMonX, centerMonY, centerMonW, centerMonH);
 
-      // Terminal text feed
       termTimer++;
       if (termTimer >= 35) {
         termTimer = 0;
@@ -138,17 +129,13 @@ function useRealHackerOverlay(canvasRef) {
         ctx.fillText(line, centerMonX + 12, centerMonY + 22 + idx * 12);
       });
 
-      // Blinking Terminal cursor
       if (Math.floor(frame / 22) % 2 === 0) {
         ctx.fillStyle = '#00E5FF';
         ctx.fillRect(centerMonX + 12, centerMonY + 22 + termLines.length * 12 - 3, 5, 9);
       }
       ctx.restore();
 
-      // ========================================================
-      // 3. RIGHT MONITOR (Matrix Binary Rain)
-      // Screen bounds approx: X (60% to 86%), Y (20% to 52%)
-      // ========================================================
+      // 3. RIGHT MONITOR
       const rightMonX = W * 0.60;
       const rightMonY = H * 0.20;
       const rightMonW = W * 0.26;
@@ -157,9 +144,8 @@ function useRealHackerOverlay(canvasRef) {
       ctx.save();
       ctx.beginPath();
       ctx.rect(rightMonX, rightMonY, rightMonW, rightMonH);
-      ctx.clip(); // Strictly clipped inside right monitor bezel
+      ctx.clip();
 
-      // Matrix Rain on right monitor
       ctx.font = `${FONT_SIZE}px monospace`;
       const numCols = Math.floor(rightMonW / FONT_SIZE);
       for (let i = 0; i < numCols; i++) {
@@ -185,15 +171,9 @@ function useRealHackerOverlay(canvasRef) {
       }
       ctx.restore();
 
-      // ========================================================
-      // 4. LIVE HANDS TYPING ANIMATION & KEYBOARD LED FLASHES
-      // Keyboard area approx: X (43% to 62%), Y (65% to 78%)
-      // ========================================================
+      // 4. HANDS TYPING ANIMATION
       ctx.save();
-
-      // Periodically trigger key presses near hands position
       if (frame % 5 === 0) {
-        // Left hand area: X 44%-51%, Y 67%-76% | Right hand area: X 52%-60%, Y 67%-76%
         const isRightHand = Math.random() > 0.5;
         const kx = isRightHand
           ? W * (0.52 + Math.random() * 0.08)
@@ -210,7 +190,6 @@ function useRealHackerOverlay(canvasRef) {
         });
       }
 
-      // Render & update key press ripples under fingertips
       for (let i = keyPresses.length - 1; i >= 0; i--) {
         const kp = keyPresses[i];
         kp.radius += 0.7;
@@ -221,7 +200,6 @@ function useRealHackerOverlay(canvasRef) {
           continue;
         }
 
-        // Key LED bloom
         const radGlow = ctx.createRadialGradient(kp.x, kp.y, 0, kp.x, kp.y, kp.radius);
         radGlow.addColorStop(0, `rgba(${kp.color}, ${kp.alpha})`);
         radGlow.addColorStop(0.5, `rgba(${kp.color}, ${kp.alpha * 0.4})`);
@@ -232,50 +210,13 @@ function useRealHackerOverlay(canvasRef) {
         ctx.arc(kp.x, kp.y, kp.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Bright keycap center flash
         ctx.fillStyle = `rgba(255, 255, 255, ${kp.alpha})`;
         ctx.fillRect(kp.x - 2, kp.y - 1, 4, 2);
       }
 
-      // Animated live finger shadow/motion accents on keyboard
-      const fingerShiftLeft = Math.sin(frame * 0.25) * 2.5;
-      const fingerShiftRight = Math.cos(frame * 0.3) * 2.5;
-
-      // Left hand fingertip glows
-      [
-        { x: W * 0.46 + fingerShiftLeft, y: H * 0.69 },
-        { x: W * 0.48 - fingerShiftLeft * 0.5, y: H * 0.70 },
-        { x: W * 0.50 + fingerShiftLeft * 0.7, y: H * 0.695 },
-      ].forEach(pt => {
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 220, 255, 0.4)';
-        ctx.shadowColor = '#00E5FF';
-        ctx.shadowBlur = 5;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      });
-
-      // Right hand fingertip glows
-      [
-        { x: W * 0.54 + fingerShiftRight, y: H * 0.70 },
-        { x: W * 0.56 - fingerShiftRight * 0.6, y: H * 0.69 },
-        { x: W * 0.58 + fingerShiftRight * 0.4, y: H * 0.705 },
-      ].forEach(pt => {
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 255, 160, 0.4)';
-        ctx.shadowColor = '#00FF99';
-        ctx.shadowBlur = 5;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      });
-
       ctx.restore();
 
-      // ========================================================
-      // 5. FLOATING PARTICLES & ROOM AMBIENT LIGHT
-      // ========================================================
+      // 5. FLOATING PARTICLES
       ctx.save();
       particles.forEach(p => {
         p.y += p.speedY;
@@ -294,7 +235,6 @@ function useRealHackerOverlay(canvasRef) {
       });
       ctx.restore();
 
-      // Subtle ambient room breathing light
       const pulse = (Math.sin(frame * 0.035) + 1) / 2;
       const roomGlow = ctx.createRadialGradient(W * 0.5, H * 0.45, W * 0.15, W * 0.5, H * 0.45, W * 0.65);
       roomGlow.addColorStop(0, `rgba(0, 160, 255, ${0.03 + pulse * 0.035})`);
@@ -314,7 +254,7 @@ function useRealHackerOverlay(canvasRef) {
 }
 
 // ============================================================
-// LOGIN PAGE COMPONENT
+// LOGIN PAGE COMPONENT (OFFICIAL GOOGLE LOGIN & CREDENTIALS)
 // ============================================================
 const LoginPage = ({ onLogin, onGoogleLogin }) => {
   const [username, setUsername] = useState('');
@@ -326,59 +266,15 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  // Google Account Chooser Modal State
-  const [showGoogleModal, setShowGoogleModal] = useState(false);
-  const [customGoogleEmail, setCustomGoogleEmail] = useState('');
-  const [customGoogleName, setCustomGoogleName] = useState('');
-  const [useCustomAccount, setUseCustomAccount] = useState(false);
-
   const canvasRef = useRef(null);
   useRealHackerOverlay(canvasRef);
-
-  const GOOGLE_ACCOUNTS = [
-    {
-      name: 'Punit Bagali',
-      email: 'punitbagali007@gmail.com',
-      role: 'Lead Threat Hunter & Analyst',
-      initials: 'PB',
-      color: 'bg-blue-600'
-    },
-    {
-      name: 'SOC Administrator',
-      email: 'admin@security-platform.corp',
-      role: 'Enterprise Security Lead',
-      initials: 'SA',
-      color: 'bg-emerald-600'
-    },
-    {
-      name: 'Security Officer',
-      email: 'analyst@security-platform.corp',
-      role: 'Tier-2 Threat Analyst',
-      initials: 'SO',
-      color: 'bg-purple-600'
-    }
-  ];
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError(null);
-    setIsLoading(true);
-    setIsSuccess(false);
-    try {
-      await onLogin(username, password, rememberMe);
-      setIsSuccess(true);
-    } catch (err) {
-      setError(err.message || 'Authentication failed. Please verify your credentials.');
-      setIsLoading(false);
-    }
-  };
 
   const handleGoogleCredentialResponse = async (response) => {
     if (!response || !response.credential) return;
     setIsGoogleLoading(true);
     setError(null);
     try {
-      // Decode the JWT from Google
+      // Decode JWT ID Token returned directly from Google
       const base64Url = response.credential.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
@@ -398,71 +294,80 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
         }, rememberMe);
       }
     } catch (err) {
-      setError(err.message || 'Google sign-in failed. Please try again.');
+      setError(err.message || 'Google authentication failed.');
       setIsGoogleLoading(false);
     }
   };
 
-  const handleOpenGoogleModal = () => {
-    setError(null);
-    setShowGoogleModal(true);
-  };
+  useEffect(() => {
+    const initGoogleGSI = () => {
+      if (window.google?.accounts?.id) {
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1043819890989-u3g3k3l2d1j1h4k4j5l.apps.googleusercontent.com";
+        try {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleGoogleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+          });
 
-  const handleSelectGoogleAccount = async (account) => {
-    setIsGoogleLoading(true);
-    setError(null);
-    try {
-      if (onGoogleLogin) {
-        await onGoogleLogin({
-          email: account.email,
-          name: account.name,
-          picture: null
-        }, rememberMe);
+          const btnEl = document.getElementById("google-official-btn-slot");
+          if (btnEl) {
+            btnEl.innerHTML = "";
+            window.google.accounts.id.renderButton(btnEl, {
+              theme: "outline",
+              size: "large",
+              width: "360",
+              text: "continue_with",
+              shape: "rectangular",
+              logo_alignment: "left"
+            });
+          }
+        } catch (e) {
+          console.warn("Google GSI notice:", e);
+        }
       }
-      setShowGoogleModal(false);
-    } catch (err) {
-      setError(err.message || 'Google sign-in failed. Please try again.');
-      setIsGoogleLoading(false);
-    }
-  };
+    };
 
-  const handleCustomGoogleSubmit = async (e) => {
+    if (window.google?.accounts?.id) {
+      initGoogleGSI();
+    } else {
+      const timer = setInterval(() => {
+        if (window.google?.accounts?.id) {
+          clearInterval(timer);
+          initGoogleGSI();
+        }
+      }, 250);
+      return () => clearInterval(timer);
+    }
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!customGoogleEmail.trim()) return;
-    setIsGoogleLoading(true);
     setError(null);
+    setIsLoading(true);
+    setIsSuccess(false);
     try {
-      const email = customGoogleEmail.trim();
-      const name = customGoogleName.trim() || email.split('@')[0].replace('.', ' ');
-      if (onGoogleLogin) {
-        await onGoogleLogin({ email, name, picture: null }, rememberMe);
-      }
-      setShowGoogleModal(false);
+      await onLogin(username, password, rememberMe);
+      setIsSuccess(true);
     } catch (err) {
-      setError(err.message || 'Google sign-in failed. Please try again.');
-      setIsGoogleLoading(false);
+      setError(err.message || 'Authentication failed. Please verify your credentials.');
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="w-screen h-screen overflow-hidden bg-slate-950 font-sans flex flex-col lg:flex-row select-none">
 
-      {/* ======================================================== */}
-      {/* LEFT 50%: PHOTOREALISTIC HACKER SCENE WITH LIVE OVERLAY  */}
-      {/* ======================================================== */}
+      {/* LEFT 50%: PHOTOREALISTIC HACKER SCENE */}
       <section className="w-full lg:w-1/2 h-[380px] lg:h-full relative overflow-hidden flex-shrink-0 bg-black">
-        
-        {/* Photorealistic Hacker Background Image */}
         <img
           src="/hacker_bg.jpg"
           alt="Real Human Hacker"
           className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.92] contrast-[1.08]"
         />
-
-        {/* Dynamic Canvas Live Overlay (Matrix Rain, Terminal Code, Typing Hands) */}
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-none" />
 
-        {/* Top-left HUD badge */}
         <div className="absolute top-6 left-6 z-10 pointer-events-none">
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-slate-950/80 border border-cyan-500/30 rounded-full backdrop-blur-md shadow-lg">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,220,255,0.9)] animate-pulse" />
@@ -473,7 +378,6 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
           </div>
         </div>
 
-        {/* Bottom center HUD status bar */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap">
           <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-950/85 border border-emerald-500/30 rounded-full backdrop-blur-md shadow-xl">
             <Terminal className="w-4 h-4 text-emerald-400" />
@@ -482,21 +386,14 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
             </span>
           </div>
         </div>
-
-        {/* Subtle gradient vignette at edge near split line */}
         <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-black/40 pointer-events-none hidden lg:block" />
       </section>
 
-      {/* ======================================================== */}
-      {/* RIGHT 50%: PURE WHITE CLEAN LOGIN CARD                   */}
-      {/* ======================================================== */}
+      {/* RIGHT 50%: PURE WHITE CLEAN LOGIN CARD */}
       <section className="w-full lg:w-1/2 min-h-[calc(100vh-380px)] lg:h-full flex items-center justify-center p-6 sm:p-12 overflow-y-auto relative bg-white flex-shrink-0">
-
-        {/* Soft background ambient light blobs */}
         <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-blue-100/50 blur-[90px] pointer-events-none" />
         <div className="absolute bottom-12 left-12 w-72 h-72 rounded-full bg-emerald-50/70 blur-[80px] pointer-events-none" />
 
-        {/* Login Card */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -516,37 +413,16 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
             </p>
           </div>
 
-          {/* Google Sign-in Button */}
-          <button
-            type="button"
-            onClick={handleOpenGoogleModal}
-            disabled={isGoogleLoading || isLoading}
-            className="w-full py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold shadow-sm hover:shadow transition-all flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed mb-5 group cursor-pointer"
-          >
-            {isGoogleLoading ? (
-              <div className="w-4 h-4 border-2 border-slate-400 border-t-blue-600 rounded-full animate-spin" />
-            ) : (
-              <svg className="w-4 h-4 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
-                <path
-                  fill="#4285F4"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                />
-              </svg>
+          {/* Official Google Identity Services SDK Button */}
+          <div className="w-full mb-5 flex flex-col items-center">
+            <div id="google-official-btn-slot" className="w-full flex justify-center min-h-[44px]" />
+            {isGoogleLoading && (
+              <div className="mt-2 text-xs text-blue-600 font-semibold flex items-center gap-2">
+                <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <span>Authenticating with Google...</span>
+              </div>
             )}
-            <span>Continue with Google</span>
-          </button>
+          </div>
 
           {/* Divider */}
           <div className="relative flex items-center justify-center mb-5">
@@ -559,7 +435,6 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-
             {/* Username */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-[#1E3A8A]">
@@ -617,7 +492,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
                   onChange={e => setRememberMe(e.target.checked)}
                   className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span>Remember this device (stay logged in across refresh)</span>
+                <span>Remember this device</span>
               </label>
             </div>
 
@@ -659,167 +534,6 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
           </footer>
         </motion.div>
       </section>
-
-      {/* ======================================================== */}
-      {/* GOOGLE SIGN-IN ACCOUNT CHOOSER MODAL                     */}
-      {/* ======================================================== */}
-      {showGoogleModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 15 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="w-full max-w-[440px] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col"
-          >
-            {/* Modal Header */}
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <div className="flex items-center gap-3">
-                <svg className="w-6 h-6 shrink-0" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
-                  />
-                </svg>
-                <div>
-                  <h3 className="text-base font-bold text-slate-800 tracking-tight font-sans">
-                    Sign in with Google
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    Choose an account to continue to <span className="font-semibold text-blue-600">ShieldMail</span>
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowGoogleModal(false)}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors text-lg"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Modal Body */}
-            <div className="p-6 space-y-4 max-h-[420px] overflow-y-auto">
-              {isGoogleLoading ? (
-                <div className="py-12 flex flex-col items-center justify-center space-y-4">
-                  <div className="w-10 h-10 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                  <div className="text-sm font-semibold text-slate-700 font-sans">
-                    Authenticating with Google SSO...
-                  </div>
-                  <div className="text-xs text-slate-400">Verifying security token & provisioning session</div>
-                </div>
-              ) : !useCustomAccount ? (
-                <>
-                  {/* Account List */}
-                  <div className="space-y-2">
-                    {GOOGLE_ACCOUNTS.map((acc, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => handleSelectGoogleAccount(acc)}
-                        className="w-full p-3.5 rounded-2xl border border-slate-200/80 hover:border-blue-400 hover:bg-blue-50/40 text-left transition-all flex items-center gap-3.5 group cursor-pointer"
-                      >
-                        <div className={`w-10 h-10 rounded-full ${acc.color} text-white font-bold text-sm flex items-center justify-center shadow-sm`}>
-                          {acc.initials}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-semibold text-slate-800 group-hover:text-blue-600 truncate transition-colors">
-                            {acc.name}
-                          </div>
-                          <div className="text-xs text-slate-500 truncate font-mono">
-                            {acc.email}
-                          </div>
-                          <div className="text-[10px] text-slate-400 font-medium">
-                            {acc.role}
-                          </div>
-                        </div>
-                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all shrink-0" />
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Option to use another account */}
-                  <button
-                    type="button"
-                    onClick={() => setUseCustomAccount(true)}
-                    className="w-full py-3 px-4 rounded-xl border border-dashed border-slate-300 hover:border-slate-400 bg-slate-50/60 hover:bg-slate-100 text-slate-600 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
-                  >
-                    <User className="w-4 h-4 text-slate-500" />
-                    <span>Use another Google account</span>
-                  </button>
-                </>
-              ) : (
-                /* Custom Google Account Form */
-                <form onSubmit={handleCustomGoogleSubmit} className="space-y-4">
-                  <div className="text-xs text-slate-600 mb-2">
-                    Enter your Google email address to authenticate with ShieldMail.
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-slate-700">
-                      Google Email Address
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      autoFocus
-                      value={customGoogleEmail}
-                      onChange={e => setCustomGoogleEmail(e.target.value)}
-                      placeholder="your.name@gmail.com"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
-                    />
-                  </div>
-                  <div className="space-y-1.5">
-                    <label className="block text-xs font-semibold text-slate-700">
-                      Full Name (Optional)
-                    </label>
-                    <input
-                      type="text"
-                      value={customGoogleName}
-                      onChange={e => setCustomGoogleName(e.target.value)}
-                      placeholder="e.g. Alex Rivera"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
-                    />
-                  </div>
-                  <div className="flex gap-2 pt-2">
-                    <button
-                      type="button"
-                      onClick={() => setUseCustomAccount(false)}
-                      className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-600 text-xs font-semibold hover:bg-slate-100 transition-colors"
-                    >
-                      Back
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors shadow-sm"
-                    >
-                      Sign In
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
-              <span>Google Identity Services SSO</span>
-              <span>Encrypted SHA-256</span>
-            </div>
-          </motion.div>
-        </div>
-      )}
     </div>
   );
 };
