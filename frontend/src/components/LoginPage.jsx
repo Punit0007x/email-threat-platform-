@@ -403,49 +403,6 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
     }
   };
 
-  useEffect(() => {
-    const initGoogleGSI = () => {
-      if (window.google?.accounts?.id) {
-        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1043819890989-u3g3k3l2d1j1h4k4j5l.apps.googleusercontent.com";
-        try {
-          window.google.accounts.id.initialize({
-            client_id: clientId,
-            callback: handleGoogleCredentialResponse,
-            auto_select: false,
-            cancel_on_tap_outside: true,
-          });
-
-          const btnEl = document.getElementById("google-official-signin-button");
-          if (btnEl) {
-            btnEl.innerHTML = "";
-            window.google.accounts.id.renderButton(btnEl, {
-              theme: "outline",
-              size: "large",
-              width: 360,
-              text: "continue_with",
-              shape: "rectangular",
-              logo_alignment: "left"
-            });
-          }
-        } catch (e) {
-          console.warn("Google GSI initialization notice:", e);
-        }
-      }
-    };
-
-    if (window.google?.accounts?.id) {
-      initGoogleGSI();
-    } else {
-      const timer = setInterval(() => {
-        if (window.google?.accounts?.id) {
-          clearInterval(timer);
-          initGoogleGSI();
-        }
-      }, 300);
-      return () => clearInterval(timer);
-    }
-  }, []);
-
   const handleOpenGoogleModal = () => {
     setError(null);
     setShowGoogleModal(true);
@@ -558,9 +515,6 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
               Authenticate to access the Email Forensics & Threat Platform.
             </p>
           </div>
-
-          {/* Official Google Identity Services Button Container */}
-          <div id="google-official-signin-button" className="w-full flex justify-center mb-3 min-h-[40px]" />
 
           {/* Google Sign-in Button */}
           <button
