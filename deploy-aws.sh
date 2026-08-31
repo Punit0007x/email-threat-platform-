@@ -23,9 +23,9 @@ NC='\033[0m'
 # ============================================
 # CONFIGURATION - EDIT THESE
 # ============================================
-INSTANCE_IP=""          # Your AWS Lightsail/EC2 public IP
+INSTANCE_IP="65.2.189.200"          # Your AWS Lightsail/EC2 public IP
 SSH_USER="ubuntu"       # 'ubuntu' for Ubuntu, 'ec2-user' for Amazon Linux
-SSH_KEY="$HOME/.ssh/id_rsa"  # Path to your SSH private key
+SSH_KEY="/Users/punit007x/Downloads/LightsailDefaultKey-ap-south-1.pem"  # Path to your SSH private key
 DOMAIN=""               # Your domain (e.g. erakshak.com). Leave empty for IP-only.
 
 print_header() {

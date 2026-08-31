@@ -72,7 +72,7 @@ export default function MapPanel({ data, onLookupIOC }) {
             {/* Ambient cyber illumination */}
             <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,_rgba(14,165,233,0.12)_0%,_rgba(15,23,42,0.6)_60%,_transparent_100%)]"></div>
             <div className="h-[80vh] w-full flex items-center justify-center rounded-xl overflow-hidden relative z-10">
-              <CyberGlobe hops={hops} interactive={true} />
+              <CyberGlobe hops={effectiveHops} interactive={true} />
             </div>
           </div>
 
