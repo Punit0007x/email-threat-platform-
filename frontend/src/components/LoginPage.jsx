@@ -337,10 +337,10 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
 
   const GOOGLE_ACCOUNTS = [
     {
-      name: 'Security Officer',
-      email: 'analyst@security-platform.corp',
-      role: 'Tier-2 Threat Analyst',
-      initials: 'SO',
+      name: 'Punit Bagali',
+      email: 'punitbagali007@gmail.com',
+      role: 'Lead Threat Hunter & Analyst',
+      initials: 'PB',
       color: 'bg-blue-600'
     },
     {
@@ -351,10 +351,10 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
       color: 'bg-emerald-600'
     },
     {
-      name: 'Threat Operations',
-      email: 'threatops.punit@gmail.com',
-      role: 'Principal Investigator',
-      initials: 'TO',
+      name: 'Security Officer',
+      email: 'analyst@security-platform.corp',
+      role: 'Tier-2 Threat Analyst',
+      initials: 'SO',
       color: 'bg-purple-600'
     }
   ];
@@ -448,21 +448,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
 
   const handleOpenGoogleModal = () => {
     setError(null);
-    if (window.google?.accounts?.id) {
-      try {
-        window.google.accounts.id.prompt((notification) => {
-          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            setShowGoogleModal(true);
-          }
-        });
-        return;
-      } catch (e) {
-        // Fallback to modal if prompt encounters issues
-        setShowGoogleModal(true);
-      }
-    } else {
-      setShowGoogleModal(true);
-    }
+    setShowGoogleModal(true);
   };
 
   const handleSelectGoogleAccount = async (account) => {
