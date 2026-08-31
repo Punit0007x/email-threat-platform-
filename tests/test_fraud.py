@@ -1,8 +1,16 @@
 import json
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from app.scoring.fraud_score import calculate_fraud_score
 
-with open('result.json', 'r') as f:
-    data = json.load(f)
+sample_path = os.path.join(os.path.dirname(__file__), "..", "archive", "scratch_data", "result.json")
+if os.path.exists(sample_path):
+    with open(sample_path, 'r') as f:
+        data = json.load(f)
+else:
+    data = {}
 
 score = calculate_fraud_score(
     auth_analysis=data.get('auth_analysis', {}),

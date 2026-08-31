@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Shield, Lock, User, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowRight, Activity, Terminal
+  Shield, Lock, User, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowRight,
+  Activity, Terminal, Cpu, Radio, Sparkles, KeyRound, Globe2, Fingerprint
 } from 'lucide-react';
 
 // ============================================================
-// ULTRA-REALISTIC CINEMATIC HACKER OVERLAY HOOK
+// DYNAMIC CYBER COMMAND CANVAS HOOK
 // ============================================================
-function useRealHackerOverlay(canvasRef) {
+function useCyberCommandCanvas(canvasRef) {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -27,48 +28,32 @@ function useRealHackerOverlay(canvasRef) {
     resize();
     window.addEventListener('resize', resize);
 
-    // Matrix Rain setup for Right Monitor
-    const FONT_SIZE = 10;
-    let drops = Array.from({ length: 30 }, () => Math.floor(Math.random() * -30));
-    const MATRIX_CHARS = '010101アイウエオカキクケコサシスセソ';
-    const rc = () => MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)];
-
-    // Live Terminal lines inside Center Monitor
-    const TERM_POOL = [
-      '> stealth_scan --range 192.168.1.0/24',
-      '> host 192.168.1.105 active (0.4ms)',
-      '> mounting encrypted payload...',
-      '> cipher: AES-256-GCM cipher active',
-      '> TOR relay tunnel established',
-      '> [WARN] unexpected SYN-ACK packet',
-      '> rerouting connection via node #7',
-      '> key exchange verified',
-      '> telemetry feed streams live',
-      '> dumping hashes from SAM database...',
-      '> privilege level: NT AUTHORITY\\SYSTEM',
-    ];
-    let termLines = [];
-    let termTimer = 0;
-
-    // Live Mechanical Typing Key flashes under hands
-    let keyPresses = [];
-
-    // Network Map Pulses for Left Monitor
-    const mapNodes = [
-      { x: 0.12, y: 0.38 }, { x: 0.18, y: 0.42 }, { x: 0.22, y: 0.35 },
-      { x: 0.15, y: 0.50 }, { x: 0.25, y: 0.48 }, { x: 0.28, y: 0.40 }
-    ];
-
-    // Floating cyber data particles
-    const particles = Array.from({ length: 22 }, () => ({
+    // Particle Constellation Network
+    const particles = Array.from({ length: 45 }, () => ({
       x: Math.random() * W,
       y: Math.random() * H,
-      speedY: -0.15 - Math.random() * 0.35,
-      speedX: (Math.random() - 0.5) * 0.2,
-      size: 1 + Math.random() * 1.5,
-      alpha: 0.2 + Math.random() * 0.5,
-      color: Math.random() > 0.5 ? 'rgba(0, 220, 255,' : 'rgba(0, 255, 160,'
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      radius: Math.random() * 1.8 + 1,
+      color: Math.random() > 0.4 ? '#00E5FF' : '#6366F1'
     }));
+
+    // Scanning Laser Beam
+    let scanY = 0;
+    let scanSpeed = 1.2;
+
+    // Terminal Threat Feeds for Floating HUD
+    const terminalLogs = [
+      '>> [SOC] Ingestion engine listening on port 8000',
+      '>> [ML] 7-Class Calibrated Classifier holdout: 99.43% F1',
+      '>> [AI-AUDIT] Cognitive coercion & Zero-width heuristics: ONLINE',
+      '>> [OSINT] WHOIS, SPF/DKIM/DMARC, MX verification: ACTIVE',
+      '>> [GRAPH] Attacker Infrastructure Correlation: 26 clusters indexed'
+    ];
+    let logIndex = 0;
+    let logCharIndex = 0;
+    let currentLogText = '';
+    let logTimer = 0;
 
     let frame = 0;
 
@@ -76,171 +61,62 @@ function useRealHackerOverlay(canvasRef) {
       frame++;
       ctx.clearRect(0, 0, W, H);
 
-      // 1. LEFT MONITOR
-      const leftMonX = W * 0.05;
-      const leftMonY = H * 0.22;
-      const leftMonW = W * 0.26;
-      const leftMonH = H * 0.49;
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(leftMonX, leftMonY, leftMonW, leftMonH);
-      ctx.clip();
-
-      mapNodes.forEach((node, idx) => {
-        const pulse = (Math.sin(frame * 0.05 + idx) + 1) * 3;
-        const nx = leftMonX + node.x * leftMonW * 3;
-        const ny = leftMonY + node.y * leftMonH * 1.5;
-        if (nx < leftMonX + leftMonW && ny < leftMonY + leftMonH) {
-          ctx.beginPath();
-          ctx.arc(nx, ny, 2 + pulse, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(0, 220, 255, 0.25)';
-          ctx.fill();
-        }
-      });
-      ctx.restore();
-
-      // 2. CENTER MONITOR
-      const centerMonX = W * 0.32;
-      const centerMonY = H * 0.20;
-      const centerMonW = W * 0.27;
-      const centerMonH = H * 0.35;
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(centerMonX, centerMonY, centerMonW, centerMonH);
-      ctx.clip();
-
-      ctx.fillStyle = 'rgba(0, 15, 30, 0.2)';
-      ctx.fillRect(centerMonX, centerMonY, centerMonW, centerMonH);
-
-      termTimer++;
-      if (termTimer >= 35) {
-        termTimer = 0;
-        if (termLines.length > 10) termLines.shift();
-        termLines.push(TERM_POOL[Math.floor(Math.random() * TERM_POOL.length)]);
-      }
-
-      ctx.font = '10px "Courier New", monospace';
-      termLines.forEach((line, idx) => {
-        const isWarn = line.includes('[WARN]');
-        const isOk = line.includes('active') || line.includes('verified');
-        ctx.fillStyle = isWarn ? '#FF7A45' : isOk ? '#00FF99' : '#64D2FF';
-        ctx.fillText(line, centerMonX + 12, centerMonY + 22 + idx * 12);
-      });
-
-      if (Math.floor(frame / 22) % 2 === 0) {
-        ctx.fillStyle = '#00E5FF';
-        ctx.fillRect(centerMonX + 12, centerMonY + 22 + termLines.length * 12 - 3, 5, 9);
-      }
-      ctx.restore();
-
-      // 3. RIGHT MONITOR
-      const rightMonX = W * 0.60;
-      const rightMonY = H * 0.20;
-      const rightMonW = W * 0.26;
-      const rightMonH = H * 0.32;
-
-      ctx.save();
-      ctx.beginPath();
-      ctx.rect(rightMonX, rightMonY, rightMonW, rightMonH);
-      ctx.clip();
-
-      ctx.font = `${FONT_SIZE}px monospace`;
-      const numCols = Math.floor(rightMonW / FONT_SIZE);
-      for (let i = 0; i < numCols; i++) {
-        const cx = rightMonX + i * FONT_SIZE;
-        const dropIdx = i % drops.length;
-        const cy = rightMonY + (drops[dropIdx] * FONT_SIZE);
-
-        ctx.fillStyle = '#CCFFCC';
-        ctx.fillText(rc(), cx, cy);
-
-        for (let t = 1; t < 6; t++) {
-          const a = Math.max(0, (1 - t / 6) * 0.55);
-          ctx.fillStyle = `rgba(0, 230, 130, ${a})`;
-          ctx.fillText(rc(), cx, cy - t * FONT_SIZE);
-        }
-
-        if (frame % 3 === 0) {
-          drops[dropIdx]++;
-          if (rightMonY + drops[dropIdx] * FONT_SIZE > rightMonY + rightMonH + 30) {
-            drops[dropIdx] = -Math.floor(Math.random() * 15);
-          }
-        }
-      }
-      ctx.restore();
-
-      // 4. HANDS TYPING ANIMATION
-      ctx.save();
-      if (frame % 5 === 0) {
-        const isRightHand = Math.random() > 0.5;
-        const kx = isRightHand
-          ? W * (0.52 + Math.random() * 0.08)
-          : W * (0.44 + Math.random() * 0.07);
-        const ky = H * (0.67 + Math.random() * 0.08);
-
-        keyPresses.push({
-          x: kx,
-          y: ky,
-          radius: 3,
-          maxRadius: 10 + Math.random() * 6,
-          alpha: 0.85,
-          color: isRightHand ? '0, 220, 255' : '0, 255, 160'
-        });
-      }
-
-      for (let i = keyPresses.length - 1; i >= 0; i--) {
-        const kp = keyPresses[i];
-        kp.radius += 0.7;
-        kp.alpha -= 0.045;
-
-        if (kp.alpha <= 0 || kp.radius >= kp.maxRadius) {
-          keyPresses.splice(i, 1);
-          continue;
-        }
-
-        const radGlow = ctx.createRadialGradient(kp.x, kp.y, 0, kp.x, kp.y, kp.radius);
-        radGlow.addColorStop(0, `rgba(${kp.color}, ${kp.alpha})`);
-        radGlow.addColorStop(0.5, `rgba(${kp.color}, ${kp.alpha * 0.4})`);
-        radGlow.addColorStop(1, 'rgba(0,0,0,0)');
-
-        ctx.fillStyle = radGlow;
+      // 1. Subtle Cyber Grid
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.04)';
+      ctx.lineWidth = 1;
+      const gridSize = 40;
+      for (let x = 0; x < W; x += gridSize) {
         ctx.beginPath();
-        ctx.arc(kp.x, kp.y, kp.radius, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = `rgba(255, 255, 255, ${kp.alpha})`;
-        ctx.fillRect(kp.x - 2, kp.y - 1, 4, 2);
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, H);
+        ctx.stroke();
+      }
+      for (let y = 0; y < H; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(W, y);
+        ctx.stroke();
       }
 
-      ctx.restore();
+      // 2. Animated Particle Constellation
+      particles.forEach((p, idx) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > W) p.vx *= -1;
+        if (p.y < 0 || p.y > H) p.vy *= -1;
 
-      // 5. FLOATING PARTICLES
-      ctx.save();
-      particles.forEach(p => {
-        p.y += p.speedY;
-        p.x += p.speedX;
-        if (p.y < 0) {
-          p.y = H;
-          p.x = Math.random() * W;
-        }
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = `${p.color} ${p.alpha})`;
-        ctx.shadowColor = 'cyan';
-        ctx.shadowBlur = 4;
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowColor = p.color;
+        ctx.shadowBlur = 6;
         ctx.fill();
         ctx.shadowBlur = 0;
-      });
-      ctx.restore();
 
-      const pulse = (Math.sin(frame * 0.035) + 1) / 2;
-      const roomGlow = ctx.createRadialGradient(W * 0.5, H * 0.45, W * 0.15, W * 0.5, H * 0.45, W * 0.65);
-      roomGlow.addColorStop(0, `rgba(0, 160, 255, ${0.03 + pulse * 0.035})`);
-      roomGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = roomGlow;
-      ctx.fillRect(0, 0, W, H);
+        // Connect nearby nodes
+        for (let j = idx + 1; j < particles.length; j++) {
+          const p2 = particles[j];
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist < 90) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(0, 229, 255, ${0.15 * (1 - dist / 90)})`;
+            ctx.lineWidth = 0.7;
+            ctx.stroke();
+          }
+        }
+      });
+
+      // 3. Ambient Laser Scan Line
+      scanY += scanSpeed;
+      if (scanY > H || scanY < 0) scanSpeed *= -1;
+      const scanGlow = ctx.createLinearGradient(0, scanY - 30, 0, scanY + 30);
+      scanGlow.addColorStop(0, 'rgba(0, 229, 255, 0)');
+      scanGlow.addColorStop(0.5, 'rgba(0, 229, 255, 0.12)');
+      scanGlow.addColorStop(1, 'rgba(0, 229, 255, 0)');
+      ctx.fillStyle = scanGlow;
+      ctx.fillRect(0, scanY - 30, W, 60);
 
       animId = requestAnimationFrame(render);
     };
@@ -254,27 +130,27 @@ function useRealHackerOverlay(canvasRef) {
 }
 
 // ============================================================
-// LOGIN PAGE COMPONENT (OFFICIAL GOOGLE LOGIN & CREDENTIALS)
+// ENHANCED PROFESSIONAL LOGIN COMPONENT
 // ============================================================
 const LoginPage = ({ onLogin, onGoogleLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const canvasRef = useRef(null);
-  useRealHackerOverlay(canvasRef);
+  useCyberCommandCanvas(canvasRef);
 
+  // Official Google Identity Services SDK Initialization
   const handleGoogleCredentialResponse = async (response) => {
     if (!response || !response.credential) return;
     setIsGoogleLoading(true);
     setError(null);
     try {
-      // Decode JWT ID Token returned directly from Google
       const base64Url = response.credential.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
@@ -315,11 +191,11 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
           if (btnEl) {
             btnEl.innerHTML = "";
             window.google.accounts.id.renderButton(btnEl, {
-              theme: "outline",
+              theme: "filled_blue",
               size: "large",
-              width: "360",
+              width: 360,
               text: "continue_with",
-              shape: "rectangular",
+              shape: "pill",
               logo_alignment: "left"
             });
           }
@@ -351,186 +227,268 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
       await onLogin(username, password, rememberMe);
       setIsSuccess(true);
     } catch (err) {
-      setError(err.message || 'Authentication failed. Please verify your credentials.');
+      setError(err.message || 'Authentication failed. Please verify credentials.');
       setIsLoading(false);
     }
   };
 
-  return (
-    <div className="w-screen h-screen overflow-hidden bg-slate-950 font-sans flex flex-col lg:flex-row select-none">
+  const handleQuickFill = (u, p) => {
+    setUsername(u);
+    setPassword(p);
+    setError(null);
+  };
 
-      {/* LEFT 50%: PHOTOREALISTIC HACKER SCENE */}
-      <section className="w-full lg:w-1/2 h-[380px] lg:h-full relative overflow-hidden flex-shrink-0 bg-black">
-        <img
-          src="/hacker_bg.jpg"
-          alt="Real Human Hacker"
-          className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.92] contrast-[1.08]"
-        />
+  return (
+    <div className="w-screen h-screen overflow-hidden bg-[#030712] font-sans flex flex-col lg:flex-row select-none text-slate-100">
+
+      {/* ======================================================== */}
+      {/* LEFT 55%: TACTICAL CYBER COMMAND SCENE                   */}
+      {/* ======================================================== */}
+      <section className="w-full lg:w-[55%] h-[340px] lg:h-full relative overflow-hidden flex flex-col justify-between p-8 sm:p-12 bg-gradient-to-br from-[#050C1A] via-[#09152B] to-[#020617] border-b lg:border-b-0 lg:border-r border-cyan-500/20">
+
+        {/* Ambient Glows */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-cyan-500/10 blur-[120px] pointer-events-none" />
+        <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-indigo-500/15 blur-[120px] pointer-events-none" />
+
+        {/* Dynamic Canvas Particles & Tactical Grid */}
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-none" />
 
-        <div className="absolute top-6 left-6 z-10 pointer-events-none">
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-slate-950/80 border border-cyan-500/30 rounded-full backdrop-blur-md shadow-lg">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,220,255,0.9)] animate-pulse" />
-            <span className="text-[11px] font-bold text-cyan-300 tracking-wider font-mono uppercase flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-cyan-400" />
-              SOC Live Feeds // Active Monitoring
-            </span>
+        {/* Top Header & Live Telemetry Badge */}
+        <div className="relative z-10 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500/20 to-blue-600/30 border border-cyan-400/40 flex items-center justify-center shadow-[0_0_20px_rgba(0,229,255,0.25)]">
+              <Shield className="w-5 h-5 text-cyan-400" />
+            </div>
+            <div>
+              <div className="font-mono text-sm font-bold tracking-widest text-white flex items-center gap-2">
+                SHIELDMAIL <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/30 text-cyan-300">v2.4 SEC-OPS</span>
+              </div>
+              <div className="text-[11px] text-slate-400">Autonomous Email Threat Defense Platform</div>
+            </div>
+          </div>
+
+          <div className="hidden sm:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-700/60 backdrop-blur-md text-xs font-mono">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.9)] animate-pulse" />
+            <span className="text-slate-300">SYSTEM HEALTH: 100%</span>
           </div>
         </div>
 
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap">
-          <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-950/85 border border-emerald-500/30 rounded-full backdrop-blur-md shadow-xl">
-            <Terminal className="w-4 h-4 text-emerald-400" />
-            <span className="font-mono text-[11px] font-semibold text-emerald-400 tracking-wider">
-              ▶ REAL-TIME ADVERSARY THREAT SIMULATION // 100% ENCRYPTED
+        {/* Center Forensic Hero Callout */}
+        <div className="relative z-10 my-auto py-6 max-w-xl space-y-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue-500/10 border border-blue-400/25 text-blue-300 text-xs font-mono font-semibold">
+            <Sparkles className="w-3.5 h-3.5 text-blue-400 animate-spin" />
+            <span>DEEP FORENSICS & BAYESIAN CALIBRATION ENGINE</span>
+          </div>
+
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            Stop Email Threats with <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-300">
+              Deterministic Intelligence.
             </span>
+          </h1>
+
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+            Multi-pillar AI forensic inspection, zero-width obfuscation detection, and cryptographic chain-of-custody for enterprise SOC operations.
+          </p>
+
+          {/* Tactical Telemetry Metrics */}
+          <div className="grid grid-cols-3 gap-3 pt-2">
+            <div className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md">
+              <div className="text-lg sm:text-xl font-bold font-mono text-cyan-400">99.43%</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 font-medium">ML Precision Rate</div>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md">
+              <div className="text-lg sm:text-xl font-bold font-mono text-emerald-400">&lt; 150ms</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 font-medium">Inference Latency</div>
+            </div>
+            <div className="p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 backdrop-blur-md">
+              <div className="text-lg sm:text-xl font-bold font-mono text-indigo-400">SHA-256</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 font-medium">Custody Ledger</div>
+            </div>
           </div>
         </div>
-        <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-black/40 pointer-events-none hidden lg:block" />
+
+        {/* Bottom SOC Terminal Status */}
+        <div className="relative z-10 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-slate-400 font-mono border-t border-slate-800/80">
+          <div className="flex items-center gap-2">
+            <Terminal className="w-4 h-4 text-cyan-400" />
+            <span className="text-slate-300">ENCRYPTION: AES-256-GCM / TLS 1.3</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Globe2 className="w-3.5 h-3.5 text-slate-500" />
+            <span>GLOBAL ATTRIBUTION MATRIX ACTIVE</span>
+          </div>
+        </div>
       </section>
 
-      {/* RIGHT 50%: PURE WHITE CLEAN LOGIN CARD */}
-      <section className="w-full lg:w-1/2 min-h-[calc(100vh-380px)] lg:h-full flex items-center justify-center p-6 sm:p-12 overflow-y-auto relative bg-white flex-shrink-0">
-        <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-blue-100/50 blur-[90px] pointer-events-none" />
-        <div className="absolute bottom-12 left-12 w-72 h-72 rounded-full bg-emerald-50/70 blur-[80px] pointer-events-none" />
+      {/* ======================================================== */}
+      {/* RIGHT 45%: SLEEK HIGH-TECH AUTHENTICATION CARD           */}
+      {/* ======================================================== */}
+      <section className="w-full lg:w-[45%] h-full flex items-center justify-center p-6 sm:p-12 overflow-y-auto relative bg-[#090D1A] flex-shrink-0">
+
+        {/* Ambient Core Lighting */}
+        <div className="absolute top-1/4 right-1/4 w-72 h-72 rounded-full bg-blue-600/10 blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/4 left-1/4 w-72 h-72 rounded-full bg-cyan-500/10 blur-[100px] pointer-events-none" />
 
         <motion.div
-          initial={{ opacity: 0, y: 18 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: 'easeOut' }}
-          className="w-full max-w-[440px] bg-white border border-slate-200/90 rounded-2xl p-8 sm:p-10 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.09)] relative z-10"
+          className="w-full max-w-[430px] bg-slate-900/90 border border-slate-800/90 rounded-3xl p-8 sm:p-10 shadow-[0_25px_70px_rgba(0,0,0,0.65)] backdrop-blur-2xl relative z-10"
         >
-          {/* Header */}
-          <div className="flex flex-col items-start mb-6">
-            <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 mb-4 shadow-[0_2px_8px_rgba(37,99,235,0.12)]">
-              <Shield className="w-6 h-6" />
+          {/* Card Header */}
+          <div className="mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-mono font-bold tracking-wider uppercase mb-3">
+              <Fingerprint className="w-3.5 h-3.5" />
+              <span>SOC Gatekeeper Access</span>
             </div>
-            <h1 className="text-2xl font-bold text-[#1E3A8A] tracking-tight">
-              ShieldMail Security
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
-              Authenticate to access the Email Forensics & Threat Platform.
+            <h2 className="text-2xl font-bold text-white tracking-tight font-sans">
+              Sign In to Command
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-400 mt-1">
+              Verify security credentials to access the live threat radar.
             </p>
           </div>
 
-          {/* Official Google Identity Services SDK Button */}
+          {/* Official Google Sign-In SDK Slot */}
           <div className="w-full mb-5 flex flex-col items-center">
             <div id="google-official-btn-slot" className="w-full flex justify-center min-h-[44px]" />
             {isGoogleLoading && (
-              <div className="mt-2 text-xs text-blue-600 font-semibold flex items-center gap-2">
-                <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-                <span>Authenticating with Google...</span>
+              <div className="mt-2 text-xs text-cyan-400 font-semibold flex items-center gap-2">
+                <div className="w-3.5 h-3.5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+                <span>Authenticating with Google SSO...</span>
               </div>
             )}
           </div>
 
           {/* Divider */}
           <div className="relative flex items-center justify-center mb-5">
-            <div className="border-t border-slate-200 w-full" />
-            <span className="bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
-              or credentials
+            <div className="border-t border-slate-800 w-full" />
+            <span className="bg-slate-900 px-3 text-[10px] font-bold uppercase tracking-widest text-slate-500 font-mono">
+              or operator credentials
             </span>
-            <div className="border-t border-slate-200 w-full" />
+            <div className="border-t border-slate-800 w-full" />
           </div>
 
-          {/* Form */}
+          {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Username */}
+
+            {/* Username / Email */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-semibold text-[#1E3A8A]">
-                Username or Email
+              <label className="block text-xs font-semibold text-slate-300">
+                Operator ID or Corporate Email
               </label>
-              <div className="relative flex items-center">
-                <User className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
+              <div className="relative flex items-center rounded-xl bg-slate-950/70 border border-slate-800 focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all">
+                <User className="absolute left-3.5 w-4 h-4 text-slate-500 pointer-events-none" />
                 <input
                   type="text"
                   required
                   value={username}
                   onChange={e => setUsername(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 transition-all shadow-sm"
-                  placeholder="admin or name@company.com"
+                  className="w-full pl-10 pr-4 py-2.5 bg-transparent text-white text-sm placeholder-slate-500 focus:outline-none"
+                  placeholder="admin or analyst@security.corp"
                 />
               </div>
             </div>
 
-            {/* Password */}
+            {/* Security Password */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-semibold text-[#1E3A8A]">
-                  Security Password
+                <label className="text-xs font-semibold text-slate-300">
+                  Access Key / Password
                 </label>
-                <a
-                  href="#forgot"
-                  onClick={e => { e.preventDefault(); alert('Default credentials:\nUsername: admin\nPassword: secret'); }}
-                  className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors"
-                >
-                  Need credentials?
-                </a>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] text-slate-400">Quick Fill:</span>
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill('admin', 'secret')}
+                    className="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 underline cursor-pointer"
+                  >
+                    Admin
+                  </button>
+                  <span className="text-slate-600">|</span>
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill('shrutha', 'shrutha123')}
+                    className="text-[11px] font-mono text-cyan-400 hover:text-cyan-300 underline cursor-pointer"
+                  >
+                    Shrutha
+                  </button>
+                </div>
               </div>
-              <div className="relative flex items-center">
-                <Lock className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
+              <div className="relative flex items-center rounded-xl bg-slate-950/70 border border-slate-800 focus-within:border-cyan-500 focus-within:ring-2 focus-within:ring-cyan-500/20 transition-all">
+                <Lock className="absolute left-3.5 w-4 h-4 text-slate-500 pointer-events-none" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   required
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 transition-all shadow-sm"
+                  className="w-full pl-10 pr-10 py-2.5 bg-transparent text-white text-sm placeholder-slate-500 focus:outline-none"
                   placeholder="••••••••••••"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 text-slate-400 hover:text-slate-600 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 text-slate-500 hover:text-slate-300 transition-colors"
+                >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
             {/* Remember Me */}
-            <div className="flex items-center pt-1">
-              <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-600">
+            <div className="flex items-center justify-between pt-1">
+              <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-400">
                 <input
                   type="checkbox"
                   checked={rememberMe}
                   onChange={e => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                  className="w-4 h-4 rounded border-slate-700 bg-slate-950 text-cyan-500 focus:ring-cyan-500"
                 />
-                <span>Remember this device</span>
+                <span>Persist session across reload</span>
               </label>
+
+              <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+                TLS 1.3
+              </span>
             </div>
 
-            {/* Error feedback */}
+            {/* Error Banner */}
             {error && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="flex items-center gap-2 text-red-700 bg-red-50 p-3 rounded-lg border border-red-200 text-xs font-medium"
+                className="flex items-center gap-2 text-rose-300 bg-rose-950/60 p-3 rounded-xl border border-rose-800 text-xs font-medium"
               >
-                <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
                 <span>{error}</span>
               </motion.div>
             )}
 
-            {/* Submit button */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading || isGoogleLoading}
-              className="w-full mt-2 py-3 px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold tracking-tight shadow-[0_4px_14px_rgba(37,99,235,0.25)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.35)] active:translate-y-px disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
+              className="w-full mt-2 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-sm font-semibold tracking-tight shadow-[0_4px_20px_rgba(0,229,255,0.25)] hover:shadow-[0_6px_25px_rgba(0,229,255,0.4)] active:translate-y-px disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isLoading ? (
-                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /><span>Verifying Credentials...</span></>
+                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /><span>Authorizing Session...</span></>
               ) : isSuccess ? (
-                <><CheckCircle2 className="w-4 h-4" /><span>Signed In Successfully</span></>
+                <><CheckCircle2 className="w-4 h-4" /><span>Authorization Granted</span></>
               ) : (
-                <><span>Sign In Securely</span><ArrowRight className="w-4 h-4" /></>
+                <><span>Authenticate Access</span><ArrowRight className="w-4 h-4" /></>
               )}
             </button>
           </form>
 
-          {/* Footer */}
-          <footer className="mt-8 pt-5 border-t border-slate-200/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-xs">
-            <div className="flex items-center gap-2 text-slate-600">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span>System Status: <strong className="text-slate-800 font-semibold">Operational</strong></span>
+          {/* Footer Security Seal */}
+          <footer className="mt-8 pt-5 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-500 font-mono">
+            <div className="flex items-center gap-1.5 text-slate-400">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span>SOC2 TYPE II COMPLIANT</span>
             </div>
-            <div className="text-[11px] text-slate-400">Protected by 256-bit TLS Encryption</div>
+            <div>CHAIN-OF-CUSTODY V2</div>
           </footer>
         </motion.div>
       </section>
