@@ -1,4 +1,8 @@
 {
+  "env": {
+    "VITE_API_BASE_URL": "https://erakshak.duckdns.org",
+    "VITE_GOOGLE_CLIENT_ID": "1018456041535-dmmu5gmcr87s4ts5am8ab1keicn4badu.apps.googleusercontent.com"
+  },
   "rewrites": [
     {
       "source": "/(.*)",
