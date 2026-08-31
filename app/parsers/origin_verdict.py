@@ -31,12 +31,14 @@ def classify_origin_verdict(
     whois_intel = whois_intel or {}
     urls = urls or []
     
-    from app.scoring.config import SUSPICIOUS_HOSTING_DOMAINS, SUSPICIOUS_URL_PATHS, URL_SHORTENERS
-    has_phish_url = any(
-        any(sd in u.lower() for sd in SUSPICIOUS_HOSTING_DOMAINS) or 
-        any(sp in u.lower() for sp in SUSPICIOUS_URL_PATHS) or
-        any(sh in u.lower() for sh in URL_SHORTENERS)
-        for u in urls
+    from app.parsers.url_analyzer import analyze_urls_in_email
+    sender_domain = auth_analysis.get("from_domain", "")
+    url_res = analyze_urls_in_email(urls, sender_domain=sender_domain)
+    has_phish_url = (
+        url_res.get("has_suspicious_hosting", False) or
+        url_res.get("has_suspicious_path", False) or
+        url_res.get("has_typosquat", False) or
+        url_res.get("has_punycode_or_homograph", False)
     )
     
     verdict: OriginVerdict = "unknown"

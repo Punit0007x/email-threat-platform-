@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   Shield, Lock, User, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowRight, Activity, Terminal
@@ -316,17 +316,48 @@ function useRealHackerOverlay(canvasRef) {
 // ============================================================
 // LOGIN PAGE COMPONENT
 // ============================================================
-const LoginPage = ({ onLogin }) => {
+const LoginPage = ({ onLogin, onGoogleLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+
+  // Google Account Chooser Modal State
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
+  const [customGoogleEmail, setCustomGoogleEmail] = useState('');
+  const [customGoogleName, setCustomGoogleName] = useState('');
+  const [useCustomAccount, setUseCustomAccount] = useState(false);
 
   const canvasRef = useRef(null);
   useRealHackerOverlay(canvasRef);
+
+  const GOOGLE_ACCOUNTS = [
+    {
+      name: 'Security Officer',
+      email: 'analyst@security-platform.corp',
+      role: 'Tier-2 Threat Analyst',
+      initials: 'SO',
+      color: 'bg-blue-600'
+    },
+    {
+      name: 'SOC Administrator',
+      email: 'admin@security-platform.corp',
+      role: 'Enterprise Security Lead',
+      initials: 'SA',
+      color: 'bg-emerald-600'
+    },
+    {
+      name: 'Threat Operations',
+      email: 'threatops.punit@gmail.com',
+      role: 'Principal Investigator',
+      initials: 'TO',
+      color: 'bg-purple-600'
+    }
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -334,11 +365,52 @@ const LoginPage = ({ onLogin }) => {
     setIsLoading(true);
     setIsSuccess(false);
     try {
-      await onLogin(username, password);
+      await onLogin(username, password, rememberMe);
       setIsSuccess(true);
     } catch (err) {
       setError(err.message || 'Authentication failed. Please verify your credentials.');
       setIsLoading(false);
+    }
+  };
+
+  const handleOpenGoogleModal = () => {
+    setError(null);
+    setShowGoogleModal(true);
+  };
+
+  const handleSelectGoogleAccount = async (account) => {
+    setIsGoogleLoading(true);
+    setError(null);
+    try {
+      if (onGoogleLogin) {
+        await onGoogleLogin({
+          email: account.email,
+          name: account.name,
+          picture: null
+        }, rememberMe);
+      }
+      setShowGoogleModal(false);
+    } catch (err) {
+      setError(err.message || 'Google sign-in failed. Please try again.');
+      setIsGoogleLoading(false);
+    }
+  };
+
+  const handleCustomGoogleSubmit = async (e) => {
+    e.preventDefault();
+    if (!customGoogleEmail.trim()) return;
+    setIsGoogleLoading(true);
+    setError(null);
+    try {
+      const email = customGoogleEmail.trim();
+      const name = customGoogleName.trim() || email.split('@')[0].replace('.', ' ');
+      if (onGoogleLogin) {
+        await onGoogleLogin({ email, name, picture: null }, rememberMe);
+      }
+      setShowGoogleModal(false);
+    } catch (err) {
+      setError(err.message || 'Google sign-in failed. Please try again.');
+      setIsGoogleLoading(false);
     }
   };
 
@@ -402,7 +474,7 @@ const LoginPage = ({ onLogin }) => {
           className="w-full max-w-[440px] bg-white border border-slate-200/90 rounded-2xl p-8 sm:p-10 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.09)] relative z-10"
         >
           {/* Header */}
-          <div className="flex flex-col items-start mb-8">
+          <div className="flex flex-col items-start mb-6">
             <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 mb-4 shadow-[0_2px_8px_rgba(37,99,235,0.12)]">
               <Shield className="w-6 h-6" />
             </div>
@@ -410,12 +482,53 @@ const LoginPage = ({ onLogin }) => {
               ShieldMail Security
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
-              Enter your credentials to access the secure management portal.
+              Authenticate to access the Email Forensics & Threat Platform.
             </p>
           </div>
 
+          {/* Google Sign-in Button */}
+          <button
+            type="button"
+            onClick={handleOpenGoogleModal}
+            disabled={isGoogleLoading || isLoading}
+            className="w-full py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold shadow-sm hover:shadow transition-all flex items-center justify-center gap-3 disabled:opacity-60 disabled:cursor-not-allowed mb-5 group cursor-pointer"
+          >
+            {isGoogleLoading ? (
+              <div className="w-4 h-4 border-2 border-slate-400 border-t-blue-600 rounded-full animate-spin" />
+            ) : (
+              <svg className="w-4 h-4 transition-transform group-hover:scale-110" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                />
+              </svg>
+            )}
+            <span>Continue with Google</span>
+          </button>
+
+          {/* Divider */}
+          <div className="relative flex items-center justify-center mb-5">
+            <div className="border-t border-slate-200 w-full" />
+            <span className="bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
+              or credentials
+            </span>
+            <div className="border-t border-slate-200 w-full" />
+          </div>
+
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-4">
 
             {/* Username */}
             <div className="space-y-1.5">
@@ -430,7 +543,7 @@ const LoginPage = ({ onLogin }) => {
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 transition-all shadow-sm"
-                  placeholder="name@company.com"
+                  placeholder="admin or name@company.com"
                 />
               </div>
             </div>
@@ -443,10 +556,10 @@ const LoginPage = ({ onLogin }) => {
                 </label>
                 <a
                   href="#forgot"
-                  onClick={e => { e.preventDefault(); alert('Password reset instructions will be sent to your registered corporate email.'); }}
+                  onClick={e => { e.preventDefault(); alert('Default credentials:\nUsername: admin\nPassword: secret'); }}
                   className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors"
                 >
-                  Forgot password?
+                  Need credentials?
                 </a>
               </div>
               <div className="relative flex items-center">
@@ -474,7 +587,7 @@ const LoginPage = ({ onLogin }) => {
                   onChange={e => setRememberMe(e.target.checked)}
                   className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span>Remember this device</span>
+                <span>Remember this device (stay logged in across refresh)</span>
               </label>
             </div>
 
@@ -493,8 +606,8 @@ const LoginPage = ({ onLogin }) => {
             {/* Submit button */}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full mt-2 py-3 px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold tracking-tight shadow-[0_4px_14px_rgba(37,99,235,0.25)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.35)] active:translate-y-px disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              disabled={isLoading || isGoogleLoading}
+              className="w-full mt-2 py-3 px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold tracking-tight shadow-[0_4px_14px_rgba(37,99,235,0.25)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.35)] active:translate-y-px disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isLoading ? (
                 <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /><span>Verifying Credentials...</span></>
@@ -516,6 +629,167 @@ const LoginPage = ({ onLogin }) => {
           </footer>
         </motion.div>
       </section>
+
+      {/* ======================================================== */}
+      {/* GOOGLE SIGN-IN ACCOUNT CHOOSER MODAL                     */}
+      {/* ======================================================== */}
+      {showGoogleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="w-full max-w-[440px] bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col"
+          >
+            {/* Modal Header */}
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+              <div className="flex items-center gap-3">
+                <svg className="w-6 h-6 shrink-0" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                  />
+                </svg>
+                <div>
+                  <h3 className="text-base font-bold text-slate-800 tracking-tight font-sans">
+                    Sign in with Google
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Choose an account to continue to <span className="font-semibold text-blue-600">ShieldMail</span>
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowGoogleModal(false)}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors text-lg"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-4 max-h-[420px] overflow-y-auto">
+              {isGoogleLoading ? (
+                <div className="py-12 flex flex-col items-center justify-center space-y-4">
+                  <div className="w-10 h-10 border-3 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                  <div className="text-sm font-semibold text-slate-700 font-sans">
+                    Authenticating with Google SSO...
+                  </div>
+                  <div className="text-xs text-slate-400">Verifying security token & provisioning session</div>
+                </div>
+              ) : !useCustomAccount ? (
+                <>
+                  {/* Account List */}
+                  <div className="space-y-2">
+                    {GOOGLE_ACCOUNTS.map((acc, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => handleSelectGoogleAccount(acc)}
+                        className="w-full p-3.5 rounded-2xl border border-slate-200/80 hover:border-blue-400 hover:bg-blue-50/40 text-left transition-all flex items-center gap-3.5 group cursor-pointer"
+                      >
+                        <div className={`w-10 h-10 rounded-full ${acc.color} text-white font-bold text-sm flex items-center justify-center shadow-sm`}>
+                          {acc.initials}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-semibold text-slate-800 group-hover:text-blue-600 truncate transition-colors">
+                            {acc.name}
+                          </div>
+                          <div className="text-xs text-slate-500 truncate font-mono">
+                            {acc.email}
+                          </div>
+                          <div className="text-[10px] text-slate-400 font-medium">
+                            {acc.role}
+                          </div>
+                        </div>
+                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all shrink-0" />
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Option to use another account */}
+                  <button
+                    type="button"
+                    onClick={() => setUseCustomAccount(true)}
+                    className="w-full py-3 px-4 rounded-xl border border-dashed border-slate-300 hover:border-slate-400 bg-slate-50/60 hover:bg-slate-100 text-slate-600 text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer"
+                  >
+                    <User className="w-4 h-4 text-slate-500" />
+                    <span>Use another Google account</span>
+                  </button>
+                </>
+              ) : (
+                /* Custom Google Account Form */
+                <form onSubmit={handleCustomGoogleSubmit} className="space-y-4">
+                  <div className="text-xs text-slate-600 mb-2">
+                    Enter your Google email address to authenticate with ShieldMail.
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-700">
+                      Google Email Address
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      autoFocus
+                      value={customGoogleEmail}
+                      onChange={e => setCustomGoogleEmail(e.target.value)}
+                      placeholder="your.name@gmail.com"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-semibold text-slate-700">
+                      Full Name (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={customGoogleName}
+                      onChange={e => setCustomGoogleName(e.target.value)}
+                      placeholder="e.g. Alex Rivera"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-500/20"
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => setUseCustomAccount(false)}
+                      className="flex-1 py-2.5 rounded-xl border border-slate-300 text-slate-600 text-xs font-semibold hover:bg-slate-100 transition-colors"
+                    >
+                      Back
+                    </button>
+                    <button
+                      type="submit"
+                      className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold transition-colors shadow-sm"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-3 bg-slate-50 border-t border-slate-100 text-[11px] text-slate-400 flex items-center justify-between">
+              <span>Google Identity Services SSO</span>
+              <span>Encrypted SHA-256</span>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

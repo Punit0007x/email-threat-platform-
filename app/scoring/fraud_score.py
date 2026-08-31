@@ -232,53 +232,18 @@ def calculate_fraud_score(
                 f"detected ({', '.join([a['filename'] for a in suspicious_att])})."
             )
 
-    # 7b. Suspicious URL Analysis (check extracted URLs for risky patterns)
-    from app.scoring.config import SUSPICIOUS_HOSTING_DOMAINS, SUSPICIOUS_URL_PATHS
-    import re
-    from urllib.parse import urlparse
+    # 7b. Deep URL Legitimacy & Threat Analysis
+    from app.parsers.url_analyzer import analyze_urls_in_email
     
-    urls_to_check = extracted_urls or []
-    has_url_shortener_in_urls = False
-    has_ip_based_url = False
-    has_suspicious_hosting = False
-    has_suspicious_path = False
-    suspicious_hosting_matches = []
-    suspicious_path_matches = []
+    sender_domain = auth_analysis.get("from_domain", "")
+    url_analysis = analyze_urls_in_email(extracted_urls or [], sender_domain=sender_domain)
     
-    for url in urls_to_check:
-        url_lower = url.lower().strip()
-        
-        try:
-            parsed_url = urlparse(url_lower if '://' in url_lower else f'https://{url_lower}')
-            hostname = parsed_url.hostname or ''
-            path = parsed_url.path or ''
-        except Exception:
-            hostname = url_lower
-            path = ''
-        
-        # Check for URL shorteners
-        if any(shortener in hostname for shortener in URL_SHORTENERS):
-            has_url_shortener_in_urls = True
-        
-        # Check for IP-based URLs
-        if re.search(r'https?://\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}', url_lower):
-            has_ip_based_url = True
-        
-        # Check for suspicious free hosting / tunneling domains
-        for sus_domain in SUSPICIOUS_HOSTING_DOMAINS:
-            if hostname.endswith(sus_domain) or hostname == sus_domain:
-                has_suspicious_hosting = True
-                if sus_domain not in suspicious_hosting_matches:
-                    suspicious_hosting_matches.append(sus_domain)
-                break
-        
-        # Check for suspicious URL paths (login pages, credential harvesting)
-        for sus_path in SUSPICIOUS_URL_PATHS:
-            if sus_path in path.lower():
-                has_suspicious_path = True
-                if sus_path not in suspicious_path_matches:
-                    suspicious_path_matches.append(sus_path)
-                break
+    has_url_shortener_in_urls = url_analysis.get("has_shortener", False)
+    has_ip_based_url = url_analysis.get("has_ip_based_url", False)
+    has_suspicious_hosting = url_analysis.get("has_suspicious_hosting", False)
+    has_suspicious_path = url_analysis.get("has_suspicious_path", False)
+    has_typosquat = url_analysis.get("has_typosquat", False)
+    has_punycode = url_analysis.get("has_punycode_or_homograph", False)
     
     if has_url_shortener_in_urls and not text_signals.get("has_shortener", False):
         score += WEIGHTS["url_shortener"]
@@ -290,11 +255,19 @@ def calculate_fraud_score(
     
     if has_suspicious_hosting:
         score += WEIGHTS["suspicious_hosting_domain"]
-        reasons.append(f"Suspicious hosting detected: Link(s) point to free/disposable hosting service ({', '.join(suspicious_hosting_matches)}) commonly abused for phishing.")
+        reasons.append("Suspicious hosting detected: Link(s) point to free/tunneling hosting commonly abused for phishing.")
     
     if has_suspicious_path:
         score += WEIGHTS["suspicious_url_path"]
-        reasons.append(f"Suspicious URL path: Link contains credential-harvesting keywords ({', '.join(suspicious_path_matches)}).")
+        reasons.append("Suspicious URL path: Untrusted link contains credential-harvesting keywords.")
+
+    if has_typosquat:
+        score += WEIGHTS["domain_lookalike"]
+        reasons.append("Deceptive URL: Link domain closely mimics a protected brand.")
+
+    if has_punycode:
+        score += 25
+        reasons.append("Punycode / Homoglyph URL detected: Link uses character spoofing to disguise destination.")
 
     # 8. Cryptographic Authenticity Validation Discount
     is_fully_authenticated = (
@@ -311,6 +284,8 @@ def calculate_fraud_score(
         has_ip_based_url or
         has_suspicious_hosting or
         has_suspicious_path or
+        has_typosquat or
+        has_punycode or
         (ai_ml_analysis and ai_ml_analysis.get("classification", {}).get("primary_threat", "clean") not in ["clean", "legitimate"] and ai_ml_analysis.get("classification", {}).get("confidence", 0) > 0.60)
     )
     

@@ -110,9 +110,15 @@ def _strong_auth(auth_analysis: Dict[str, Any]) -> bool:
 
 
 def _url_risk(features: Dict[str, Any]) -> bool:
-    """Independent URL evidence: any suspicious hosting / path / shortener."""
+    """Independent URL evidence: genuine untrusted malicious hosting / path / shortener / typosquat."""
     ur = (features or {}).get("url_risks") or {}
-    return bool(ur.get("has_suspicious_hosting") or ur.get("has_suspicious_path") or ur.get("has_shortener"))
+    return bool(
+        ur.get("has_suspicious_hosting")
+        or ur.get("has_suspicious_path")
+        or ur.get("has_shortener")
+        or ur.get("has_typosquat")
+        or ur.get("has_punycode_or_homograph")
+    )
 
 
 def _lookalike(domain_check: Dict[str, Any]) -> bool:

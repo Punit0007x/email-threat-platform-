@@ -118,7 +118,8 @@ def extract_advanced_features(
     body_plain: str,
     body_html: str,
     attachments: List[Any],
-    urls: List[str]
+    urls: List[str],
+    sender_domain: str = ""
 ) -> Dict[str, Any]:
     """
     Extracts deep lexical, structural, intent, and social engineering features from the email.
@@ -188,38 +189,17 @@ def extract_advanced_features(
     if html_present and not plain_present:
         has_cloaking_risk = True
 
-    # 7. URL Threat Vectors (Hosting & Credential Harvesting Paths)
-    from app.scoring.config import SUSPICIOUS_HOSTING_DOMAINS, SUSPICIOUS_URL_PATHS, URL_SHORTENERS
-    from urllib.parse import urlparse
+    # 7. URL Threat Vectors (Deep Legitimacy & Phishing Analysis)
+    from app.parsers.url_analyzer import analyze_urls_in_email
     
-    has_suspicious_hosting = False
-    has_suspicious_path = False
-    has_shortener = False
-    matched_suspicious_urls = []
-    
-    for u in urls:
-        u_clean = u.lower().strip()
-        try:
-            parsed_u = urlparse(u_clean if '://' in u_clean else f'https://{u_clean}')
-            h = parsed_u.hostname or ''
-            p = parsed_u.path or ''
-        except Exception:
-            h = u_clean
-            p = ''
-            
-        is_sus = False
-        if any(sd in h for sd in SUSPICIOUS_HOSTING_DOMAINS):
-            has_suspicious_hosting = True
-            is_sus = True
-        if any(sp in p for sp in SUSPICIOUS_URL_PATHS):
-            has_suspicious_path = True
-            is_sus = True
-        if any(sh in h for sh in URL_SHORTENERS):
-            has_shortener = True
-            is_sus = True
-            
-        if is_sus and u not in matched_suspicious_urls:
-            matched_suspicious_urls.append(u)
+    url_analysis = analyze_urls_in_email(urls, sender_domain=sender_domain)
+    has_suspicious_hosting = url_analysis.get("has_suspicious_hosting", False)
+    has_suspicious_path = url_analysis.get("has_suspicious_path", False)
+    has_shortener = url_analysis.get("has_shortener", False)
+    has_typosquat = url_analysis.get("has_typosquat", False)
+    has_punycode = url_analysis.get("has_punycode_or_homograph", False)
+    all_urls_legitimate = url_analysis.get("all_urls_legitimate", True)
+    matched_suspicious_urls = [d["url"] for d in url_analysis.get("url_details", []) if d.get("is_malicious")]
 
     return {
         "metrics": {
@@ -238,12 +218,15 @@ def extract_advanced_features(
         "intent_analysis": {
             "cta_scores": cta_scores,
             "cta_detected": cta_detected,
-            "primary_intent": max(cta_scores, key=cta_scores.get) if any(cta_scores.values()) else ("phishing_credential_harvesting" if (has_suspicious_hosting or has_suspicious_path) else "informational_or_benign")
+            "primary_intent": max(cta_scores, key=cta_scores.get) if any(cta_scores.values()) else ("phishing_credential_harvesting" if (has_suspicious_hosting or has_suspicious_path or has_typosquat or has_punycode) else "informational_or_benign")
         },
         "url_risks": {
             "has_suspicious_hosting": has_suspicious_hosting,
             "has_suspicious_path": has_suspicious_path,
             "has_shortener": has_shortener,
+            "has_typosquat": has_typosquat,
+            "has_punycode_or_homograph": has_punycode,
+            "all_urls_legitimate": all_urls_legitimate,
             "matched_suspicious_urls": matched_suspicious_urls
         },
         "entities": entities,

@@ -4,7 +4,7 @@ import {
   Upload, AlertCircle, FileText, BookOpen, Search, Zap, Terminal, Sparkles, Radio, Database, Shield, Mail, Lock, LogOut
 } from 'lucide-react';
 import { analyzeEmail } from './services/analysisService';
-import { login, getToken, setToken, removeToken } from './services/authService';
+import { login, loginWithGoogle, getToken, setToken, removeToken, logoutUser, getStoredUser } from './services/authService';
 
 import HeaderPanel from './components/HeaderPanel';
 import AuthPanel from './components/AuthPanel';
@@ -59,10 +59,8 @@ const DEMO_EMAILS = [
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 
 function ProtectedRoute({ children }) {
-  const [isAuthenticated] = useState(() => {
-    const token = getToken();
-    return token && token !== 'false' && token !== 'null' && token !== 'undefined';
-  });
+  const token = getToken();
+  const isAuthenticated = token && token !== 'false' && token !== 'null' && token !== 'undefined';
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -201,32 +199,49 @@ function MainApp() {
     handleAnalyze(demoFile);
   };
 
+  const user = getStoredUser() || { full_name: 'Security Officer', username: 'analyst' };
+
   const handleLogout = () => {
-    removeToken();
-    navigate('/login');
+    logoutUser();
+    navigate('/login', { replace: true });
   };
 
   return (
     <div className="h-screen w-full overflow-y-scroll snap-y snap-mandatory bg-[#0A0A0C] font-sans selection:bg-[#ff4757] selection:text-white">
       
-      {/* Floating Navigation Pill */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-4 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]">
-        <div className="flex gap-4 items-center mr-4">
-
-        {[1, 2, 3].map((num) => (
-          <div 
-            key={num} 
-            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${activeSection === num ? 'bg-white scale-125' : 'bg-white/30'}`}
-          />
-        ))}
+      {/* Floating Top Navigation Pill */}
+      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-2xl bg-slate-950/85 border border-slate-700/60 px-5 py-2.5 rounded-full flex items-center gap-4 shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
+        {/* Brand */}
+        <div className="flex items-center gap-2 pr-3 border-r border-slate-700/80">
+          <Shield className="w-4 h-4 text-cyan-400" />
+          <span className="text-xs font-bold text-white font-mono tracking-wider">SHIELDMAIL</span>
         </div>
-        <button 
-          onClick={handleLogout}
-          className="ml-2 pl-4 border-l border-white/20 text-white/70 hover:text-white transition-colors"
-          title="Sign out"
-        >
-          <LogOut className="w-4 h-4" />
-        </button>
+
+        {/* Section Indicators */}
+        <div className="flex gap-2.5 items-center">
+          {[1, 2, 3].map((num) => (
+            <div 
+              key={num} 
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${activeSection === num ? 'bg-cyan-400 scale-125 shadow-[0_0_8px_rgba(34,211,238,0.8)]' : 'bg-slate-600'}`}
+            />
+          ))}
+        </div>
+
+        {/* Current User & Logout */}
+        <div className="flex items-center gap-3 pl-3 border-l border-slate-700/80">
+          <div className="flex items-center gap-2 text-xs text-slate-300">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse" />
+            <span className="max-w-[130px] truncate font-medium text-slate-200">{user.full_name || user.username}</span>
+          </div>
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 hover:text-red-300 text-xs font-semibold shadow-sm transition-all"
+            title="Sign out of ShieldMail"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Logout</span>
+          </button>
+        </div>
       </nav>
 
       {/* SECTION 1: HERO */}
@@ -387,12 +402,20 @@ function MainApp() {
                   {tab.label}
                 </button>
               ))}
-              <div className="ml-auto flex gap-3">
-                 <button onClick={() => setShowIOCSearch(true)} className="px-4 py-3 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2">
-                   <Search className="w-5 h-5"/> IOC Search
+              <div className="ml-auto flex gap-3 items-center">
+                 <button onClick={() => setShowIOCSearch(true)} className="px-4 py-3 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2 transition-all">
+                   <Search className="w-4 h-4"/> IOC Search
                  </button>
-                 <button onClick={() => setResults(null)} className="px-4 py-3 rounded-xl text-sm font-semibold bg-red-50 text-red-600 hover:bg-red-100 border border-red-100">
+                 <button onClick={() => setResults(null)} className="px-4 py-3 rounded-xl text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-all">
                    Clear Scan
+                 </button>
+                 <button 
+                   onClick={handleLogout} 
+                   className="px-4 py-3 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-sm flex items-center gap-2 transition-all"
+                   title="Log out of ShieldMail"
+                 >
+                   <LogOut className="w-4 h-4"/>
+                   <span>Log Out</span>
                  </button>
               </div>
             </div>
@@ -465,14 +488,26 @@ function MainApp() {
 
 function AppLoginWrapper() {
   const navigate = useNavigate();
+  const token = getToken();
+
+  // If already logged in, automatically proceed to dashboard
+  useEffect(() => {
+    if (token) {
+      navigate('/', { replace: true });
+    }
+  }, [token, navigate]);
 
   const handleLogin = async (username, password) => {
-    const data = await login(username, password);
-    setToken(data.access_token);
-    navigate('/');
+    await login(username, password);
+    navigate('/', { replace: true });
   };
 
-  return <LoginPage onLogin={handleLogin} />;
+  const handleGoogleLogin = async (googleData = { email: 'analyst@gmail.com', name: 'Security Analyst' }) => {
+    await loginWithGoogle(googleData);
+    navigate('/', { replace: true });
+  };
+
+  return <LoginPage onLogin={handleLogin} onGoogleLogin={handleGoogleLogin} />;
 }
 
 function App() {
