@@ -420,10 +420,10 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
               <Shield className="w-6 h-6" />
             </div>
             <h1 className="text-2xl font-bold text-[#1E3A8A] tracking-tight">
-              ShieldMail Security
+              eRakshak Security
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
-              Authenticate to access the Email Forensics & Threat Platform.
+              Authenticate to access the eRakshak Forensics & Threat Defense Platform.
             </p>
           </div>
 

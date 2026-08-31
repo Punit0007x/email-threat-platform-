@@ -94,7 +94,7 @@ export default function LandingPage({ onLaunchDemo }) {
         <nav className="relative z-50 flex items-center justify-between px-6 py-6 max-w-7xl mx-auto">
           <div className="flex items-center gap-2">
             <Shield className="w-8 h-8 text-cyan-600" />
-            <span className="text-xl font-bold tracking-tight">ShieldMail<span className="text-cyan-600">.ai</span></span>
+            <span className="text-xl font-bold tracking-tight">eRakshak<span className="text-cyan-600">.ai</span></span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
             <a href="#platform" className="hover:text-cyan-600 transition-colors">Platform</a>
@@ -243,7 +243,7 @@ export default function LandingPage({ onLaunchDemo }) {
           <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <Shield className="w-6 h-6 text-cyan-400" />
-              <span className="font-bold text-slate-200">ShieldMail.ai</span>
+              <span className="font-bold text-slate-200">eRakshak.ai</span>
             </div>
             <div className="flex items-center gap-6 text-sm text-slate-500 font-medium">
               <span>SOC 2 Type II Certified</span>
@@ -251,7 +251,7 @@ export default function LandingPage({ onLaunchDemo }) {
               <span>GDPR Compliant</span>
             </div>
             <div className="text-sm text-slate-600">
-              © 2026 ShieldMail Security. All rights reserved.
+              © 2026 eRakshak Security. All rights reserved.
             </div>
           </div>
         </div>

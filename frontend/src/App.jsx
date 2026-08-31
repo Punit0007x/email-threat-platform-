@@ -214,7 +214,7 @@ function MainApp() {
         {/* Brand */}
         <div className="flex items-center gap-2 pr-3 border-r border-slate-700/80">
           <Shield className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-bold text-white font-mono tracking-wider">SHIELDMAIL</span>
+          <span className="text-xs font-bold text-white font-mono tracking-wider">eRAKSHAK</span>
         </div>
 
         {/* Section Indicators */}
@@ -236,7 +236,7 @@ function MainApp() {
           <button 
             onClick={handleLogout}
             className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 hover:text-red-300 text-xs font-semibold shadow-sm transition-all"
-            title="Sign out of ShieldMail"
+            title="Sign out of eRakshak"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Logout</span>
@@ -412,7 +412,7 @@ function MainApp() {
                  <button 
                    onClick={handleLogout} 
                    className="px-4 py-3 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-sm flex items-center gap-2 transition-all"
-                   title="Log out of ShieldMail"
+                   title="Log out of eRakshak"
                  >
                    <LogOut className="w-4 h-4"/>
                    <span>Log Out</span>
