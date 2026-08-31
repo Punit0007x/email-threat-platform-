@@ -79,3 +79,4 @@ yarn-error.log*
 archive/scratch_data/*.json
 archive/scratch_data/*.csv
 archive/scratch_data/*.log
+.vercel
