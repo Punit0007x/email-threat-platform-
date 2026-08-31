@@ -373,9 +373,96 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
     }
   };
 
+  const handleGoogleCredentialResponse = async (response) => {
+    if (!response || !response.credential) return;
+    setIsGoogleLoading(true);
+    setError(null);
+    try {
+      // Decode the JWT from Google
+      const base64Url = response.credential.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const googleUser = JSON.parse(jsonPayload);
+
+      if (onGoogleLogin) {
+        await onGoogleLogin({
+          credential: response.credential,
+          email: googleUser.email,
+          name: googleUser.name,
+          picture: googleUser.picture
+        }, rememberMe);
+      }
+    } catch (err) {
+      setError(err.message || 'Google sign-in failed. Please try again.');
+      setIsGoogleLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const initGoogleGSI = () => {
+      if (window.google?.accounts?.id) {
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1043819890989-u3g3k3l2d1j1h4k4j5l.apps.googleusercontent.com";
+        try {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleGoogleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+          });
+
+          const btnEl = document.getElementById("google-official-signin-button");
+          if (btnEl) {
+            btnEl.innerHTML = "";
+            window.google.accounts.id.renderButton(btnEl, {
+              theme: "outline",
+              size: "large",
+              width: 360,
+              text: "continue_with",
+              shape: "rectangular",
+              logo_alignment: "left"
+            });
+          }
+        } catch (e) {
+          console.warn("Google GSI initialization notice:", e);
+        }
+      }
+    };
+
+    if (window.google?.accounts?.id) {
+      initGoogleGSI();
+    } else {
+      const timer = setInterval(() => {
+        if (window.google?.accounts?.id) {
+          clearInterval(timer);
+          initGoogleGSI();
+        }
+      }, 300);
+      return () => clearInterval(timer);
+    }
+  }, []);
+
   const handleOpenGoogleModal = () => {
     setError(null);
-    setShowGoogleModal(true);
+    if (window.google?.accounts?.id) {
+      try {
+        window.google.accounts.id.prompt((notification) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            setShowGoogleModal(true);
+          }
+        });
+        return;
+      } catch (e) {
+        // Fallback to modal if prompt encounters issues
+        setShowGoogleModal(true);
+      }
+    } else {
+      setShowGoogleModal(true);
+    }
   };
 
   const handleSelectGoogleAccount = async (account) => {
@@ -485,6 +572,9 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
               Authenticate to access the Email Forensics & Threat Platform.
             </p>
           </div>
+
+          {/* Official Google Identity Services Button Container */}
+          <div id="google-official-signin-button" className="w-full flex justify-center mb-3 min-h-[40px]" />
 
           {/* Google Sign-in Button */}
           <button

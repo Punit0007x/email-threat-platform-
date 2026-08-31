@@ -239,6 +239,8 @@ async def parse_email(file: UploadFile = File(...)):
             response_data["trace"] = trace_results
             response_data["text_signals"] = text_signals
             response_data["domain_check"] = domain_check
+            from app.parsers.url_analyzer import analyze_urls_in_email
+            response_data["url_intel"] = analyze_urls_in_email(parsed_email.urls, sender_domain=from_domain)
             response_data["ai_ml_analysis"] = ai_ml_results
             response_data["deep_ai_audit"] = ai_ml_results.get("deep_ai_audit", {})
             response_data["attribution_graph"] = attribution_graph

@@ -143,10 +143,30 @@ class GoogleLoginPayload(BaseModel):
 @app.post("/api/auth/google", response_model=Token, tags=["Authentication"])
 async def google_login(payload: GoogleLoginPayload):
     from app.core.auth import upsert_google_user
+    import base64
+    import json
     
-    email = payload.email or "analyst@security-team.corp"
-    name = payload.name or "Security Analyst"
-    picture = payload.picture or None
+    email = payload.email
+    name = payload.name
+    picture = payload.picture
+    
+    if payload.credential and not email:
+        try:
+            parts = payload.credential.split(".")
+            if len(parts) >= 2:
+                padded = parts[1] + "=" * ((4 - len(parts[1]) % 4) % 4)
+                decoded_bytes = base64.urlsafe_b64decode(padded)
+                data = json.loads(decoded_bytes.decode("utf-8"))
+                email = data.get("email")
+                name = data.get("name")
+                picture = data.get("picture")
+        except Exception as e:
+            logger.warning("failed_to_decode_google_jwt", error=str(e))
+    
+    if not email:
+        email = "analyst@security-team.corp"
+    if not name:
+        name = email.split("@")[0].replace(".", " ").title()
     
     user = upsert_google_user(email=email, name=name, picture=picture)
     access_token = create_access_token(data={"sub": user.username, "scopes": user.scopes})

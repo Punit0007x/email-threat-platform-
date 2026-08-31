@@ -145,16 +145,39 @@ def _check_typosquat(host: str) -> Optional[Dict[str, Any]]:
     if is_domain_trusted(host):
         return None
     bare = host.lower().replace("www.", "")
+    domain_part = bare.split(".")[0]
+    
     for brand in SPOOFED_BRANDS:
         brand_clean = brand.lower().replace("www.", "")
+        brand_name = brand_clean.split(".")[0]
+        
+        # If exact match to the legitimate brand (and domain is trusted), handled already
         if bare == brand_clean or bare.endswith(f".{brand_clean}"):
-            return None  # Exact match to the legitimate brand
+            return None
+            
+        # 1. Full domain similarity
         ratio = SequenceMatcher(None, bare, brand_clean).ratio()
         if 0.75 <= ratio < 1.0:
             return {
                 "spoofed_brand": brand_clean,
                 "similarity": round(ratio, 2)
             }
+            
+        # 2. Tokenized match (e.g. "paypa1-update", "paypal-secure", "apple-login")
+        tokens = re.split(r"[-_.]", domain_part)
+        for tok in tokens:
+            tok_ratio = SequenceMatcher(None, tok, brand_name).ratio()
+            if 0.75 <= tok_ratio < 1.0:
+                return {
+                    "spoofed_brand": brand_clean,
+                    "similarity": round(tok_ratio, 2)
+                }
+            if tok == brand_name and not is_domain_trusted(bare):
+                # Using brand name in untrusted domain (e.g. paypal-security-update.com)
+                return {
+                    "spoofed_brand": brand_clean,
+                    "similarity": 1.0
+                }
     return None
 
 
