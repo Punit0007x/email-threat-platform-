@@ -167,7 +167,8 @@ async def parse_email(file: UploadFile = File(...)):
                 urls=parsed_email.urls,
                 domain_check=domain_check,
                 auth_analysis=auth_results,
-                forensic_report=forensic_report
+                forensic_report=forensic_report,
+                geo_trace=trace_results
             )
             
             # Step 9.5: God Level - Semantic Vector Matching
@@ -239,6 +240,7 @@ async def parse_email(file: UploadFile = File(...)):
             response_data["text_signals"] = text_signals
             response_data["domain_check"] = domain_check
             response_data["ai_ml_analysis"] = ai_ml_results
+            response_data["deep_ai_audit"] = ai_ml_results.get("deep_ai_audit", {})
             response_data["attribution_graph"] = attribution_graph
             response_data["fraud_assessment"] = fraud_assessment
             

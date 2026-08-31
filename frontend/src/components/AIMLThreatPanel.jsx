@@ -12,7 +12,8 @@ import {
   History,
   Database,
   Sparkles,
-  Radio
+  Radio,
+  AlertCircle
 } from 'lucide-react';
 
 const THREAT_LABELS = {
@@ -39,7 +40,8 @@ export default function AIMLThreatPanel({ data }) {
   const primaryThreat = classification.primary_threat || "clean";
   const confidencePct = Math.round((classification.confidence || 0) * 100);
   const isThreat = classification.is_threat;
-  const probs = classification.probabilities || {};
+  const calibrationNote = classification.calibration_note;
+  const probs = classification.class_probabilities || classification.probabilities || {};
   const explainableTokens = classification.explainable_tokens || [];
 
   const manipScores = features.manipulation_vectors?.scores || {};
@@ -87,14 +89,160 @@ export default function AIMLThreatPanel({ data }) {
         </div>
       </div>
 
+      {/* Calibration override note */}
+      {calibrationNote && (
+        <div className="bg-amber-50/70 backdrop-blur-md border border-amber-300 rounded-2xl p-4 flex items-start gap-3 text-xs text-amber-800 shadow-sm">
+          <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <span className="font-medium">{calibrationNote}</span>
+        </div>
+      )}
+
       {/* Forensic Summary Alert */}
       {ai_forensics.forensic_summary && (
-        <div className="bg-white/20 backdrop-blur-3xl rounded-[2rem] shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] border border-white/70 p-4 flex items-start gap-3 border-l-4 border-l-indigo-500">
-          <FileSearch className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5 drop-shadow-sm" />
-          <div className="space-y-1">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 font-mono drop-shadow-sm">Executive Forensic Brief</h4>
-            <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-sans font-medium drop-shadow-sm">{ai_forensics.forensic_summary}</p>
+        <div className="bg-white/20 backdrop-blur-3xl border border-white/60 p-5 rounded-[2rem] space-y-2 shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)]">
+          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-900 font-mono drop-shadow-sm">
+            <Sparkles className="w-4 h-4 text-indigo-600 animate-pulse" />
+            AI SOC Forensic Analysis & Reasoning
           </div>
+          <p className="text-sm font-semibold text-slate-800 leading-relaxed font-sans drop-shadow-sm">
+            {ai_forensics.forensic_summary}
+          </p>
+        </div>
+      )}
+
+      {/* Deep AI Forensic Audit Dossier (Higher-Capability Auditing Layer) */}
+      {data.ai_ml_analysis?.deep_ai_audit && (
+        <div className="bg-white/20 backdrop-blur-3xl rounded-[2rem] shadow-[inset_0_1px_2px_rgba(255,255,255,0.9),0_8px_32px_rgba(31,38,135,0.07)] border border-white/70 p-6 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/30 pb-3">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 bg-indigo-600/10 rounded-xl text-indigo-600 border border-indigo-500/20">
+                <Radio className="w-4 h-4 animate-pulse" />
+              </div>
+              <div>
+                <h3 className="text-sm font-bold text-slate-900 font-mono flex items-center gap-2">
+                  Deep AI Forensic Audit Dossier
+                  <span className="text-[10px] bg-indigo-100 text-indigo-800 font-bold px-2 py-0.5 rounded-md border border-indigo-200 font-mono">
+                    NEURAL AUDITOR v2.5
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-600 font-sans">Multi-dimensional cognitive, evasion, and calibrated threat audit</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <div className="text-[10px] font-mono font-bold text-slate-500 uppercase">Audited Score</div>
+                <div className={`text-lg font-black font-mono ${data.ai_ml_analysis.deep_ai_audit.audited_score >= 70 ? 'text-red-600' : data.ai_ml_analysis.deep_ai_audit.audited_score >= 35 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                  {data.ai_ml_analysis.deep_ai_audit.audited_score}/100
+                </div>
+              </div>
+              <span className={`px-2.5 py-1 rounded-xl text-xs font-mono font-bold border ${data.ai_ml_analysis.deep_ai_audit.verdict === 'MALICIOUS' ? 'bg-red-50 text-red-700 border-red-200' : data.ai_ml_analysis.deep_ai_audit.verdict === 'SUSPICIOUS' ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-emerald-50 text-emerald-700 border-emerald-200'}`}>
+                {data.ai_ml_analysis.deep_ai_audit.verdict}
+              </span>
+            </div>
+          </div>
+
+          {/* 5 Evidence Pillars Gauge Grid */}
+          {data.ai_ml_analysis.deep_ai_audit.evidence_pillars && (
+            <div className="space-y-2">
+              <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-700">Calibrated Evidence Pillars:</div>
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                <div className="bg-white/30 backdrop-blur-md p-3 rounded-xl border border-white/50 space-y-1">
+                  <div className="text-[10px] font-mono text-slate-600 uppercase font-bold">ML Probability</div>
+                  <div className="text-base font-black font-mono text-slate-900">{data.ai_ml_analysis.deep_ai_audit.evidence_pillars.ml_text_probability_score}%</div>
+                  <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-indigo-600 h-full rounded-full" style={{ width: `${Math.min(100, data.ai_ml_analysis.deep_ai_audit.evidence_pillars.ml_text_probability_score)}%` }} />
+                  </div>
+                </div>
+                <div className="bg-white/30 backdrop-blur-md p-3 rounded-xl border border-white/50 space-y-1">
+                  <div className="text-[10px] font-mono text-slate-600 uppercase font-bold">Cognitive Coercion</div>
+                  <div className="text-base font-black font-mono text-slate-900">{data.ai_ml_analysis.deep_ai_audit.evidence_pillars.cognitive_manipulation_score}%</div>
+                  <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-red-500 h-full rounded-full" style={{ width: `${Math.min(100, data.ai_ml_analysis.deep_ai_audit.evidence_pillars.cognitive_manipulation_score)}%` }} />
+                  </div>
+                </div>
+                <div className="bg-white/30 backdrop-blur-md p-3 rounded-xl border border-white/50 space-y-1">
+                  <div className="text-[10px] font-mono text-slate-600 uppercase font-bold">Evasion Risk</div>
+                  <div className="text-base font-black font-mono text-slate-900">{data.ai_ml_analysis.deep_ai_audit.evidence_pillars.evasion_obfuscation_score}%</div>
+                  <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-amber-500 h-full rounded-full" style={{ width: `${Math.min(100, data.ai_ml_analysis.deep_ai_audit.evidence_pillars.evasion_obfuscation_score)}%` }} />
+                  </div>
+                </div>
+                <div className="bg-white/30 backdrop-blur-md p-3 rounded-xl border border-white/50 space-y-1">
+                  <div className="text-[10px] font-mono text-slate-600 uppercase font-bold">Protocol Misalign</div>
+                  <div className="text-base font-black font-mono text-slate-900">{data.ai_ml_analysis.deep_ai_audit.evidence_pillars.protocol_alignment_score}%</div>
+                  <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-rose-500 h-full rounded-full" style={{ width: `${Math.min(100, data.ai_ml_analysis.deep_ai_audit.evidence_pillars.protocol_alignment_score)}%` }} />
+                  </div>
+                </div>
+                <div className="bg-white/30 backdrop-blur-md p-3 rounded-xl border border-white/50 space-y-1">
+                  <div className="text-[10px] font-mono text-slate-600 uppercase font-bold">Origin Anomaly</div>
+                  <div className="text-base font-black font-mono text-slate-900">{data.ai_ml_analysis.deep_ai_audit.evidence_pillars.infrastructure_origin_score}%</div>
+                  <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                    <div className="bg-purple-500 h-full rounded-full" style={{ width: `${Math.min(100, data.ai_ml_analysis.deep_ai_audit.evidence_pillars.infrastructure_origin_score)}%` }} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Cognitive & Evasion Highlights */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans">
+            <div className="bg-white/20 backdrop-blur-md p-4 rounded-xl border border-white/40 space-y-2">
+              <div className="font-bold text-slate-900 font-mono flex items-center justify-between">
+                <span>Psychological Coercion Profile:</span>
+                <span className="text-[10px] text-slate-600">{data.ai_ml_analysis.deep_ai_audit.cognitive_audit?.coercion_level} Intensity</span>
+              </div>
+              <div className="text-slate-700">
+                <span className="font-semibold text-slate-900">Dominant Vector:</span> {data.ai_ml_analysis.deep_ai_audit.cognitive_audit?.dominant_tactic}
+              </div>
+              {data.ai_ml_analysis.deep_ai_audit.cognitive_audit?.active_vectors?.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {data.ai_ml_analysis.deep_ai_audit.cognitive_audit.active_vectors.map((vec, i) => (
+                    <span key={i} className="text-[10px] font-mono font-bold px-2 py-0.5 bg-red-100/80 text-red-800 rounded-md border border-red-200">
+                      {vec}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="bg-white/20 backdrop-blur-md p-4 rounded-xl border border-white/40 space-y-2">
+              <div className="font-bold text-slate-900 font-mono flex items-center justify-between">
+                <span>Evasion & Obfuscation Scan:</span>
+                <span className="text-[10px] font-mono font-bold text-slate-600">
+                  {data.ai_ml_analysis.deep_ai_audit.evasion_audit?.is_evasion_detected ? 'Tactics Found' : 'Clean Payload'}
+                </span>
+              </div>
+              {data.ai_ml_analysis.deep_ai_audit.evasion_audit?.tactics_detected?.length > 0 ? (
+                <div className="space-y-1.5">
+                  {data.ai_ml_analysis.deep_ai_audit.evasion_audit.tactics_detected.map((t, idx) => (
+                    <div key={idx} className="text-[11px] text-slate-800 bg-amber-50/80 p-2 rounded-lg border border-amber-200">
+                      <span className="font-bold text-amber-900">{t.technique}: </span>
+                      {t.details}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-slate-600 text-[11px] italic">No zero-width injection, cloaked HTML CSS, or homoglyph character spoofing detected.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Threat Intent & Attack Stage */}
+          {data.ai_ml_analysis.deep_ai_audit.intent_profile && (
+            <div className="bg-white/30 backdrop-blur-md p-4 rounded-xl border border-white/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div>
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block">Attacker Strategic Objective</span>
+                <span className="font-bold text-slate-900 font-sans">{data.ai_ml_analysis.deep_ai_audit.intent_profile.primary_intent}</span>
+              </div>
+              <div className="sm:text-right">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 block">MITRE Lifecycle Phase</span>
+                <span className="font-mono font-bold text-indigo-700 bg-indigo-50 px-2 py-0.5 rounded-md border border-indigo-200 inline-block mt-0.5">
+                  {data.ai_ml_analysis.deep_ai_audit.intent_profile.attack_lifecycle_stage}
+                </span>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

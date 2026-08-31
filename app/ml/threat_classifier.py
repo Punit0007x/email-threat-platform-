@@ -42,6 +42,20 @@ PLATFORM_TO_MODEL_LABEL = {v: k for k, v in MODEL_TO_PLATFORM_LABEL.items()}
 # Platform labels considered benign / non-actionable.
 BENIGN_LABELS = {"clean", "legitimate"}
 
+# The high-severity template fraud classes. These were trained on synthetic
+# template data only (see the model card), so an overfit text-only model can
+# confidently assign a *legitimate* email to one of them purely on vocabulary
+# overlap (e.g. "Dear", "account", a URL). We therefore gate them with
+# independent, non-textual evidence before reporting them as a verdict.
+TEMPLATE_THREAT_LABELS = {
+    "phishing_credential_harvesting",
+    "bec_executive_impersonation",
+    "invoice_payment_fraud",
+    "extortion_blackmail",
+    "malware_delivery",
+    "brand_impersonation",
+}
+
 _clf = None
 _tfidf = None
 _scaler = None
@@ -84,6 +98,97 @@ def classify(text: str) -> Dict[str, Any]:
     }
 
 
+def _strong_auth(auth_analysis: Dict[str, Any]) -> bool:
+    """Independent protocol evidence: SPF/DKIM/DMARC all pass AND From aligned."""
+    a = auth_analysis or {}
+    return (
+        a.get("spf") == "pass"
+        and a.get("dkim") == "pass"
+        and a.get("dmarc") == "pass"
+        and a.get("domain_alignment_pass", False)
+    )
+
+
+def _url_risk(features: Dict[str, Any]) -> bool:
+    """Independent URL evidence: any suspicious hosting / path / shortener."""
+    ur = (features or {}).get("url_risks") or {}
+    return bool(ur.get("has_suspicious_hosting") or ur.get("has_suspicious_path") or ur.get("has_shortener"))
+
+
+def _lookalike(domain_check: Dict[str, Any]) -> bool:
+    dc = domain_check or {}
+    return bool(dc.get("is_lookalike") or dc.get("is_subdomain_spoof"))
+
+
+def calibrate(
+    model_result: Dict[str, Any],
+    auth_analysis: Dict[str, Any] = None,
+    domain_check: Dict[str, Any] = None,
+    features: Dict[str, Any] = None,
+) -> Dict[str, Any]:
+    """Apply a transparent, documented calibration to the overfit template model.
+
+    The text-only model can confidently sweep a legitimate email into a template
+    fraud class purely on vocabulary overlap. We do NOT modify its probabilities
+    (those stay honest). Instead we use an independent gating rule: if the email
+    passes strong authentication, From-domain alignment, has no suspicious URL
+    signals and the sender domain is not a lookalike, then a high-severity
+    template-fraud verdict is NOT reported — a real phishing/BEC email essentially
+    never co-occurs with all of those benign signals.
+
+    Returns a dict with the calibrated verdict plus the raw model output so the
+    override is fully auditable.
+    """
+    cls = model_result.get("class_probabilities", {})
+    raw_primary = model_result.get("predicted_class", "clean")
+
+    p_legit_raw = cls.get("legitimate", 0.0)
+
+    # Default: trust the model.
+    calibrated_primary = raw_primary
+    calibrated_threat = raw_primary not in BENIGN_LABELS
+    calibration_note = None
+    fraud_prob = 1.0 - p_legit_raw
+
+    # Independent benign evidence (only touches template FRAUD classes, not spam).
+    if raw_primary in TEMPLATE_THREAT_LABELS:
+        benign_evidence = (
+            _strong_auth(auth_analysis)
+            and not _url_risk(features)
+            and not _lookalike(domain_check)
+        )
+        if benign_evidence:
+            calibrated_primary = "clean"
+            calibrated_threat = False
+            # Trust independent evidence: a fully-authenticated, aligned, clean
+            # sender is far more likely legit than the overfit template guess.
+            fraud_prob = 0.0
+            calibration_note = (
+                "Model text-only prediction overridden to 'clean': strong "
+                "independent evidence (SPF/DKIM/DMARC PASS, From-domain alignment, "
+                "no suspicious URL signals, sender not a lookalike) contradicts the "
+                "template-based classification. Raw model prediction was "
+                f"'{raw_primary}' (confidence {model_result.get('confidence', 0):.2f})."
+            )
+
+    return {
+        "primary_threat": calibrated_primary,
+        "confidence": model_result["confidence"],
+        "predicted_class": calibrated_primary,
+        "class_probabilities": cls,
+        "model_classes": model_result.get("model_classes", []),
+        "is_threat": calibrated_threat,
+        "raw_model_prediction": raw_primary,
+        "raw_confidence": model_result["confidence"],
+        "calibrated_fraud_probability": round(fraud_prob, 4),
+        "calibrated_is_legitimate": p_legit_raw if not calibration_note else 1.0,
+        "calibration_applied": calibration_note is not None,
+        "calibration_note": calibration_note,
+        "trained_model_used": True,
+        "heuristic_bonus_applied": False,
+    }
+
+
 def classify_email_threat(
     features: Dict[str, Any] = None,
     domain_check: Dict[str, Any] = None,
@@ -94,23 +199,15 @@ def classify_email_threat(
 ) -> Dict[str, Any]:
     """Compatibility wrapper retained for the AI/ML pipeline.
 
-    Unlike the legacy implementation this does NOT apply any heuristic logit
-    bonuses — it returns the calibrated model's honest output. `raw_text` is the
-    only input that affects the prediction; the other args are accepted for
-    signature compatibility and surfaced unchanged in the output.
+    Returns the model's honest, calibrated output with a transparent independent-
+    evidence gate applied (see `calibrate`). No heuristic logit bonuses are applied
+    to the model's probabilities — the gating is an auditable decision rule that
+    overrides only the reported *verdict* on strong independent evidence.
     """
     result = classify(raw_text or "")
-
-    primary_threat = result["predicted_class"]
-    is_threat = primary_threat not in BENIGN_LABELS
-
-    return {
-        "primary_threat": primary_threat,
-        "confidence": result["confidence"],
-        "predicted_class": result["predicted_class"],
-        "class_probabilities": result["class_probabilities"],
-        "model_classes": result["model_classes"],
-        "is_threat": is_threat,
-        "trained_model_used": True,
-        "heuristic_bonus_applied": False,
-    }
+    return calibrate(
+        result,
+        auth_analysis=auth_analysis,
+        domain_check=domain_check,
+        features=features,
+    )

@@ -178,26 +178,40 @@ def calculate_fraud_score(
     # 7. AI/ML Deep Threat Indicators
     #
     # 007-clean scoring: the ML model's output is used as ONE named risk
-    # component with a FIXED, DOCUMENTED weight, driven by the calibrated
-    # probability the email is NOT legitimate. No ad-hoc +25/+20/+15 point bumps
-    # and no heuristic logit bonuses here — those were the audit findings.
+    # component with a FIXED, DOCUMENTED weight. We use the calibrated fraud
+    # probability produced by the classifier (which already applies the
+    # independent auto-auth/domain gate that prevents the overfit text model
+    # from sweeping legitimate email into a template class). No ad-hoc
+    # +25/+20/+15 point bumps and no heuristic logit bonuses here.
     if ai_ml_analysis:
         classification = ai_ml_analysis.get("classification", {})
         class_probs = classification.get("class_probabilities", {})
-        p_legit = class_probs.get("legitimate", 0.0)
-        if not class_probs:
-            # Fallback for consumers that only expose the legacy label
-            p_legit = 1.0 if classification.get("primary_threat", "clean") in ["clean", "legitimate"] else 0.0
-        ml_fraud_prob = 1.0 - p_legit
+        # Prefer the calibrated value emitted by the classifier; fall back to
+        # 1 - P(legitimate) from the raw (honest) probability distribution.
+        ml_fraud_prob = classification.get("calibrated_fraud_probability")
+        if ml_fraud_prob is None:
+            p_legit = class_probs.get("legitimate")
+            if p_legit is None:
+                p_legit = 1.0 if classification.get("primary_threat", "clean") in ["clean", "legitimate"] else 0.0
+            ml_fraud_prob = 1.0 - p_legit
+        ml_fraud_prob = max(0.0, min(1.0, float(ml_fraud_prob)))
         ml_pts = ML_WEIGHTS["ml_fraud_probability"]
         score += round(ml_fraud_prob * ml_pts, 2)
         primary_threat = classification.get("primary_threat", "clean")
         pred = classification.get("predicted_class", primary_threat)
-        reasons.append(
-            f"AI Multi-Class Model: Not-legitimate probability {round(ml_fraud_prob * 100, 1)}% "
-            f"(weighted {ml_pts} pts). Top predicted class '{pred}' "
-            f"(confidence {round(classification.get('confidence', 0) * 100, 1)}%)."
-        )
+        if classification.get("calibration_applied"):
+            reasons.append(
+                f"AI Multi-Class Model: verdict calibrated to 'clean' — independent "
+                f"authentication/domain/URL evidence overrode the raw text model "
+                f"(raw prediction '{classification.get('raw_model_prediction')}' was overfit)."
+            )
+        else:
+            reasons.append(
+                f"AI Multi-Class Model: Not-legitimate probability {round(ml_fraud_prob * 100, 1)}% "
+                f"(weighted {ml_pts} pts). Top predicted class '{pred}' "
+                f"(confidence {round(classification.get('confidence', 0) * 100, 1)}%)."
+            )
+
 
         bec = ai_ml_analysis.get("bec_analysis", {})
         if bec.get("bec_confidence_score", 0) >= 40:
