@@ -43,7 +43,7 @@ export default function IOCSearchModal({ isOpen, onClose, initialQuery = '' }) {
 
   React.useEffect(() => {
     if (initialQuery && isOpen) {
-      setQuery(initialQuery);
+      setQuery(prev => (prev !== initialQuery ? initialQuery : prev));
       executeSearch(initialQuery);
     }
   }, [initialQuery, isOpen, executeSearch]);

@@ -138,19 +138,30 @@ def fuse_with_ml_logits(ml_class_probs: dict[str, float], report: ForensicReport
     """
     Same pattern as threat_classifier.py's Deep Heuristic Logit Fusion:
     adjust raw ML class probabilities using hard forensic signal instead
-    of trusting the model in isolation. Kept as simple additive nudges
-    with renormalization so this drops into the existing fusion step
-    with minimal change.
+    of trusting the model in isolation.
     """
     adjusted = dict(ml_class_probs)
 
-    def bump(cls: str, amount: float):
-        if cls in adjusted:
-            adjusted[cls] = min(adjusted[cls] + amount, 1.0)
+    # Category key aliases map
+    aliases = {
+        "Phishing": ["Phishing", "phishing_credential_harvesting", "phishing"],
+        "Brand Impersonation": ["Brand Impersonation", "brand_impersonation"],
+        "Invoice Fraud": ["Invoice Fraud", "invoice_payment_fraud", "invoice_fraud"],
+        "BEC/Executive Impersonation": ["BEC/Executive Impersonation", "bec_executive_impersonation", "bec_executive"],
+        "Clean": ["Clean", "clean"]
+    }
 
-    def penalize(cls: str, amount: float):
-        if cls in adjusted:
-            adjusted[cls] = max(adjusted[cls] - amount, 0.0)
+    def bump(cls_name: str, amount: float):
+        keys = aliases.get(cls_name, [cls_name])
+        for k in keys:
+            if k in adjusted:
+                adjusted[k] = min(adjusted[k] + amount, 1.0)
+
+    def penalize(cls_name: str, amount: float):
+        keys = aliases.get(cls_name, [cls_name])
+        for k in keys:
+            if k in adjusted:
+                adjusted[k] = max(adjusted[k] - amount, 0.0)
 
     if report.geo and (report.geo.is_tor_exit or report.geo.is_known_vpn):
         bump("Phishing", 0.15)
@@ -166,7 +177,6 @@ def fuse_with_ml_logits(ml_class_probs: dict[str, float], report: ForensicReport
         penalize("Clean", 0.25)
 
     if report.related_incidents:
-        # Confirmed part of an active campaign -- strongest possible signal.
         bump("BEC/Executive Impersonation", 0.1)
         bump("Invoice Fraud", 0.1)
         penalize("Clean", 0.2)

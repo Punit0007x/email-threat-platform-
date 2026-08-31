@@ -157,65 +157,83 @@ def add_incident(graph: nx.Graph, incident: Incident) -> None:
 # Campaign discovery
 # ---------------------------------------------------------------------------
 
+def _resolve_incident_node(graph: nx.Graph, incident_id: str) -> Optional[str]:
+    if incident_id in graph:
+        return incident_id
+    namespaced = _entity_node("incident", incident_id)
+    if namespaced in graph:
+        return namespaced
+    return None
+
+def _get_node_incident_id(graph: nx.Graph, node: str) -> Optional[str]:
+    n_data = graph.nodes[node]
+    n_type = n_data.get("_type") or n_data.get("node_type")
+    if n_type == "incident":
+        if "data" in n_data and hasattr(n_data["data"], "incident_id"):
+            return n_data["data"].incident_id
+        if "incident_id" in n_data:
+            return n_data["incident_id"]
+        return node
+    return None
+
 def find_related_incidents(graph: nx.Graph, incident_id: str) -> set[str]:
-    """
-    All other incident_ids that share ANY infrastructure node with this
-    one, found by connected-component membership. Two incidents sharing
-    infra don't need a direct edge -- they're linked through the shared
-    entity node, which is exactly what makes this a graph problem.
-    """
-    incident_node = _entity_node("incident", incident_id)
-    if incident_node not in graph:
+    node = _resolve_incident_node(graph, incident_id)
+    if not node or node not in graph:
         return set()
 
-    component = nx.node_connected_component(graph, incident_node)
-    related = {
-        graph.nodes[n]["data"].incident_id
-        for n in component
-        if graph.nodes[n].get("node_type") == "incident"
-    }
-    related.discard(incident_id)
+    component = nx.node_connected_component(graph, node)
+    related = set()
+    for n in component:
+        inc_id = _get_node_incident_id(graph, n)
+        if inc_id and inc_id != incident_id:
+            related.add(inc_id)
     return related
 
 
 def shared_infrastructure(graph: nx.Graph, incident_a: str, incident_b: str) -> list[tuple[str, str]]:
-    """(entity_kind, entity_value) pairs both incidents are connected to."""
-    node_a = _entity_node("incident", incident_a)
-    node_b = _entity_node("incident", incident_b)
-    if node_a not in graph or node_b not in graph:
+    node_a = _resolve_incident_node(graph, incident_a)
+    node_b = _resolve_incident_node(graph, incident_b)
+    if not node_a or not node_b or node_a not in graph or node_b not in graph:
         return []
     neighbors_a = set(graph.neighbors(node_a))
     neighbors_b = set(graph.neighbors(node_b))
     shared = neighbors_a & neighbors_b
-    return [(graph.nodes[n]["node_type"], graph.nodes[n]["value"]) for n in shared]
+    res = []
+    for n in shared:
+        n_data = graph.nodes[n]
+        kind = n_data.get("_type") or n_data.get("node_type") or "unknown"
+        val = n_data.get("value") or n
+        res.append((kind, val))
+    return res
 
 
 def campaign_confidence(graph: nx.Graph, incident_a: str, incident_b: str) -> float:
-    """
-    Sum of edge weights to every shared entity, normalized to 0..1.
-    Sharing one raw IP (weight 1.0) alone crosses ~0.5 confidence;
-    sharing IP + ASN + domain saturates near 1.0.
-    """
     shared = shared_infrastructure(graph, incident_a, incident_b)
     if not shared:
         return 0.0
-    node_a = _entity_node("incident", incident_a)
+    node_a = _resolve_incident_node(graph, incident_a)
+    if not node_a:
+        return 0.0
+    neighbors_a = set(graph.neighbors(node_a))
+    node_b = _resolve_incident_node(graph, incident_b)
+    if not node_b:
+        return 0.0
+    neighbors_b = set(graph.neighbors(node_b))
+    shared_nodes = neighbors_a & neighbors_b
     total = 0.0
-    for kind, value in shared:
-        entity_node = _entity_node(kind, value)
-        total += graph[node_a][entity_node]["weight"]
-    return min(total / 2.0, 1.0)  # /2.0: two matching high-weight signals should already read as ~1.0
+    for n in shared_nodes:
+        total += graph[node_a][n].get("weight", 0.5)
+    return min(total / 2.0, 1.0)
 
 
 def cluster_campaigns(graph: nx.Graph, min_incidents: int = 2) -> list[set[str]]:
-    """All campaigns (connected components) with >= min_incidents distinct incidents."""
     campaigns = []
     for component in nx.connected_components(graph):
-        incident_ids = {
-            graph.nodes[n]["data"].incident_id
-            for n in component
-            if graph.nodes[n].get("node_type") == "incident"
-        }
+        incident_ids = set()
+        for n in component:
+            inc_id = _get_node_incident_id(graph, n)
+            if inc_id:
+                incident_ids.add(inc_id)
         if len(incident_ids) >= min_incidents:
             campaigns.append(incident_ids)
     return campaigns

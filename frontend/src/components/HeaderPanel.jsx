@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Mail, AlignLeft, ShieldAlert, Layers, Check } from 'lucide-react';
+import { Mail, AlignLeft, ShieldAlert, Layers } from 'lucide-react';
 
 const THREAT_PATTERNS = [
   { 

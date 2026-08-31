@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Shield, Brain, Network, MapPin, 
   FileSearch, Lock, Zap, ArrowRight, 
-  Activity, CheckCircle2, ChevronRight,
+  Activity, CheckCircle2,
   Fingerprint, Database
 } from 'lucide-react';
 
 export default function LandingPage({ onLaunchDemo }) {
-  const [activeTab, setActiveTab] = useState(0);
 
   const modules = [
     {

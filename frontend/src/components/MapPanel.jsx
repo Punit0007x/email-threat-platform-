@@ -1,5 +1,5 @@
 import React from 'react';
-import { Globe, MapPin, Radio, ShieldCheck, ShieldAlert, Network, Activity } from 'lucide-react';
+import { Globe, ShieldCheck, ShieldAlert, Network, Activity } from 'lucide-react';
 import RelayHopVisualizer from './RelayHopVisualizer';
 import CyberGlobe from './CyberGlobe';
 
@@ -12,7 +12,7 @@ const VERDICT_LABELS = {
   unknown: { label: "Unknown Origin", color: "bg-gray-50 text-slate-700 drop-shadow-sm border-gray-200" }
 };
 
-export default function MapPanel({ data, onLookupIOC }) {
+export default function MapPanel({ data, _onLookupIOC }) {
   if (!data || !data.trace || !data.trace.hops) return null;
 
   const hops = data.trace.hops;

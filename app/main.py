@@ -1,3 +1,4 @@
+import os
 import sys
 import asyncio
 import time
@@ -209,8 +210,25 @@ async def prometheus_metrics():
     return metrics_endpoint()
 
 
-@app.get("/", tags=["Root"])
-async def root():
+from fastapi.staticfiles import StaticFiles
+
+frontend_dist = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend", "dist")
+if os.path.exists(frontend_dist):
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    @app.get("/", response_class=HTMLResponse, include_in_schema=False)
+    @app.get("/login", response_class=HTMLResponse, include_in_schema=False)
+    async def serve_spa():
+        index_file = os.path.join(frontend_dist, "index.html")
+        if os.path.exists(index_file):
+            with open(index_file, "r", encoding="utf-8") as f:
+                return f.read()
+        return HTMLResponse("<h1>Frontend dist index.html not found</h1>")
+
+@app.get("/api/info", tags=["Root"])
+async def api_info():
     return {
         "status": "online",
         "service": "Email Threat Intelligence & Forensic Platform",
@@ -227,7 +245,7 @@ async def root():
             "campaigns_get": "/api/campaigns",
             "alerts_get": "/api/alerts",
         },
-        "frontend_dashboard": "http://localhost:5173",
+        "frontend_dashboard": "http://localhost:8000",
     }
 
 
