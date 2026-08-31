@@ -1,0 +1,9 @@
+venv/
+.venv/
+data/
+archive/
+models/
+app/
+tests/
+secrets/
+*.db

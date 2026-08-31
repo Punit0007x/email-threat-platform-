@@ -210,15 +210,15 @@ function MainApp() {
     <div className="h-screen w-full overflow-y-scroll snap-y snap-mandatory bg-[#0A0A0C] font-sans selection:bg-[#ff4757] selection:text-white">
       
       {/* Floating Top Navigation Pill */}
-      <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-2xl bg-slate-950/85 border border-slate-700/60 px-5 py-2.5 rounded-full flex items-center gap-4 shadow-[0_12px_40px_rgba(0,0,0,0.5)]">
+      <nav className="fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-2xl bg-slate-950/85 border border-slate-700/60 px-4 sm:px-5 py-2.5 rounded-full flex items-center gap-2 sm:gap-4 shadow-[0_12px_40px_rgba(0,0,0,0.5)] w-[90%] sm:w-auto justify-between sm:justify-center">
         {/* Brand */}
-        <div className="flex items-center gap-2 pr-3 border-r border-slate-700/80">
+        <div className="flex items-center gap-2 sm:pr-3 sm:border-r border-slate-700/80 shrink-0">
           <Shield className="w-4 h-4 text-cyan-400" />
-          <span className="text-xs font-bold text-white font-mono tracking-wider">eRAKSHAK</span>
+          <span className="text-xs font-bold text-white font-mono tracking-wider hidden xs:inline-block">eRAKSHAK</span>
         </div>
 
         {/* Section Indicators */}
-        <div className="flex gap-2.5 items-center">
+        <div className="hidden sm:flex gap-2.5 items-center">
           {[1, 2, 3].map((num) => (
             <div 
               key={num} 
@@ -228,8 +228,8 @@ function MainApp() {
         </div>
 
         {/* Current User & Logout */}
-        <div className="flex items-center gap-3 pl-3 border-l border-slate-700/80">
-          <div className="flex items-center gap-2 text-xs text-slate-300">
+        <div className="flex items-center gap-2 sm:gap-3 sm:pl-3 sm:border-l border-slate-700/80 shrink-0">
+          <div className="hidden md:flex items-center gap-2 text-xs text-slate-300">
             <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse" />
             <span className="max-w-[130px] truncate font-medium text-slate-200">{user.full_name || user.username}</span>
           </div>
@@ -239,7 +239,7 @@ function MainApp() {
             title="Download Chrome Extension"
           >
             <Zap className="w-3.5 h-3.5" />
-            <span>Extension</span>
+            <span className="hidden sm:inline-block">Extension</span>
           </a>
           <button 
             onClick={handleLogout}
@@ -247,7 +247,7 @@ function MainApp() {
             title="Sign out of eRakshak"
           >
             <LogOut className="w-3.5 h-3.5" />
-            <span>Logout</span>
+            <span className="hidden sm:inline-block">Logout</span>
           </button>
         </div>
       </nav>
@@ -394,36 +394,36 @@ function MainApp() {
           <div className="pt-24 pb-12 px-4 sm:px-8 max-w-[90rem] mx-auto h-full flex flex-col">
             
             {/* Tab Navigation System */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-3 flex flex-wrap gap-3 shadow-sm mb-8">
+            <div className="bg-white border border-gray-200 rounded-2xl p-2 sm:p-3 flex flex-wrap gap-2 sm:gap-3 shadow-sm mb-6 sm:mb-8">
               {[
                 { id: 'detection', label: '1. AI Fraud Detection' },
                 { id: 'protocols', label: '2. Header & Protocol Analysis' },
-                { id: 'traceability', label: '3. Origin Traceability & Location' },
-                { id: 'attribution', label: '4. Identity & Attribution Graph' },
-                { id: 'reporting', label: '5. Official Incident Report' }
+                { id: 'traceability', label: '3. Origin Traceability' },
+                { id: 'attribution', label: '4. Identity Graph' },
+                { id: 'reporting', label: '5. Incident Report' }
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveView(tab.id)}
-                  className={`px-5 py-3 rounded-xl text-base font-semibold transition-all ${activeView === tab.id ? 'bg-[#4F46E5] text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`flex-1 sm:flex-none whitespace-nowrap px-3 sm:px-5 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-base font-semibold transition-all ${activeView === tab.id ? 'bg-[#4F46E5] text-white shadow-md' : 'text-gray-600 hover:bg-gray-100'}`}
                 >
                   {tab.label}
                 </button>
               ))}
-              <div className="ml-auto flex gap-3 items-center">
-                 <button onClick={() => setShowIOCSearch(true)} className="px-4 py-3 rounded-xl text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2 transition-all">
-                   <Search className="w-4 h-4"/> IOC Search
+              <div className="w-full lg:w-auto lg:ml-auto flex flex-wrap gap-2 sm:gap-3 items-center justify-center lg:justify-end mt-2 lg:mt-0 border-t lg:border-none pt-2 lg:pt-0 border-slate-100">
+                 <button onClick={() => setShowIOCSearch(true)} className="flex-1 sm:flex-none justify-center px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 flex items-center gap-2 transition-all">
+                   <Search className="w-4 h-4"/> <span className="hidden xs:inline">IOC Search</span>
                  </button>
-                 <button onClick={() => setResults(null)} className="px-4 py-3 rounded-xl text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-all">
+                 <button onClick={() => setResults(null)} className="flex-1 sm:flex-none justify-center px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 transition-all">
                    Clear Scan
                  </button>
                  <button 
                    onClick={handleLogout} 
-                   className="px-4 py-3 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-sm flex items-center gap-2 transition-all"
+                   className="flex-1 sm:flex-none justify-center px-3 sm:px-4 py-2 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold bg-red-600 hover:bg-red-700 text-white shadow-sm flex items-center gap-2 transition-all"
                    title="Log out of eRakshak"
                  >
                    <LogOut className="w-4 h-4"/>
-                   <span>Log Out</span>
+                   <span className="hidden xs:inline">Log Out</span>
                  </button>
               </div>
             </div>

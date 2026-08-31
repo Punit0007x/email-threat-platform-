@@ -264,14 +264,27 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
   const canvasRef = useRef(null);
   useRealHackerOverlay(canvasRef);
 
+  // Use refs to avoid useEffect dependency issues with Google SDK
+  const onGoogleLoginRef = useRef(onGoogleLogin);
+  const rememberMeRef = useRef(rememberMe);
+  
+  useEffect(() => {
+    onGoogleLoginRef.current = onGoogleLogin;
+    rememberMeRef.current = rememberMe;
+  }, [onGoogleLogin, rememberMe]);
+
   // Official Google Identity Services SDK Handler
-  const handleGoogleCredentialResponse = async (response) => {
+  const handleGoogleCredentialResponse = React.useCallback(async (response) => {
     if (!response || !response.credential) return;
     setIsGoogleLoading(true);
     setError(null);
     try {
       const base64Url = response.credential.split('.')[1];
-      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const pad = base64.length % 4;
+      if (pad) {
+        base64 += '='.repeat(4 - pad);
+      }
       const jsonPayload = decodeURIComponent(
         atob(base64)
           .split('')
@@ -280,19 +293,19 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
       );
       const googleUser = JSON.parse(jsonPayload);
 
-      if (onGoogleLogin) {
-        await onGoogleLogin({
+      if (onGoogleLoginRef.current) {
+        await onGoogleLoginRef.current({
           credential: response.credential,
           email: googleUser.email,
           name: googleUser.name,
           picture: googleUser.picture
-        }, rememberMe);
+        }, rememberMeRef.current);
       }
     } catch (err) {
       setError(err.message || 'Google authentication failed.');
       setIsGoogleLoading(false);
     }
-  };
+  }, []);
 
   const isGoogleInitialized = useRef(false);
 
@@ -375,7 +388,7 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
       {/* ======================================================== */}
       {/* LEFT 50%: REALISTIC HACKER SCENE WITH LIVE OVERLAY       */}
       {/* ======================================================== */}
-      <section className="w-full lg:w-1/2 h-[380px] lg:h-full relative overflow-hidden flex-shrink-0 bg-black">
+      <section className="w-full lg:w-1/2 h-[200px] sm:h-[280px] lg:h-full relative overflow-hidden flex-shrink-0 bg-black">
         
         {/* Photorealistic Hacker Image */}
         <img
@@ -388,7 +401,7 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-none" />
 
         {/* Top-left HUD badge */}
-        <div className="absolute top-6 left-6 z-10 pointer-events-none">
+        <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-10 pointer-events-none scale-75 sm:scale-100 origin-top-left">
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-slate-950/80 border border-cyan-500/30 rounded-full backdrop-blur-md shadow-lg">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,220,255,0.9)] animate-pulse" />
             <span className="text-[11px] font-bold text-cyan-300 tracking-wider font-mono uppercase flex items-center gap-1.5">
@@ -399,7 +412,7 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
         </div>
 
         {/* Bottom center HUD status bar */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap">
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap scale-75 sm:scale-100 origin-bottom">
           <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-950/85 border border-emerald-500/30 rounded-full backdrop-blur-md shadow-xl">
             <Terminal className="w-4 h-4 text-emerald-400" />
             <span className="font-mono text-[11px] font-semibold text-emerald-400 tracking-wider">
@@ -415,7 +428,7 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
       {/* ======================================================== */}
       {/* RIGHT 50%: CRISP WHITE / LIGHT THEME CARD                */}
       {/* ======================================================== */}
-      <section className="w-full lg:w-1/2 min-h-[calc(100vh-380px)] lg:h-full flex items-center justify-center p-6 sm:p-12 overflow-y-auto relative bg-white flex-shrink-0">
+      <section className="w-full lg:w-1/2 min-h-[calc(100vh-200px)] sm:min-h-[calc(100vh-280px)] lg:h-full flex items-center justify-center p-4 sm:p-6 lg:p-12 overflow-y-auto relative bg-white flex-shrink-0 pb-16 lg:pb-12">
 
         {/* Soft background ambient light blobs */}
         <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-blue-100/50 blur-[90px] pointer-events-none" />
@@ -426,7 +439,7 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: 'easeOut' }}
-          className="w-full max-w-[440px] bg-white border border-slate-200/90 rounded-2xl p-8 sm:p-10 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.09)] relative z-10"
+          className="w-full max-w-[440px] bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-10 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.09)] relative z-10 my-4 lg:my-0"
         >
           {/* Header */}
           <div className="flex flex-col items-start mb-6">
