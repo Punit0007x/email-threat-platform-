@@ -1,0 +1,85 @@
+# ============================================
+# eRakshak - Production Docker Compose
+# ============================================
+# Minimal setup: Frontend + Backend API + Caddy (SSL proxy)
+# No Kafka, No Neo4j, No Redis (all optional/dead dependencies)
+# Total resource usage: ~3GB RAM, 3 CPU cores
+#
+# Usage:
+#   1. Copy .env.production to .env and fill in values
+#   2. Create secrets: bash deploy.sh setup
+#   3. Start: docker compose -f docker-compose.prod.yml up -d --build
+#   4. Stop:  docker compose -f docker-compose.prod.yml down
+
+services:
+  # ==========================================
+  # 1. Frontend (React + Vite)
+  # ==========================================
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    restart: unless-stopped
+    networks:
+      - app-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+
+  # ==========================================
+  # 2. Backend API (FastAPI + ML Pipeline)
+  # ==========================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - api-data:/app/data
+      - ./models:/app/models:ro
+    networks:
+      - app-net
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 3G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/ready"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # ==========================================
+  # 3. Caddy (Reverse Proxy + Free SSL)
+  # ==========================================
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - app-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+
+networks:
+  app-net:
+    driver: bridge
+
+volumes:
+  api-data:
+  caddy-data:
+  caddy-config:

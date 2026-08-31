@@ -1,0 +1,68 @@
+# ============================================
+# eRakshak - Caddy Reverse Proxy Config
+# ============================================
+# Caddy auto-provisions HTTPS via Let's Encrypt.
+#
+# Two modes:
+#   A. IP-only (no domain) - uses :80
+#   B. Domain with auto-SSL - recommended
+#
+# To switch modes, uncomment one section and comment the other.
+
+# ============================================
+# MODE A: IP-ONLY (no domain, HTTP only)
+# ============================================
+:80 {
+    reverse_proxy frontend:5173
+
+    handle /api/* {
+        reverse_proxy api:8000
+    }
+
+    handle /health/* {
+        reverse_proxy api:8000
+    }
+
+    handle /metrics {
+        reverse_proxy api:8000
+    }
+
+    header {
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy strict-origin-when-cross-origin
+        -Server
+    }
+
+    encode gzip
+}
+
+# ============================================
+# MODE B: DOMAIN with AUTO-SSL
+# Replace app.yourdomain.com with your domain
+# Then comment out MODE A above and uncomment below
+# ============================================
+# app.yourdomain.com {
+#     reverse_proxy frontend:5173
+#
+#     handle /api/* {
+#         reverse_proxy api:8000
+#     }
+#
+#     handle /health/* {
+#         reverse_proxy api:8000
+#     }
+#
+#     handle /metrics {
+#         reverse_proxy api:8000
+#     }
+#
+#     header {
+#         X-Content-Type-Options nosniff
+#         X-Frame-Options DENY
+#         Referrer-Policy strict-origin-when-cross-origin
+#         -Server
+#     }
+#
+#     encode gzip
+# }
