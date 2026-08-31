@@ -6,7 +6,7 @@ from app.scoring.domain_check import check_domain_lookalike
 from app.ml.pipeline import analyze_email_ai_ml
 from app.scoring.fraud_score import calculate_fraud_score
 
-def test_file(filepath):
+def run_test_file(filepath):
     print(f"\n{'='*70}\nTESTING EMAIL: {filepath}\n{'='*70}")
     parsed = parse_eml_file(filepath)
     auth = analyze_auth(parsed.authentication_results, parsed.from_address, parsed.return_path)
@@ -48,4 +48,5 @@ def test_file(filepath):
 
 if __name__ == "__main__":
     for path in ["test_emails/clean.eml", "test_emails/sample.eml", "test_emails/multi_hop.eml"]:
-        test_file(path)
+        run_test_file(path)
+

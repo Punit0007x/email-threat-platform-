@@ -78,7 +78,7 @@ function detectObfuscatedStrings(text) {
 function detectHiddenText(html, plain) {
   const hidden = [];
   
-  const zeroWidthRegex = /[\u200B\u200C\u200D\uFEFF\u00A0]{2,}/g;
+  const zeroWidthRegex = /(?:[\u200B\u200C\u200D\uFEFF\u00A0]){2,}/g;
   if (plain && zeroWidthRegex.test(plain)) {
     hidden.push({
       type: 'Zero-Width Unicode Characters',
@@ -130,7 +130,7 @@ function detectTrackingPixels(html) {
   return pixels;
 }
 
-export default function EmailBodyDissector({ data, onLookupIOC }) {
+export default function EmailBodyDissector({ data, _onLookupIOC }) {
   const [viewMode, setViewMode] = useState('wysiwyg'); // 'wysiwyg' | 'text' | 'deobfuscate' | 'raw'
   const [customInput, setCustomInput] = useState('');
   const [customDecoded, setCustomDecoded] = useState(null);

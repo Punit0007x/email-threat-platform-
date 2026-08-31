@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Shield, Lock, Mail, User, KeyRound, Eye, EyeOff, 
-  CheckCircle2, AlertCircle, ArrowRight, Sparkles, X, Terminal, Fingerprint
+  CheckCircle2, AlertCircle, ArrowRight, X, Terminal, Fingerprint
 } from 'lucide-react';
 import { loginUser, signupUser } from '../services/authService';
 

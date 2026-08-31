@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, useInView } from 'framer-motion';
 import { 
-  Upload, AlertCircle, FileText, BookOpen, Search, Zap, Terminal, Sparkles, Radio, Database, Shield, Mail, Lock, LogOut
+  Upload, AlertCircle, Search, Zap, Terminal, Sparkles, Radio, Shield, LogOut
 } from 'lucide-react';
 import { analyzeEmail } from './services/analysisService';
-import { login, loginWithGoogle, getToken, setToken, removeToken, logoutUser, getStoredUser } from './services/authService';
+import { login, loginWithGoogle, getToken, logoutUser, getStoredUser } from './services/authService';
 
 import HeaderPanel from './components/HeaderPanel';
 import AuthPanel from './components/AuthPanel';
@@ -12,15 +12,12 @@ import FraudScorePanel from './components/FraudScorePanel';
 import AIMLThreatPanel from './components/AIMLThreatPanel';
 import DeepOSINTPanel from './components/DeepOSINTPanel';
 import MapPanel from './components/MapPanel';
-import AdvancedSOC from './components/AdvancedSOC';
 import CustodyReportPanel from './components/CustodyReportPanel';
 import GraphAttributionPanel from './components/GraphAttributionPanel';
 import PlaybookModal from './components/PlaybookModal';
 import IOCSearchModal from './components/IOCSearchModal';
 import CyberScanOverlay from './components/CyberScanOverlay';
 import EmailBodyDissector from "./components/EmailBodyDissector";
-import LandingPage from "./components/LandingPage";
-import DashboardView from './components/DashboardView';
 import LoginPage from './components/LoginPage';
 
 import CyberBackground from './components/CyberBackground';
@@ -56,21 +53,9 @@ const DEMO_EMAILS = [
   }
 ];
 
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-function ProtectedRoute({ children }) {
-  const token = getToken();
-  const isAuthenticated = token && token !== 'false' && token !== 'null' && token !== 'undefined';
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  return children;
-}
-
-function MainApp() {
-  const navigate = useNavigate();
+function MainApp({ onLogout }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -92,9 +77,12 @@ function MainApp() {
   const isDashboardInView = useInView(dashboardRef, { amount: 0.5 });
 
   useEffect(() => {
-    if (isHeroInView) setActiveSection(1);
-    else if (isScannerInView) setActiveSection(2);
-    else if (isDashboardInView) setActiveSection(3);
+    let target = 1;
+    if (isDashboardInView) target = 3;
+    else if (isScannerInView) target = 2;
+    else if (isHeroInView) target = 1;
+
+    setActiveSection(prev => prev !== target ? target : prev);
   }, [isHeroInView, isScannerInView, isDashboardInView]);
 
   useEffect(() => {
@@ -120,14 +108,11 @@ function MainApp() {
       }
     };
 
-    // Check storage immediately
     checkStorage();
 
-    // Check on tab focus or storage change
     window.addEventListener('focus', checkStorage);
     window.addEventListener('storage', checkStorage);
 
-    // Listen for custom events dispatched by the extension
     const handleSharedData = (event) => {
       if (event.detail && event.detail.data) {
         handleExtensionData(event.detail.data);
@@ -199,12 +184,7 @@ function MainApp() {
     handleAnalyze(demoFile);
   };
 
-  const user = getStoredUser() || { full_name: 'Security Officer', username: 'analyst' };
-
-  const handleLogout = () => {
-    logoutUser();
-    navigate('/login', { replace: true });
-  };
+  const user = getStoredUser() || { full_name: 'Security Analyst', username: 'analyst' };
 
   return (
     <div className="h-screen w-full overflow-y-scroll snap-y snap-mandatory bg-[#0A0A0C] font-sans selection:bg-[#ff4757] selection:text-white">
@@ -234,8 +214,8 @@ function MainApp() {
             <span className="max-w-[130px] truncate font-medium text-slate-200">{user.full_name || user.username}</span>
           </div>
           <button 
-            onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 hover:text-red-300 text-xs font-semibold shadow-sm transition-all"
+            onClick={onLogout}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 hover:text-red-300 text-xs font-semibold shadow-sm transition-all cursor-pointer"
             title="Sign out of eRakshak"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -470,7 +450,6 @@ function MainApp() {
         </section>
       )}
 
-      {/* Modals & Overlays */}
       <PlaybookModal isOpen={showPlaybook} onClose={() => setShowPlaybook(false)} />
       <IOCSearchModal 
         isOpen={showIOCSearch} 
@@ -486,43 +465,38 @@ function MainApp() {
   );
 }
 
-function AppLoginWrapper() {
-  const navigate = useNavigate();
-  const token = getToken();
-
-  // If already logged in, automatically proceed to dashboard
-  useEffect(() => {
-    if (token) {
-      navigate('/', { replace: true });
-    }
-  }, [token, navigate]);
+function AppContent() {
+  const [token, setTokenState] = useState(() => getToken());
 
   const handleLogin = async (username, password) => {
     await login(username, password);
-    navigate('/', { replace: true });
+    setTokenState(getToken());
   };
 
-  const handleGoogleLogin = async (googleData = { email: 'analyst@gmail.com', name: 'Security Analyst' }) => {
+  const handleGoogleLogin = async (googleData) => {
     await loginWithGoogle(googleData);
-    navigate('/', { replace: true });
+    setTokenState(getToken());
   };
 
-  return <LoginPage onLogin={handleLogin} onGoogleLogin={handleGoogleLogin} />;
+  const handleLogout = () => {
+    logoutUser();
+    setTokenState(null);
+  };
+
+  const isAuthenticated = Boolean(token);
+
+  if (!isAuthenticated) {
+    return <LoginPage onLogin={handleLogin} onGoogleLogin={handleGoogleLogin} />;
+  }
+
+  return <MainApp onLogout={handleLogout} />;
 }
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/login" element={<AppLoginWrapper />} />
-        <Route 
-          path="/*" 
-          element={
-            <ProtectedRoute>
-              <MainApp />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/*" element={<AppContent />} />
       </Routes>
     </Router>
   );

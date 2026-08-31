@@ -1,6 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
+const PRESET_NODES = Array.from({ length: 30 }).map((_, i) => ({
+  id: i,
+  size: ((i * 13) % 20) / 10 + 1,
+  initX: ((i * 37) % 100) / 100,
+  initY: ((i * 53) % 100) / 100,
+  initOpacity: ((i * 19) % 30) / 100 + 0.1,
+  targetY: ((i * 71) % 100) / 100,
+  midOpacity: ((i * 29) % 60) / 100 + 0.2,
+  endOpacity: ((i * 41) % 30) / 100 + 0.1,
+  duration: ((i * 17) % 20) + 10,
+}));
+
 export default function CyberBackground({ theme = 'dark' }) {
   const [dimensions, setDimensions] = useState({ width: 1000, height: 800 });
   const [isClient, setIsClient] = useState(false);
@@ -17,6 +29,8 @@ export default function CyberBackground({ theme = 'dark' }) {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  const nodes = PRESET_NODES;
 
   if (!isClient) return null;
 
@@ -59,30 +73,27 @@ export default function CyberBackground({ theme = 'dark' }) {
       />
 
       {/* Floating Data Nodes */}
-      {Array.from({ length: 30 }).map((_, i) => {
-        const size = Math.random() * 2 + 1;
-        return (
-          <motion.div
-            key={i}
-            initial={{ 
-              x: Math.random() * dimensions.width, 
-              y: Math.random() * dimensions.height,
-              opacity: Math.random() * 0.3 + 0.1
-            }}
-            animate={{
-              y: [null, Math.random() * dimensions.height],
-              opacity: [null, Math.random() * 0.8 + 0.2, Math.random() * 0.3 + 0.1]
-            }}
-            transition={{ 
-              duration: Math.random() * 20 + 10, 
-              repeat: Infinity, 
-              ease: "linear" 
-            }}
-            className={`absolute rounded-full blur-[1px] ${isLight ? 'bg-cyan-600' : 'bg-cyan-400'}`}
-            style={{ width: size, height: size }}
-          />
-        );
-      })}
+      {nodes.map((node) => (
+        <motion.div
+          key={node.id}
+          initial={{ 
+            x: node.initX * dimensions.width, 
+            y: node.initY * dimensions.height,
+            opacity: node.initOpacity
+          }}
+          animate={{
+            y: [null, node.targetY * dimensions.height],
+            opacity: [null, node.midOpacity, node.endOpacity]
+          }}
+          transition={{ 
+            duration: node.duration, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
+          className={`absolute rounded-full blur-[1px] ${isLight ? 'bg-cyan-600' : 'bg-cyan-400'}`}
+          style={{ width: node.size, height: node.size }}
+        />
+      ))}
     </div>
   );
 }

@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
   Shield, Lock, User, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowRight,
-  Activity, Terminal, Sparkles, Fingerprint
+  Activity, Terminal
 } from 'lucide-react';
 
 // ============================================================
@@ -243,7 +243,7 @@ function useRealHackerOverlay(canvasRef) {
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animId);
     };
-  }, []);
+  }, [canvasRef]);
 }
 
 // ============================================================
@@ -263,7 +263,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
   useRealHackerOverlay(canvasRef);
 
   // Official Google Identity Services SDK Handler
-  const handleGoogleCredentialResponse = async (response) => {
+  const handleGoogleCredentialResponse = useCallback(async (response) => {
     if (!response || !response.credential) return;
     setIsGoogleLoading(true);
     setError(null);
@@ -290,7 +290,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
       setError(err.message || 'Google authentication failed.');
       setIsGoogleLoading(false);
     }
-  };
+  }, [onGoogleLogin, rememberMe]);
 
   useEffect(() => {
     const initGoogleGSI = () => {
@@ -333,7 +333,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
       }, 250);
       return () => clearInterval(timer);
     }
-  }, []);
+  }, [handleGoogleCredentialResponse]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

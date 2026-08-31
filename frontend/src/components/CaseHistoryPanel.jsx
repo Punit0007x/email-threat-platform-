@@ -27,7 +27,7 @@ export default function CaseHistoryPanel() {
   const [selectedTab, setSelectedTab] = useState('campaigns'); // 'campaigns' | 'cases' | 'alerts' | 'retention'
   const [searchQuery, setSearchQuery] = useState('');
 
-  const fetchHistory = async () => {
+  const fetchHistory = React.useCallback(async () => {
     setLoading(true);
     try {
       const [casesRes, campRes, alertsRes, statsRes, webhookRes, retentionRes] = await Promise.all([
@@ -59,11 +59,11 @@ export default function CaseHistoryPanel() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchHistory();
-  }, []);
+  }, [fetchHistory]);
 
   const handleSaveWebhook = async (e) => {
     e.preventDefault();

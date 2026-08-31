@@ -8,7 +8,6 @@ import {
   TrendingUp, 
   Zap, 
   Flame,
-  FileSearch,
   History,
   Database,
   Sparkles,
