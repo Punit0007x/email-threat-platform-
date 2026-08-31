@@ -267,6 +267,7 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
   // Use refs to avoid useEffect dependency issues with Google SDK
   const onGoogleLoginRef = useRef(onGoogleLogin);
   const rememberMeRef = useRef(rememberMe);
+  const isGoogleInitialized = useRef(false);
   
   useEffect(() => {
     onGoogleLoginRef.current = onGoogleLogin;
@@ -279,19 +280,24 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
     setIsGoogleLoading(true);
     setError(null);
     try {
-      const base64Url = response.credential.split('.')[1];
-      let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-      const pad = base64.length % 4;
-      if (pad) {
-        base64 += '='.repeat(4 - pad);
+      let googleUser = {};
+      try {
+        const base64Url = response.credential.split('.')[1];
+        let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const pad = base64.length % 4;
+        if (pad) {
+          base64 += '='.repeat(4 - pad);
+        }
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        googleUser = JSON.parse(jsonPayload);
+      } catch (decodeErr) {
+        console.warn("Client JWT decode warning, relying on server:", decodeErr);
       }
-      const jsonPayload = decodeURIComponent(
-        atob(base64)
-          .split('')
-          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-          .join('')
-      );
-      const googleUser = JSON.parse(jsonPayload);
 
       if (onGoogleLoginRef.current) {
         await onGoogleLoginRef.current({
@@ -301,11 +307,14 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
           picture: googleUser.picture
         }, rememberMeRef.current);
       }
+      setIsSuccess(true);
     } catch (err) {
+      console.error("Google authentication error:", err);
       setError(err.message || 'Google authentication failed.');
+    } finally {
       setIsGoogleLoading(false);
     }
-  }, [onGoogleLogin, rememberMe]);
+  }, []);
 
   useEffect(() => {
     const initGoogleGSI = () => {
@@ -383,12 +392,12 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
   };
 
   return (
-    <div className="w-screen h-screen overflow-hidden bg-slate-950 font-sans flex flex-col lg:flex-row select-none">
+    <div className="min-h-screen w-full bg-slate-50 lg:bg-slate-950 font-sans flex flex-col lg:flex-row">
 
       {/* ======================================================== */}
       {/* LEFT 50%: REALISTIC HACKER SCENE WITH LIVE OVERLAY       */}
       {/* ======================================================== */}
-      <section className="w-full lg:w-1/2 h-[200px] sm:h-[280px] lg:h-full relative overflow-hidden flex-shrink-0 bg-black">
+      <section className="hidden lg:block w-1/2 h-full min-h-screen relative overflow-hidden flex-shrink-0 bg-black">
         
         {/* Photorealistic Hacker Image */}
         <img
@@ -401,7 +410,7 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-none" />
 
         {/* Top-left HUD badge */}
-        <div className="absolute top-4 sm:top-6 left-4 sm:left-6 z-10 pointer-events-none scale-75 sm:scale-100 origin-top-left">
+        <div className="absolute top-6 left-6 z-10 pointer-events-none origin-top-left">
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-slate-950/80 border border-cyan-500/30 rounded-full backdrop-blur-md shadow-lg">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,220,255,0.9)] animate-pulse" />
             <span className="text-[11px] font-bold text-cyan-300 tracking-wider font-mono uppercase flex items-center gap-1.5">
@@ -412,7 +421,7 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
         </div>
 
         {/* Bottom center HUD status bar */}
-        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap scale-75 sm:scale-100 origin-bottom">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap origin-bottom">
           <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-950/85 border border-emerald-500/30 rounded-full backdrop-blur-md shadow-xl">
             <Terminal className="w-4 h-4 text-emerald-400" />
             <span className="font-mono text-[11px] font-semibold text-emerald-400 tracking-wider">
@@ -422,13 +431,13 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
         </div>
 
         {/* Subtle gradient vignette at edge */}
-        <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-black/40 pointer-events-none hidden lg:block" />
+        <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-black/40 pointer-events-none" />
       </section>
 
       {/* ======================================================== */}
       {/* RIGHT 50%: CRISP WHITE / LIGHT THEME CARD                */}
       {/* ======================================================== */}
-      <section className="w-full lg:w-1/2 min-h-[calc(100vh-200px)] sm:min-h-[calc(100vh-280px)] lg:h-full flex items-center justify-center p-4 sm:p-6 lg:p-12 overflow-y-auto relative bg-white flex-shrink-0 pb-16 lg:pb-12">
+      <section className="w-full lg:w-1/2 min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-12 overflow-y-auto relative bg-white">
 
         {/* Soft background ambient light blobs */}
         <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-blue-100/50 blur-[90px] pointer-events-none" />
@@ -439,7 +448,7 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: 'easeOut' }}
-          className="w-full max-w-[440px] bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-10 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.09)] relative z-10 my-4 lg:my-0"
+          className="w-full max-w-[440px] bg-white border border-slate-200/90 rounded-2xl p-5 sm:p-8 lg:p-10 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.09)] relative z-10 my-6 lg:my-0"
         >
           {/* Header */}
           <div className="flex flex-col items-start mb-6">
