@@ -65,7 +65,7 @@ URL_SHORTENERS = [
     "cutt.ly"
 ]
 
-# Free hosting/tunneling domains commonly abused for phishing
+# Free hosting/tunneling domains commonly abused for phishing (excluding verified cloud/document services)
 SUSPICIOUS_HOSTING_DOMAINS = [
     "trycloudflare.com",
     "cloudflare-dns.com",
@@ -77,32 +77,16 @@ SUSPICIOUS_HOSTING_DOMAINS = [
     "serveo.net",
     "localtunnel.me",
     "loca.lt",
-    "herokuapp.com",
-    "netlify.app",
-    "vercel.app",
-    "web.app",
-    "firebaseapp.com",
     "000webhostapp.com",
     "glitch.me",
     "repl.co",
     "replit.dev",
     "onrender.com",
     "surge.sh",
-    "github.io",
-    "weebly.com",
-    "wixsite.com",
-    "blogspot.com",
-    "sites.google.com",
-    "forms.gle",
-    "docs.google.com",
-    "storage.googleapis.com",
-    "s3.amazonaws.com",
-    "azurewebsites.net",
     "infinityfreeapp.com",
     "rf.gd",
     "epizy.com",
     "freenom.com",
-    "tk", "ml", "ga", "cf", "gq",
     "duckdns.org",
     "freedynamicdns.net",
     "hopto.org",
@@ -111,7 +95,7 @@ SUSPICIOUS_HOSTING_DOMAINS = [
     "ddns.net"
 ]
 
-# Suspicious URL path keywords commonly seen in phishing pages
+# Suspicious URL path keywords commonly seen in credential phishing pages
 SUSPICIOUS_URL_PATHS = [
     "login", "signin", "sign-in", "log-in",
     "verify", "verification", "validate",
@@ -120,8 +104,8 @@ SUSPICIOUS_URL_PATHS = [
     "password", "credential", "billing",
     "payment", "wallet", "bank",
     "reset", "recover", "unlock",
-    "webmail", "outlook", "office365",
-    "onedrive", "sharepoint"
+    "webmail", "office365",
+    "wp-admin", "webscr"
 ]
 
 SPOOFED_BRANDS = [
@@ -137,7 +121,26 @@ SPOOFED_BRANDS = [
     "instagram.com",
     "facebook.com",
     "netflix.com",
-    "whatsapp.com"
+    "whatsapp.com",
+    "chase.com",
+    "wellsfargo.com",
+    "dropbox.com",
+    "docusign.com"
+]
+
+# Verified legitimate platforms and providers
+TRUSTED_DOMAINS = [
+    "google.com", "docs.google.com", "drive.google.com", "forms.gle", "sites.google.com",
+    "mail.google.com", "calendar.google.com", "accounts.google.com", "storage.googleapis.com",
+    "microsoft.com", "office.com", "office365.com", "live.com", "outlook.com",
+    "onedrive.com", "sharepoint.com", "azurewebsites.net", "login.microsoftonline.com",
+    "apple.com", "icloud.com", "amazon.com", "aws.amazon.com", "s3.amazonaws.com",
+    "github.com", "github.io", "gitlab.com", "bitbucket.org", "stackoverflow.com",
+    "slack.com", "zoom.us", "dropbox.com", "salesforce.com", "zendesk.com",
+    "adobe.com", "atlassian.net", "notion.so", "figma.com", "trello.com",
+    "linkedin.com", "twitter.com", "x.com", "facebook.com", "instagram.com", "youtube.com",
+    "paypal.com", "stripe.com", "razorpay.com", "sbi.co.in", "onlinesbi.sbi", "hdfcbank.com", "icicibank.com",
+    "wordpress.com", "weebly.com", "wixsite.com", "blogspot.com"
 ]
 
 # Fraud Scoring Weights (Maximum theoretical score is capped at 100)

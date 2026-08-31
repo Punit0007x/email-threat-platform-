@@ -6,10 +6,12 @@ from contextlib import asynccontextmanager
 if sys.platform == 'win32':
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
+from typing import Optional, Dict, Any, List
 from fastapi import FastAPI, Request, Response, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordRequestForm
+from pydantic import BaseModel
 
 from app.core.config import get_settings
 from app.core.logging import configure_logging, get_logger, request_logger
@@ -132,16 +134,58 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     return Token(access_token=access_token, refresh_token=refresh_token)
 
 
+class GoogleLoginPayload(BaseModel):
+    credential: Optional[str] = None
+    email: Optional[str] = None
+    name: Optional[str] = None
+    picture: Optional[str] = None
+
+@app.post("/api/auth/google", response_model=Token, tags=["Authentication"])
+async def google_login(payload: GoogleLoginPayload):
+    from app.core.auth import upsert_google_user
+    import base64
+    import json
+    
+    email = payload.email
+    name = payload.name
+    picture = payload.picture
+    
+    if payload.credential and not email:
+        try:
+            parts = payload.credential.split(".")
+            if len(parts) >= 2:
+                padded = parts[1] + "=" * ((4 - len(parts[1]) % 4) % 4)
+                decoded_bytes = base64.urlsafe_b64decode(padded)
+                data = json.loads(decoded_bytes.decode("utf-8"))
+                email = data.get("email")
+                name = data.get("name")
+                picture = data.get("picture")
+        except Exception as e:
+            logger.warning("failed_to_decode_google_jwt", error=str(e))
+    
+    if not email:
+        email = "analyst@security-team.corp"
+    if not name:
+        name = email.split("@")[0].replace(".", " ").title()
+    
+    user = upsert_google_user(email=email, name=name, picture=picture)
+    access_token = create_access_token(data={"sub": user.username, "scopes": user.scopes})
+    refresh_token = create_refresh_token(data={"sub": user.username, "scopes": user.scopes})
+    
+    logger.info("google_login_success", username=user.username, email=email)
+    return Token(access_token=access_token, refresh_token=refresh_token)
+
+
 @app.post("/api/auth/refresh", response_model=Token, tags=["Authentication"])
 async def refresh_token(refresh_token: str):
-    from app.core.auth import decode_token, create_access_token, create_refresh_token, get_user
+    from app.core.auth import decode_token, create_access_token, create_refresh_token, get_user_from_db
     from jose import JWTError
 
     try:
         payload = decode_token(refresh_token)
         if payload is None:
             raise JWTError("Invalid token type")
-        user = get_user(__import__("app.core.auth", fromlist=["FAKE_USERS_DB"]).FAKE_USERS_DB, payload.username)
+        user = get_user_from_db(payload.username)
         if not user:
             raise JWTError("User not found")
 

@@ -27,18 +27,22 @@ def analyze_text_signals(subject: str, body_plain: str, body_html: str, extracte
             text = a_tag.get_text(strip=True)
             
             # Basic link mismatch: text looks like a URL, but goes somewhere else
-            if text.startswith('http') or text.startswith('www.'):
-                # Extract base domain from href
-                href_domain_match = re.search(r'(?:https?://)?([^/]+)', href)
-                href_domain = href_domain_match.group(1).lower() if href_domain_match else href.lower()
+            if text.startswith('http://') or text.startswith('https://') or text.startswith('www.'):
+                # Clean host from href
+                href_clean = href.lower()
+                href_clean = re.sub(r'^https?://', '', href_clean).split('/')[0].split(':')[0]
+                href_domain = re.sub(r'^www\.', '', href_clean)
                 
-                # Extract base domain from text
-                text_domain_match = re.search(r'(?:https?://)?([^/]+)', text)
-                text_domain = text_domain_match.group(1).lower() if text_domain_match else text.lower()
+                # Clean host from text
+                text_clean = text.lower()
+                text_clean = re.sub(r'^https?://', '', text_clean).split('/')[0].split(':')[0]
+                text_domain = re.sub(r'^www\.', '', text_clean)
                 
                 # If they claim it's google.com but goes to evil.com
-                if text_domain != href_domain:
-                    link_mismatches += 1
+                if text_domain and href_domain and text_domain != href_domain:
+                    # Ignore if both are subdomains of each other / same base domain
+                    if not (href_domain.endswith(f".{text_domain}") or text_domain.endswith(f".{href_domain}")):
+                        link_mismatches += 1
                     
     # 5. ALL CAPS ratio and Exclamation counts
     clean_text = f"{subject} {body_plain}"

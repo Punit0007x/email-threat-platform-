@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   Shield, Lock, User, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowRight, Activity, Terminal
@@ -76,10 +76,7 @@ function useRealHackerOverlay(canvasRef) {
       frame++;
       ctx.clearRect(0, 0, W, H);
 
-      // ========================================================
-      // 1. LEFT MONITOR (Network Map Pulses & Glow)
-      // Screen bounds approx: X (5% to 31%), Y (22% to 71%)
-      // ========================================================
+      // 1. LEFT MONITOR
       const leftMonX = W * 0.05;
       const leftMonY = H * 0.22;
       const leftMonW = W * 0.26;
@@ -88,9 +85,8 @@ function useRealHackerOverlay(canvasRef) {
       ctx.save();
       ctx.beginPath();
       ctx.rect(leftMonX, leftMonY, leftMonW, leftMonH);
-      ctx.clip(); // Strictly clipped inside left monitor bezel
+      ctx.clip();
 
-      // Subtle pulse on map nodes
       mapNodes.forEach((node, idx) => {
         const pulse = (Math.sin(frame * 0.05 + idx) + 1) * 3;
         const nx = leftMonX + node.x * leftMonW * 3;
@@ -104,10 +100,7 @@ function useRealHackerOverlay(canvasRef) {
       });
       ctx.restore();
 
-      // ========================================================
-      // 2. CENTER MONITOR (Live Terminal Code)
-      // Screen bounds approx: X (32% to 59%), Y (20% to 55%)
-      // ========================================================
+      // 2. CENTER MONITOR
       const centerMonX = W * 0.32;
       const centerMonY = H * 0.20;
       const centerMonW = W * 0.27;
@@ -116,13 +109,11 @@ function useRealHackerOverlay(canvasRef) {
       ctx.save();
       ctx.beginPath();
       ctx.rect(centerMonX, centerMonY, centerMonW, centerMonH);
-      ctx.clip(); // Strictly clipped inside center monitor bezel
+      ctx.clip();
 
-      // Screen glow overlay
       ctx.fillStyle = 'rgba(0, 15, 30, 0.2)';
       ctx.fillRect(centerMonX, centerMonY, centerMonW, centerMonH);
 
-      // Terminal text feed
       termTimer++;
       if (termTimer >= 35) {
         termTimer = 0;
@@ -138,17 +129,13 @@ function useRealHackerOverlay(canvasRef) {
         ctx.fillText(line, centerMonX + 12, centerMonY + 22 + idx * 12);
       });
 
-      // Blinking Terminal cursor
       if (Math.floor(frame / 22) % 2 === 0) {
         ctx.fillStyle = '#00E5FF';
         ctx.fillRect(centerMonX + 12, centerMonY + 22 + termLines.length * 12 - 3, 5, 9);
       }
       ctx.restore();
 
-      // ========================================================
-      // 3. RIGHT MONITOR (Matrix Binary Rain)
-      // Screen bounds approx: X (60% to 86%), Y (20% to 52%)
-      // ========================================================
+      // 3. RIGHT MONITOR
       const rightMonX = W * 0.60;
       const rightMonY = H * 0.20;
       const rightMonW = W * 0.26;
@@ -157,9 +144,8 @@ function useRealHackerOverlay(canvasRef) {
       ctx.save();
       ctx.beginPath();
       ctx.rect(rightMonX, rightMonY, rightMonW, rightMonH);
-      ctx.clip(); // Strictly clipped inside right monitor bezel
+      ctx.clip();
 
-      // Matrix Rain on right monitor
       ctx.font = `${FONT_SIZE}px monospace`;
       const numCols = Math.floor(rightMonW / FONT_SIZE);
       for (let i = 0; i < numCols; i++) {
@@ -185,15 +171,9 @@ function useRealHackerOverlay(canvasRef) {
       }
       ctx.restore();
 
-      // ========================================================
-      // 4. LIVE HANDS TYPING ANIMATION & KEYBOARD LED FLASHES
-      // Keyboard area approx: X (43% to 62%), Y (65% to 78%)
-      // ========================================================
+      // 4. HANDS TYPING ANIMATION
       ctx.save();
-
-      // Periodically trigger key presses near hands position
       if (frame % 5 === 0) {
-        // Left hand area: X 44%-51%, Y 67%-76% | Right hand area: X 52%-60%, Y 67%-76%
         const isRightHand = Math.random() > 0.5;
         const kx = isRightHand
           ? W * (0.52 + Math.random() * 0.08)
@@ -210,7 +190,6 @@ function useRealHackerOverlay(canvasRef) {
         });
       }
 
-      // Render & update key press ripples under fingertips
       for (let i = keyPresses.length - 1; i >= 0; i--) {
         const kp = keyPresses[i];
         kp.radius += 0.7;
@@ -221,7 +200,6 @@ function useRealHackerOverlay(canvasRef) {
           continue;
         }
 
-        // Key LED bloom
         const radGlow = ctx.createRadialGradient(kp.x, kp.y, 0, kp.x, kp.y, kp.radius);
         radGlow.addColorStop(0, `rgba(${kp.color}, ${kp.alpha})`);
         radGlow.addColorStop(0.5, `rgba(${kp.color}, ${kp.alpha * 0.4})`);
@@ -232,50 +210,13 @@ function useRealHackerOverlay(canvasRef) {
         ctx.arc(kp.x, kp.y, kp.radius, 0, Math.PI * 2);
         ctx.fill();
 
-        // Bright keycap center flash
         ctx.fillStyle = `rgba(255, 255, 255, ${kp.alpha})`;
         ctx.fillRect(kp.x - 2, kp.y - 1, 4, 2);
       }
 
-      // Animated live finger shadow/motion accents on keyboard
-      const fingerShiftLeft = Math.sin(frame * 0.25) * 2.5;
-      const fingerShiftRight = Math.cos(frame * 0.3) * 2.5;
-
-      // Left hand fingertip glows
-      [
-        { x: W * 0.46 + fingerShiftLeft, y: H * 0.69 },
-        { x: W * 0.48 - fingerShiftLeft * 0.5, y: H * 0.70 },
-        { x: W * 0.50 + fingerShiftLeft * 0.7, y: H * 0.695 },
-      ].forEach(pt => {
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 220, 255, 0.4)';
-        ctx.shadowColor = '#00E5FF';
-        ctx.shadowBlur = 5;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      });
-
-      // Right hand fingertip glows
-      [
-        { x: W * 0.54 + fingerShiftRight, y: H * 0.70 },
-        { x: W * 0.56 - fingerShiftRight * 0.6, y: H * 0.69 },
-        { x: W * 0.58 + fingerShiftRight * 0.4, y: H * 0.705 },
-      ].forEach(pt => {
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(0, 255, 160, 0.4)';
-        ctx.shadowColor = '#00FF99';
-        ctx.shadowBlur = 5;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      });
-
       ctx.restore();
 
-      // ========================================================
-      // 5. FLOATING PARTICLES & ROOM AMBIENT LIGHT
-      // ========================================================
+      // 5. FLOATING PARTICLES
       ctx.save();
       particles.forEach(p => {
         p.y += p.speedY;
@@ -294,7 +235,6 @@ function useRealHackerOverlay(canvasRef) {
       });
       ctx.restore();
 
-      // Subtle ambient room breathing light
       const pulse = (Math.sin(frame * 0.035) + 1) / 2;
       const roomGlow = ctx.createRadialGradient(W * 0.5, H * 0.45, W * 0.15, W * 0.5, H * 0.45, W * 0.65);
       roomGlow.addColorStop(0, `rgba(0, 160, 255, ${0.03 + pulse * 0.035})`);
@@ -314,19 +254,93 @@ function useRealHackerOverlay(canvasRef) {
 }
 
 // ============================================================
-// LOGIN PAGE COMPONENT
+// LOGIN PAGE COMPONENT (OFFICIAL GOOGLE LOGIN & CREDENTIALS)
 // ============================================================
-const LoginPage = ({ onLogin }) => {
+const LoginPage = ({ onLogin, onGoogleLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
   const canvasRef = useRef(null);
   useRealHackerOverlay(canvasRef);
+
+  const handleGoogleCredentialResponse = async (response) => {
+    if (!response || !response.credential) return;
+    setIsGoogleLoading(true);
+    setError(null);
+    try {
+      // Decode JWT ID Token returned directly from Google
+      const base64Url = response.credential.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(
+        atob(base64)
+          .split('')
+          .map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+          .join('')
+      );
+      const googleUser = JSON.parse(jsonPayload);
+
+      if (onGoogleLogin) {
+        await onGoogleLogin({
+          credential: response.credential,
+          email: googleUser.email,
+          name: googleUser.name,
+          picture: googleUser.picture
+        }, rememberMe);
+      }
+    } catch (err) {
+      setError(err.message || 'Google authentication failed.');
+      setIsGoogleLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const initGoogleGSI = () => {
+      if (window.google?.accounts?.id) {
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1043819890989-u3g3k3l2d1j1h4k4j5l.apps.googleusercontent.com";
+        try {
+          window.google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleGoogleCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+          });
+
+          const btnEl = document.getElementById("google-official-btn-slot");
+          if (btnEl) {
+            btnEl.innerHTML = "";
+            window.google.accounts.id.renderButton(btnEl, {
+              theme: "outline",
+              size: "large",
+              width: "360",
+              text: "continue_with",
+              shape: "rectangular",
+              logo_alignment: "left"
+            });
+          }
+        } catch (e) {
+          console.warn("Google GSI notice:", e);
+        }
+      }
+    };
+
+    if (window.google?.accounts?.id) {
+      initGoogleGSI();
+    } else {
+      const timer = setInterval(() => {
+        if (window.google?.accounts?.id) {
+          clearInterval(timer);
+          initGoogleGSI();
+        }
+      }, 250);
+      return () => clearInterval(timer);
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -334,7 +348,7 @@ const LoginPage = ({ onLogin }) => {
     setIsLoading(true);
     setIsSuccess(false);
     try {
-      await onLogin(username, password);
+      await onLogin(username, password, rememberMe);
       setIsSuccess(true);
     } catch (err) {
       setError(err.message || 'Authentication failed. Please verify your credentials.');
@@ -345,22 +359,15 @@ const LoginPage = ({ onLogin }) => {
   return (
     <div className="w-screen h-screen overflow-hidden bg-slate-950 font-sans flex flex-col lg:flex-row select-none">
 
-      {/* ======================================================== */}
-      {/* LEFT 50%: PHOTOREALISTIC HACKER SCENE WITH LIVE OVERLAY  */}
-      {/* ======================================================== */}
+      {/* LEFT 50%: PHOTOREALISTIC HACKER SCENE */}
       <section className="w-full lg:w-1/2 h-[380px] lg:h-full relative overflow-hidden flex-shrink-0 bg-black">
-        
-        {/* Photorealistic Hacker Background Image */}
         <img
           src="/hacker_bg.jpg"
           alt="Real Human Hacker"
           className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.92] contrast-[1.08]"
         />
-
-        {/* Dynamic Canvas Live Overlay (Matrix Rain, Terminal Code, Typing Hands) */}
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-none" />
 
-        {/* Top-left HUD badge */}
         <div className="absolute top-6 left-6 z-10 pointer-events-none">
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-slate-950/80 border border-cyan-500/30 rounded-full backdrop-blur-md shadow-lg">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,220,255,0.9)] animate-pulse" />
@@ -371,7 +378,6 @@ const LoginPage = ({ onLogin }) => {
           </div>
         </div>
 
-        {/* Bottom center HUD status bar */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap">
           <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-950/85 border border-emerald-500/30 rounded-full backdrop-blur-md shadow-xl">
             <Terminal className="w-4 h-4 text-emerald-400" />
@@ -380,21 +386,14 @@ const LoginPage = ({ onLogin }) => {
             </span>
           </div>
         </div>
-
-        {/* Subtle gradient vignette at edge near split line */}
         <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-black/40 pointer-events-none hidden lg:block" />
       </section>
 
-      {/* ======================================================== */}
-      {/* RIGHT 50%: PURE WHITE CLEAN LOGIN CARD                   */}
-      {/* ======================================================== */}
+      {/* RIGHT 50%: PURE WHITE CLEAN LOGIN CARD */}
       <section className="w-full lg:w-1/2 min-h-[calc(100vh-380px)] lg:h-full flex items-center justify-center p-6 sm:p-12 overflow-y-auto relative bg-white flex-shrink-0">
-
-        {/* Soft background ambient light blobs */}
         <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-blue-100/50 blur-[90px] pointer-events-none" />
         <div className="absolute bottom-12 left-12 w-72 h-72 rounded-full bg-emerald-50/70 blur-[80px] pointer-events-none" />
 
-        {/* Login Card */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -402,7 +401,7 @@ const LoginPage = ({ onLogin }) => {
           className="w-full max-w-[440px] bg-white border border-slate-200/90 rounded-2xl p-8 sm:p-10 shadow-[0_20px_60px_-10px_rgba(0,0,0,0.09)] relative z-10"
         >
           {/* Header */}
-          <div className="flex flex-col items-start mb-8">
+          <div className="flex flex-col items-start mb-6">
             <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 mb-4 shadow-[0_2px_8px_rgba(37,99,235,0.12)]">
               <Shield className="w-6 h-6" />
             </div>
@@ -410,13 +409,32 @@ const LoginPage = ({ onLogin }) => {
               ShieldMail Security
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1.5 leading-relaxed">
-              Enter your credentials to access the secure management portal.
+              Authenticate to access the Email Forensics & Threat Platform.
             </p>
           </div>
 
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Official Google Identity Services SDK Button */}
+          <div className="w-full mb-5 flex flex-col items-center">
+            <div id="google-official-btn-slot" className="w-full flex justify-center min-h-[44px]" />
+            {isGoogleLoading && (
+              <div className="mt-2 text-xs text-blue-600 font-semibold flex items-center gap-2">
+                <div className="w-3.5 h-3.5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                <span>Authenticating with Google...</span>
+              </div>
+            )}
+          </div>
 
+          {/* Divider */}
+          <div className="relative flex items-center justify-center mb-5">
+            <div className="border-t border-slate-200 w-full" />
+            <span className="bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400 font-mono">
+              or credentials
+            </span>
+            <div className="border-t border-slate-200 w-full" />
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Username */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-[#1E3A8A]">
@@ -430,7 +448,7 @@ const LoginPage = ({ onLogin }) => {
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 transition-all shadow-sm"
-                  placeholder="name@company.com"
+                  placeholder="admin or name@company.com"
                 />
               </div>
             </div>
@@ -443,10 +461,10 @@ const LoginPage = ({ onLogin }) => {
                 </label>
                 <a
                   href="#forgot"
-                  onClick={e => { e.preventDefault(); alert('Password reset instructions will be sent to your registered corporate email.'); }}
+                  onClick={e => { e.preventDefault(); alert('Default credentials:\nUsername: admin\nPassword: secret'); }}
                   className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors"
                 >
-                  Forgot password?
+                  Need credentials?
                 </a>
               </div>
               <div className="relative flex items-center">
@@ -493,8 +511,8 @@ const LoginPage = ({ onLogin }) => {
             {/* Submit button */}
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full mt-2 py-3 px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold tracking-tight shadow-[0_4px_14px_rgba(37,99,235,0.25)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.35)] active:translate-y-px disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+              disabled={isLoading || isGoogleLoading}
+              className="w-full mt-2 py-3 px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold tracking-tight shadow-[0_4px_14px_rgba(37,99,235,0.25)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.35)] active:translate-y-px disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isLoading ? (
                 <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /><span>Verifying Credentials...</span></>

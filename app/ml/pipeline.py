@@ -25,12 +25,14 @@ def analyze_email_ai_ml(
     classification, spam detection, GenAI analysis, and Deep AI Forensic Auditing.
     """
     # 1. Extract lexical, structural, and manipulation features
+    sender_domain = (from_address.split('@')[-1].strip('>') if '@' in (from_address or "") else "") or auth_analysis.get("from_domain", "")
     features = extract_advanced_features(
         subject=subject or "",
         body_plain=body_plain or "",
         body_html=body_html or "",
         attachments=attachments or [],
-        urls=urls or []
+        urls=urls or [],
+        sender_domain=sender_domain
     )
     features["forensic_report"] = forensic_report
     
