@@ -233,6 +233,14 @@ function MainApp() {
             <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse" />
             <span className="max-w-[130px] truncate font-medium text-slate-200">{user.full_name || user.username}</span>
           </div>
+          <a 
+            href="/erakshak-extension.zip" download
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-400 hover:text-cyan-300 text-xs font-semibold shadow-sm transition-all"
+            title="Download Chrome Extension"
+          >
+            <Zap className="w-3.5 h-3.5" />
+            <span>Extension</span>
+          </a>
           <button 
             onClick={handleLogout}
             className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 hover:text-red-300 text-xs font-semibold shadow-sm transition-all"

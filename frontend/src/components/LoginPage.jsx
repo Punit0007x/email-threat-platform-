@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   Shield, Lock, User, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowRight,
-  Activity, Terminal, Sparkles, Fingerprint
+  Activity, Terminal, Sparkles, Fingerprint, Globe
 } from 'lucide-react';
 
 // ============================================================
@@ -249,8 +249,10 @@ function useRealHackerOverlay(canvasRef) {
 // ============================================================
 // LOGIN PAGE COMPONENT (WHITE / LIGHT THEME + HACKER SCENE)
 // ============================================================
-const LoginPage = ({ onLogin, onGoogleLogin }) => {
+const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
+  const [isLoginView, setIsLoginView] = useState(true);
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
@@ -292,9 +294,12 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
     }
   };
 
+  const isGoogleInitialized = useRef(false);
+
   useEffect(() => {
     const initGoogleGSI = () => {
-      if (window.google?.accounts?.id) {
+      if (window.google?.accounts?.id && !isGoogleInitialized.current) {
+        isGoogleInitialized.current = true;
         const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1043819890989-u3g3k3l2d1j1h4k4j5l.apps.googleusercontent.com";
         try {
           window.google.accounts.id.initialize({
@@ -341,7 +346,16 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
     setIsLoading(true);
     setIsSuccess(false);
     try {
-      await onLogin(username, password, rememberMe);
+      if (isLoginView) {
+        await onLogin(username, password, rememberMe);
+      } else {
+        if (onSignUp) {
+          await onSignUp(username, email, password, rememberMe);
+        } else {
+          // If no onSignUp prop is provided, we simulate success for demo
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      }
       setIsSuccess(true);
     } catch (err) {
       setError(err.message || 'Authentication failed. Please verify credentials.');
@@ -447,13 +461,31 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
             <div className="border-t border-slate-200 w-full" />
           </div>
 
+          {/* Tabs for Sign In / Sign Up */}
+          <div className="flex bg-slate-100/80 p-1 rounded-xl mb-6 shadow-inner">
+            <button
+              type="button"
+              onClick={() => { setIsLoginView(true); setError(null); }}
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${isLoginView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => { setIsLoginView(false); setError(null); }}
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${!isLoginView ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            >
+              Create Account
+            </button>
+          </div>
+
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
 
             {/* Username */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-[#1E3A8A]">
-                Username or Email
+                {isLoginView ? 'Username or Email' : 'Choose Username'}
               </label>
               <div className="relative flex items-center">
                 <User className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -463,10 +495,30 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
                   value={username}
                   onChange={e => setUsername(e.target.value)}
                   className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 transition-all shadow-sm"
-                  placeholder="admin or name@company.com"
+                  placeholder={isLoginView ? "admin or name@company.com" : "e.g. jdoe"}
                 />
               </div>
             </div>
+
+            {/* Email (Signup only) */}
+            {!isLoginView && (
+              <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-1.5 overflow-hidden">
+                <label className="block text-xs font-semibold text-[#1E3A8A]">
+                  Email Address
+                </label>
+                <div className="relative flex items-center">
+                  <Globe className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <input
+                    type="email"
+                    required={!isLoginView}
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 transition-all shadow-sm"
+                    placeholder="name@company.com"
+                  />
+                </div>
+              </motion.div>
+            )}
 
             {/* Password */}
             <div className="space-y-1.5">
@@ -474,24 +526,26 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
                 <label className="text-xs font-semibold text-[#1E3A8A]">
                   Security Password
                 </label>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] text-slate-400">Quick Fill:</span>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickFill('admin', 'secret')}
-                    className="text-[11px] font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
-                  >
-                    Admin
-                  </button>
-                  <span className="text-slate-300">|</span>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickFill('shrutha', 'shrutha123')}
-                    className="text-[11px] font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
-                  >
-                    Shrutha
-                  </button>
-                </div>
+                {isLoginView && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[11px] text-slate-400">Quick Fill:</span>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickFill('admin', 'secret')}
+                      className="text-[11px] font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
+                    >
+                      Admin
+                    </button>
+                    <span className="text-slate-300">|</span>
+                    <button
+                      type="button"
+                      onClick={() => handleQuickFill('shrutha', 'shrutha123')}
+                      className="text-[11px] font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
+                    >
+                      Shrutha
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="relative flex items-center">
                 <Lock className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -550,11 +604,11 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
               className="w-full mt-2 py-3 px-4 rounded-lg bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-sm font-semibold tracking-tight shadow-[0_4px_14px_rgba(37,99,235,0.25)] hover:shadow-[0_6px_20px_rgba(37,99,235,0.35)] active:translate-y-px disabled:opacity-60 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 cursor-pointer"
             >
               {isLoading ? (
-                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /><span>Verifying Credentials...</span></>
+                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /><span>Verifying...</span></>
               ) : isSuccess ? (
-                <><CheckCircle2 className="w-4 h-4" /><span>Signed In Successfully</span></>
+                <><CheckCircle2 className="w-4 h-4" /><span>{isLoginView ? 'Signed In Successfully' : 'Account Created'}</span></>
               ) : (
-                <><span>Sign In Securely</span><ArrowRight className="w-4 h-4" /></>
+                <><span>{isLoginView ? 'Sign In Securely' : 'Create Account'}</span><ArrowRight className="w-4 h-4" /></>
               )}
             </button>
           </form>
