@@ -61,11 +61,23 @@ export async function loginWithGoogle(googleData = {}) {
   localStorage.setItem('shieldmail_access_token', tokenData.access_token);
   localStorage.setItem('shieldmail_refresh_token', tokenData.refresh_token);
 
+  if (googleData.email) {
+    const immediateUser = {
+      username: googleData.email.split('@')[0],
+      email: googleData.email,
+      full_name: googleData.name || googleData.email.split('@')[0],
+      auth_provider: 'google',
+      avatar_url: googleData.picture || null,
+      scopes: ['read', 'write', 'admin']
+    };
+    localStorage.setItem('shieldmail_user', JSON.stringify(immediateUser));
+  }
+
   const user = await getCurrentUser(tokenData.access_token);
   if (user) {
     localStorage.setItem('shieldmail_user', JSON.stringify(user));
   }
-  return user;
+  return user || JSON.parse(localStorage.getItem('shieldmail_user') || 'null');
 }
 
 export async function signupUser(userData) {
