@@ -311,7 +311,7 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
     const initGoogleGSI = () => {
       if (window.google?.accounts?.id && !isGoogleInitialized.current) {
         isGoogleInitialized.current = true;
-        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1043819890989-u3g3k3l2d1j1h4k4j5l.apps.googleusercontent.com";
+        const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "1018456041535-dmmu5gmcr87s4ts5am8ab1keicn4badu.apps.googleusercontent.com";
         try {
           window.google.accounts.id.initialize({
             client_id: clientId,
@@ -323,10 +323,12 @@ const LoginPage = ({ onLogin, onGoogleLogin, onSignUp }) => {
           const btnEl = document.getElementById("google-official-btn-slot");
           if (btnEl) {
             btnEl.innerHTML = "";
+            const screenWidth = window.innerWidth;
+            const btnWidth = screenWidth < 400 ? screenWidth - 48 : 360;
             window.google.accounts.id.renderButton(btnEl, {
               theme: "outline",
               size: "large",
-              width: 360,
+              width: btnWidth,
               text: "continue_with",
               shape: "rectangular",
               logo_alignment: "left"
