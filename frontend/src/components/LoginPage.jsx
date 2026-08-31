@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
-  Shield, Lock, User, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowRight, Activity, Terminal
+  Shield, Lock, User, AlertCircle, CheckCircle2, Eye, EyeOff, ArrowRight,
+  Activity, Terminal, Sparkles, Fingerprint
 } from 'lucide-react';
 
 // ============================================================
@@ -76,7 +77,7 @@ function useRealHackerOverlay(canvasRef) {
       frame++;
       ctx.clearRect(0, 0, W, H);
 
-      // 1. LEFT MONITOR
+      // 1. LEFT MONITOR (Network Map Pulses & Glow)
       const leftMonX = W * 0.05;
       const leftMonY = H * 0.22;
       const leftMonW = W * 0.26;
@@ -100,7 +101,7 @@ function useRealHackerOverlay(canvasRef) {
       });
       ctx.restore();
 
-      // 2. CENTER MONITOR
+      // 2. CENTER MONITOR (Live Terminal Code)
       const centerMonX = W * 0.32;
       const centerMonY = H * 0.20;
       const centerMonW = W * 0.27;
@@ -135,7 +136,7 @@ function useRealHackerOverlay(canvasRef) {
       }
       ctx.restore();
 
-      // 3. RIGHT MONITOR
+      // 3. RIGHT MONITOR (Matrix Rain)
       const rightMonX = W * 0.60;
       const rightMonY = H * 0.20;
       const rightMonW = W * 0.26;
@@ -171,7 +172,7 @@ function useRealHackerOverlay(canvasRef) {
       }
       ctx.restore();
 
-      // 4. HANDS TYPING ANIMATION
+      // 4. HANDS TYPING ANIMATION & KEYBOARD FLASHES
       ctx.save();
       if (frame % 5 === 0) {
         const isRightHand = Math.random() > 0.5;
@@ -213,7 +214,6 @@ function useRealHackerOverlay(canvasRef) {
         ctx.fillStyle = `rgba(255, 255, 255, ${kp.alpha})`;
         ctx.fillRect(kp.x - 2, kp.y - 1, 4, 2);
       }
-
       ctx.restore();
 
       // 5. FLOATING PARTICLES
@@ -235,13 +235,6 @@ function useRealHackerOverlay(canvasRef) {
       });
       ctx.restore();
 
-      const pulse = (Math.sin(frame * 0.035) + 1) / 2;
-      const roomGlow = ctx.createRadialGradient(W * 0.5, H * 0.45, W * 0.15, W * 0.5, H * 0.45, W * 0.65);
-      roomGlow.addColorStop(0, `rgba(0, 160, 255, ${0.03 + pulse * 0.035})`);
-      roomGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = roomGlow;
-      ctx.fillRect(0, 0, W, H);
-
       animId = requestAnimationFrame(render);
     };
 
@@ -254,13 +247,13 @@ function useRealHackerOverlay(canvasRef) {
 }
 
 // ============================================================
-// LOGIN PAGE COMPONENT (OFFICIAL GOOGLE LOGIN & CREDENTIALS)
+// LOGIN PAGE COMPONENT (WHITE / LIGHT THEME + HACKER SCENE)
 // ============================================================
 const LoginPage = ({ onLogin, onGoogleLogin }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -269,12 +262,12 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
   const canvasRef = useRef(null);
   useRealHackerOverlay(canvasRef);
 
+  // Official Google Identity Services SDK Handler
   const handleGoogleCredentialResponse = async (response) => {
     if (!response || !response.credential) return;
     setIsGoogleLoading(true);
     setError(null);
     try {
-      // Decode JWT ID Token returned directly from Google
       const base64Url = response.credential.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
@@ -317,7 +310,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
             window.google.accounts.id.renderButton(btnEl, {
               theme: "outline",
               size: "large",
-              width: "360",
+              width: 360,
               text: "continue_with",
               shape: "rectangular",
               logo_alignment: "left"
@@ -351,23 +344,36 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
       await onLogin(username, password, rememberMe);
       setIsSuccess(true);
     } catch (err) {
-      setError(err.message || 'Authentication failed. Please verify your credentials.');
+      setError(err.message || 'Authentication failed. Please verify credentials.');
       setIsLoading(false);
     }
+  };
+
+  const handleQuickFill = (u, p) => {
+    setUsername(u);
+    setPassword(p);
+    setError(null);
   };
 
   return (
     <div className="w-screen h-screen overflow-hidden bg-slate-950 font-sans flex flex-col lg:flex-row select-none">
 
-      {/* LEFT 50%: PHOTOREALISTIC HACKER SCENE */}
+      {/* ======================================================== */}
+      {/* LEFT 50%: REALISTIC HACKER SCENE WITH LIVE OVERLAY       */}
+      {/* ======================================================== */}
       <section className="w-full lg:w-1/2 h-[380px] lg:h-full relative overflow-hidden flex-shrink-0 bg-black">
+        
+        {/* Photorealistic Hacker Image */}
         <img
           src="/hacker_bg.jpg"
           alt="Real Human Hacker"
           className="absolute inset-0 w-full h-full object-cover object-center filter brightness-[0.92] contrast-[1.08]"
         />
+
+        {/* Dynamic Canvas Live Overlay */}
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block pointer-events-none" />
 
+        {/* Top-left HUD badge */}
         <div className="absolute top-6 left-6 z-10 pointer-events-none">
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-slate-950/80 border border-cyan-500/30 rounded-full backdrop-blur-md shadow-lg">
             <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,220,255,0.9)] animate-pulse" />
@@ -378,6 +384,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
           </div>
         </div>
 
+        {/* Bottom center HUD status bar */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 pointer-events-none whitespace-nowrap">
           <div className="inline-flex items-center gap-3 px-4 py-2 bg-slate-950/85 border border-emerald-500/30 rounded-full backdrop-blur-md shadow-xl">
             <Terminal className="w-4 h-4 text-emerald-400" />
@@ -386,14 +393,21 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
             </span>
           </div>
         </div>
+
+        {/* Subtle gradient vignette at edge */}
         <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-black/40 pointer-events-none hidden lg:block" />
       </section>
 
-      {/* RIGHT 50%: PURE WHITE CLEAN LOGIN CARD */}
+      {/* ======================================================== */}
+      {/* RIGHT 50%: CRISP WHITE / LIGHT THEME CARD                */}
+      {/* ======================================================== */}
       <section className="w-full lg:w-1/2 min-h-[calc(100vh-380px)] lg:h-full flex items-center justify-center p-6 sm:p-12 overflow-y-auto relative bg-white flex-shrink-0">
+
+        {/* Soft background ambient light blobs */}
         <div className="absolute top-12 right-12 w-80 h-80 rounded-full bg-blue-100/50 blur-[90px] pointer-events-none" />
         <div className="absolute bottom-12 left-12 w-72 h-72 rounded-full bg-emerald-50/70 blur-[80px] pointer-events-none" />
 
+        {/* Login Card */}
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
@@ -435,6 +449,7 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+
             {/* Username */}
             <div className="space-y-1.5">
               <label className="block text-xs font-semibold text-[#1E3A8A]">
@@ -459,13 +474,24 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
                 <label className="text-xs font-semibold text-[#1E3A8A]">
                   Security Password
                 </label>
-                <a
-                  href="#forgot"
-                  onClick={e => { e.preventDefault(); alert('Default credentials:\nUsername: admin\nPassword: secret'); }}
-                  className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors"
-                >
-                  Need credentials?
-                </a>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] text-slate-400">Quick Fill:</span>
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill('admin', 'secret')}
+                    className="text-[11px] font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
+                  >
+                    Admin
+                  </button>
+                  <span className="text-slate-300">|</span>
+                  <button
+                    type="button"
+                    onClick={() => handleQuickFill('shrutha', 'shrutha123')}
+                    className="text-[11px] font-medium text-blue-600 hover:text-blue-700 underline cursor-pointer"
+                  >
+                    Shrutha
+                  </button>
+                </div>
               </div>
               <div className="relative flex items-center">
                 <Lock className="absolute left-3.5 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -477,14 +503,18 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
                   className="w-full pl-10 pr-10 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/15 transition-all shadow-sm"
                   placeholder="••••••••••••"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 text-slate-400 hover:text-slate-600 transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 text-slate-400 hover:text-slate-600 transition-colors cursor-pointer"
+                >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
             {/* Remember Me */}
-            <div className="flex items-center pt-1">
+            <div className="flex items-center justify-between pt-1">
               <label className="flex items-center gap-2 cursor-pointer text-xs text-slate-600">
                 <input
                   type="checkbox"
@@ -494,6 +524,11 @@ const LoginPage = ({ onLogin, onGoogleLogin }) => {
                 />
                 <span>Remember this device</span>
               </label>
+
+              <span className="text-[11px] text-emerald-600 font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                TLS 1.3
+              </span>
             </div>
 
             {/* Error feedback */}
