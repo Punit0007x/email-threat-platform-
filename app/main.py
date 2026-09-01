@@ -143,29 +143,28 @@ class GoogleLoginPayload(BaseModel):
 
 @app.post("/api/auth/google", response_model=Token, tags=["Authentication"])
 async def google_login(payload: GoogleLoginPayload):
-    from app.core.auth import upsert_google_user
-    import base64
-    import json
+    from app.core.auth import upsert_google_user, verify_google_id_token
+    from jose import JWTError
     
     email = payload.email
     name = payload.name
     picture = payload.picture
     
-    if payload.credential and not email:
-        try:
-            parts = payload.credential.split(".")
-            if len(parts) >= 2:
-                padded = parts[1] + "=" * ((4 - len(parts[1]) % 4) % 4)
-                decoded_bytes = base64.urlsafe_b64decode(padded)
-                data = json.loads(decoded_bytes.decode("utf-8"))
-                email = data.get("email")
-                name = data.get("name")
-                picture = data.get("picture")
-        except Exception as e:
-            logger.warning("failed_to_decode_google_jwt", error=str(e))
-    
-    if not email:
-        email = "analyst@security-team.corp"
+    try:
+        if payload.credential:
+            claims = verify_google_id_token(payload.credential)
+            email = claims.get("email") or email
+            name = claims.get("name") or name
+            picture = claims.get("picture") or picture
+        elif not email:
+            raise JWTError("No Google credential or email provided")
+    except JWTError as e:
+        logger.warning("google_token_verification_failed", error=str(e))
+        return JSONResponse(
+            status_code=401,
+            content={"detail": f"Invalid Google credential: {e}"},
+        )
+
     if not name:
         name = email.split("@")[0].replace(".", " ").title()
     

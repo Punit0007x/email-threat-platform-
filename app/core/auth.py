@@ -1,8 +1,10 @@
 import os
 import sqlite3
+import time
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any, List
 from jose import JWTError, jwt
+from jose.exceptions import ExpiredSignatureError, JWTClaimsError
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -180,6 +182,70 @@ def save_user_to_db(user: UserCreate, hashed_password: str) -> UserInDB:
         auth_provider=user.auth_provider,
         avatar_url=user.avatar_url
     )
+
+
+GOOGLE_JWKS_URI = "https://www.googleapis.com/oauth2/v3/certs"
+GOOGLE_ISSUERS = {"accounts.google.com", "https://accounts.google.com"}
+
+_jwks_cache: Dict[str, Any] = {"keys": [], "fetched_at": 0.0}
+_JWKS_CACHE_TTL_SECONDS = 3600
+
+
+def _fetch_google_jwks() -> Dict[str, Any]:
+    """Fetches and (briefly) caches Google's public signing keys (JWKS)."""
+    now = time.time()
+    if _jwks_cache["keys"] and now - _jwks_cache["fetched_at"] < _JWKS_CACHE_TTL_SECONDS:
+        return _jwks_cache
+    import requests
+    resp = requests.get(GOOGLE_JWKS_URI, timeout=10)
+    resp.raise_for_status()
+    _jwks_cache.update({"keys": resp.json().get("keys", []), "fetched_at": now})
+    return _jwks_cache
+
+
+def verify_google_id_token(credential: str) -> Dict[str, Any]:
+    """Verifies a Google ID token (RS256) signature, issuer and audience.
+
+    Uses Google's public JWKS and the configured Google client ID as the
+    expected audience. Returns the decoded token payload on success, or
+    raises JWTError on failure.
+    """
+    if not settings.google_client_id:
+        raise JWTError("Google OAuth is not configured (missing google_client_id)")
+
+    headers = jwt.get_unverified_header(credential)
+    kid = headers.get("kid")
+    alg = headers.get("alg", "RS256")
+    if alg != "RS256":
+        raise JWTError(f"Unexpected token algorithm: {alg}")
+
+    jwks = _fetch_google_jwks()
+    key = None
+    for candidate in jwks.get("keys", []):
+        if candidate.get("kid") == kid:
+            key = candidate
+            break
+    if key is None:
+        raise JWTError("Unable to find a matching Google signing key")
+
+    public_key = jwt.get_unverified_key(key)
+    try:
+        claims = jwt.decode(
+            credential,
+            public_key,
+            algorithms=["RS256"],
+            audience=settings.google_client_id,
+            issuer=GOOGLE_ISSUERS,
+            options={"verify_at_hash": False},
+        )
+    except (ExpiredSignatureError, JWTClaimsError) as exc:
+        raise JWTError(f"Invalid Google ID token: {exc}") from exc
+
+    if not claims.get("email"):
+        raise JWTError("Google ID token did not contain an email")
+    if not claims.get("email_verified"):
+        raise JWTError("Google email not verified")
+    return claims
 
 
 def upsert_google_user(email: str, name: str = None, picture: str = None) -> UserInDB:
