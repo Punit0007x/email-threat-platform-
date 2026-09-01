@@ -228,11 +228,30 @@ def verify_google_id_token(credential: str) -> Dict[str, Any]:
     if key is None:
         raise JWTError("Unable to find a matching Google signing key")
 
-    public_key = jwt.get_unverified_key(key)
+    try:
+        from cryptography.hazmat.primitives.asymmetric import rsa
+        from cryptography.hazmat.backends import default_backend
+        from cryptography.hazmat.primitives import serialization
+        import base64
+
+        def _b64_to_int(value: str) -> int:
+            b = base64.urlsafe_b64decode(value + "=" * ((4 - len(value) % 4) % 4))
+            return int.from_bytes(b, byteorder="big")
+
+        n = _b64_to_int(key["n"])
+        e = _b64_to_int(key["e"])
+        public_key = rsa.RSAPublicNumbers(e, n).public_key(default_backend())
+        public_key_pem = public_key.public_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PublicFormat.SubjectPublicKeyInfo,
+        )
+    except Exception as exc:
+        raise JWTError(f"Unable to construct Google signing key: {exc}") from exc
+
     try:
         claims = jwt.decode(
             credential,
-            public_key,
+            public_key_pem,
             algorithms=["RS256"],
             audience=settings.google_client_id,
             issuer=GOOGLE_ISSUERS,
