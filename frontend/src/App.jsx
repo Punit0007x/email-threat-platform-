@@ -16,6 +16,7 @@ import CustodyReportPanel from './components/CustodyReportPanel';
 import GraphAttributionPanel from './components/GraphAttributionPanel';
 import PlaybookModal from './components/PlaybookModal';
 import IOCSearchModal from './components/IOCSearchModal';
+import ExtensionInstallModal from './components/ExtensionInstallModal';
 import CyberScanOverlay from './components/CyberScanOverlay';
 import EmailBodyDissector from "./components/EmailBodyDissector";
 import LoginPage from './components/LoginPage';
@@ -63,6 +64,7 @@ function MainApp({ onLogout }) {
   
   const [showPlaybook, setShowPlaybook] = useState(false);
   const [showIOCSearch, setShowIOCSearch] = useState(false);
+  const [showExtension, setShowExtension] = useState(false);
   const [iocQuery, setIocQuery] = useState('');
   
   const [activeView, setActiveView] = useState('detection');
@@ -213,14 +215,14 @@ function MainApp({ onLogout }) {
             <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse" />
             <span className="max-w-[130px] truncate font-medium text-slate-200">{user.full_name || user.username}</span>
           </div>
-          <a 
-            href="/erakshak-extension.zip" download
-            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-400 hover:text-cyan-300 text-xs font-semibold shadow-sm transition-all"
+          <button 
+            onClick={() => setShowExtension(true)}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-400 hover:text-cyan-300 text-xs font-semibold shadow-sm transition-all cursor-pointer"
             title="Download Chrome Extension"
           >
             <Zap className="w-3.5 h-3.5" />
             <span className="hidden sm:inline-block">Extension</span>
-          </a>
+          </button>
           <button 
             onClick={onLogout}
             className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 hover:text-red-300 text-xs font-semibold shadow-sm transition-all cursor-pointer"
@@ -467,6 +469,7 @@ function MainApp({ onLogout }) {
         }} 
         initialQuery={iocQuery}
       />
+      <ExtensionInstallModal isOpen={showExtension} onClose={() => setShowExtension(false)} />
       <CyberScanOverlay isOpen={loading} />
       
     </div>

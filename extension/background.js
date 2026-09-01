@@ -3,7 +3,7 @@
    Handles background uploads, notifications, and auto-detection.
    ═══════════════════════════════════════════════════════════ */
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'https://erakshak.duckdns.org';
 
 // Convert Data URL back to a Blob safely (avoids fetch CSP issues in MV3)
 function dataUrlToBlob(dataUrl) {
@@ -38,10 +38,10 @@ function injectDataIntoTab(tabId, dataPayload) {
 
 function openDashboard(data) {
   const targetUrls = [
+    'https://e-rakshak.vercel.app/*',
+    'https://erakshak.duckdns.org/*',
     'http://localhost:5173/*',
-    'http://localhost:5174/*',
-    'http://127.0.0.1:5173/*',
-    'http://127.0.0.1:5174/*'
+    'http://localhost:5174/*'
   ];
 
   chrome.tabs.query({ url: targetUrls }, (tabs) => {
@@ -52,7 +52,7 @@ function openDashboard(data) {
         setTimeout(() => injectDataIntoTab(tab.id, data), 300);
       });
     } else {
-      chrome.tabs.create({ url: 'http://localhost:5173/' }, (tab) => {
+      chrome.tabs.create({ url: 'https://e-rakshak.vercel.app/' }, (tab) => {
         const listener = (tabId, changeInfo) => {
           if (tabId === tab.id && changeInfo.status === 'complete') {
             chrome.tabs.onUpdated.removeListener(listener);
@@ -148,7 +148,7 @@ async function processEmailScan(filename, fileDataUrl) {
       type: 'basic',
       iconUrl: 'icons/icon128.png',
       title: 'ShieldMail Error',
-      message: 'Failed to analyze email. Is the backend running?',
+      message: 'Failed to analyze email. Check your connection to the eRakshak backend.',
       priority: 2
     });
   }

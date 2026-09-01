@@ -1,7 +1,7 @@
 // Shared types for ShieldMail Extension
 // Compiled to JS via esbuild for MV3 compatibility
 export const DEFAULT_SETTINGS = {
-    apiBaseUrl: 'http://localhost:8000',
+    apiBaseUrl: 'https://erakshak.duckdns.org',
     autoScanEnabled: true,
     notifyOnThreat: true,
     scanAllEmails: true,

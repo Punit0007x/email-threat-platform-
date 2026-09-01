@@ -192,7 +192,7 @@ async function scanCurrentEmail(sendResponse) {
       const blob = new Blob([extracted.headers], { type: 'message/rfc822' });
       formData.append('file', blob, 'gmail_email.eml');
 
-      const res = await fetch('http://localhost:8000/api/parse', {
+      const res = await fetch('https://erakshak.duckdns.org/api/parse', {
         method: 'POST',
         body: formData
       });

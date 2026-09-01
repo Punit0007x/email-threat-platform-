@@ -231,10 +231,10 @@ async function handleOpenDashboard(message: ExtensionMessage): Promise<void> {
   if (message.type !== 'OPEN_DASHBOARD') return;
   
   const urls = [
+    'https://e-rakshak.vercel.app/*',
+    'https://erakshak.duckdns.org/*',
     'http://localhost:5173/*',
     'http://localhost:5174/*',
-    'http://127.0.0.1:5173/*',
-    'http://127.0.0.1:5174/*',
   ];
   
   const tabs = await chrome.tabs.query({ url: urls });
@@ -243,7 +243,7 @@ async function handleOpenDashboard(message: ExtensionMessage): Promise<void> {
     await chrome.tabs.update(tab.id, { active: true });
     injectDataIntoTab(tab.id, message.payload.data);
   } else {
-    const tab = await chrome.tabs.create({ url: 'http://localhost:5173/' });
+    const tab = await chrome.tabs.create({ url: 'https://e-rakshak.vercel.app/' });
     const listener = async (tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
       if (tabId === tab.id && changeInfo.status === 'complete') {
         chrome.tabs.onUpdated.removeListener(listener);

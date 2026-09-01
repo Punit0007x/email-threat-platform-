@@ -3,7 +3,7 @@
    Handles file upload, API communication, and result rendering.
    ═══════════════════════════════════════════════════════════ */
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'https://erakshak.duckdns.org';
 
 // ─── DOM references ───
 const uploadZone   = document.getElementById('uploadZone');
@@ -122,7 +122,7 @@ document.getElementById('btnDashboard').addEventListener('click', () => {
         data: res.lastScanResult
       });
     } else {
-      chrome.tabs.create({ url: 'http://localhost:5173/' });
+      chrome.tabs.create({ url: 'https://e-rakshak.vercel.app/' });
     }
   });
 });

@@ -13,7 +13,7 @@ export interface ExtensionSettings {
 }
 
 export const DEFAULT_SETTINGS: ExtensionSettings = {
-  apiBaseUrl: 'http://localhost:8000',
+  apiBaseUrl: 'https://erakshak.duckdns.org',
   autoScanEnabled: true,
   notifyOnThreat: true,
   scanAllEmails: true,

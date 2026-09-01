@@ -365,7 +365,7 @@ function openDashboard(): void {
   if (currentResult) {
     chrome.runtime.sendMessage({ type: 'OPEN_DASHBOARD', payload: { scanId: currentResult.scan_id, data: currentResult } });
   } else {
-    chrome.tabs.create({ url: 'http://localhost:5173/' });
+    chrome.tabs.create({ url: 'https://e-rakshak.vercel.app/' });
   }
 }
 
