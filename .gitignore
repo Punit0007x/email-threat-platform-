@@ -53,6 +53,7 @@ data/*.mmdb
 data/*.db
 data/*.sqlite3
 data/chroma_db/
+data/attribution_graph_production.json
 *.sqlite
 *.sqlite3
 *.db
