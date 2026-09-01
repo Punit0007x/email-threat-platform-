@@ -346,6 +346,7 @@ python3 tests/test_ml_layer.py           # classifier + BEC engine
 
 ## 📚 Documentation
 
+* [Deep Technical Documentation](docs/DEEP_TECHNICAL_DOCUMENTATION.md)
 * [Technical Breakdown](docs/TECHNICAL_BREAKDOWN.md)
 * [Technical Documentation](docs/TECHNICAL_DOCUMENTATION.md)
 * [Platform Playbook](docs/Platform_Playbook.md)
