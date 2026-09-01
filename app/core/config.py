@@ -58,6 +58,9 @@ class Settings(BaseSettings):
 
     gemini_api_key: Optional[str] = None
 
+    google_client_id: Optional[str] = None
+    google_client_secret: Optional[str] = None
+
     # Forensics Config
     protected_brands: List[str] = ["paypal.com", "microsoft.com", "apple.com", "amazon.com", "google.com"]
     trusted_relays: List[str] = ["google.com", "outlook.com", "sendgrid.net", "amazonses.com", "protection.outlook.com"]
@@ -80,6 +83,7 @@ class Settings(BaseSettings):
         env_file = ".env"
         env_file_encoding = "utf-8"
         case_sensitive = False
+        extra = "ignore"
 
 
 @lru_cache()
